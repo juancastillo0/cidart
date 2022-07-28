@@ -12,3 +12,15 @@ html, body {
   padding: 20px;
   text-align: center;
 }
+
+button {
+  padding: 5px;
+}
+
+input {
+  padding: 5px;
+}
+
+select {
+  padding: 5px;
+}
