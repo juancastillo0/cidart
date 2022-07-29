@@ -24,3 +24,8 @@ input {
 select {
   padding: 5px;
 }
+
+label {
+  padding-left: 10px;
+  padding-right: 10px;
+}
