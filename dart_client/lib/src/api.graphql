@@ -1,0 +1,26 @@
+query topResult {
+  topOutput
+}
+
+mutation startService {
+  startService {
+    ...CompilerLogF
+  }
+}
+
+fragment CompilerLogF on CompilerLog {
+  message
+  time
+  result {
+    ...ProcessExecResultF
+  }
+  __typename
+}
+
+fragment ProcessExecResultF on ProcessExecResult {
+  exitCode
+  pid
+  stderr
+  stdout
+  __typename
+}

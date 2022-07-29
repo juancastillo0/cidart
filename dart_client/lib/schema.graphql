@@ -1,0 +1,24 @@
+type Query {
+  topOutput: String
+}
+
+type Mutation {
+  startService: [CompilerLog!]!
+}
+
+type CompilerLog {
+  toString: String!
+  message: String!
+  time: Date!
+  result: ProcessExecResult
+}
+
+"""An ISO-8601 Date."""
+scalar Date
+
+type ProcessExecResult {
+  exitCode: Int!
+  pid: Int!
+  stderr: String!
+  stdout: String!
+}
