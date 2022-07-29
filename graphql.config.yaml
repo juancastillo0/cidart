@@ -1,0 +1,2 @@
+schema: "dart_client/lib/schema.graphql"
+documents: "dart_client/lib/src/**/*.graphql"
