@@ -60,9 +60,11 @@ jobs:
         run: cd web_client && dart run jaspr build --input web/main.dart
         if: always() && steps.install_web_client.outcome == 'success'
 
+      - run: mv web_client/build/app web_client/build/web/app
+
       - id: compile
         name: Compile binary
-        run: dart compile exe leto_server/bin/server.dart --output web_client/build/server
+        run: dart compile exe leto_server/bin/server.dart --output web_client/build/web/server
         if: always() && steps.install.outcome == 'success'
 
       - name: Upload binary
@@ -70,7 +72,7 @@ jobs:
         if: matrix.os == 'ubuntu-22.04' && matrix.sdk == 'stable' && github.ref_name == 'main' && github.event_name == 'push'
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./web_client/build
+          publish_dir: ./web_client/build/web
 
       # - id: coverage
       #   name: Collect and report coverage
