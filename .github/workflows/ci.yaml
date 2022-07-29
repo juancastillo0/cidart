@@ -62,7 +62,7 @@ jobs:
 
       - id: compile
         name: Compile binary
-        run: cd leto_server && dart compile exe bin/server.dart --output web_client/build/server
+        run: dart compile exe leto_server/bin/server.dart --output web_client/build/server
         if: always() && steps.install.outcome == 'success'
 
       - name: Upload binary
