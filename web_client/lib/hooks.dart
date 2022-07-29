@@ -1,4 +1,5 @@
 import 'package:async/async.dart' show Result;
+import 'package:mobx/mobx.dart' show Computed, ReactiveContext;
 import 'package:web_client/mobx_hooks.dart'
     show HookCtx, KeysEquals, defaultKeysEquals, useEffect, useObs, useRef;
 
@@ -87,6 +88,21 @@ Result<T> useStream<T>(
   );
   return result.value;
 }
+
+T useComputed<T>(
+  T Function() func, {
+  String? name,
+  ReactiveContext? context,
+  bool Function(T?, T?)? equals,
+  List<Object?> keys = const [],
+}) {
+  final comp = useMemo(
+    () => Computed(func, name: name, context: context, equals: equals),
+    keys,
+  );
+  return comp.value;
+}
+
 
 // TODO:
 // readContext<T>(context: ReactContext<T>): T,
