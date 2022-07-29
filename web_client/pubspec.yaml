@@ -1,6 +1,7 @@
 name: web_client
 description: A minimal jaspr web app.
 version: 0.0.1
+publish_to: none
 
 environment:
   sdk: ">=2.17.0 <3.0.0"

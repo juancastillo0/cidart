@@ -138,27 +138,29 @@ class CompilationView extends StatelessObserverComponent {
             if (value.endTime != null) DateString(value.endTime!),
           ]),
           h4([Text('Logs')]),
-          div(styles: Styles.raw({'border-left': 'rgba(0,0,0,0.3) solid 1px'}), [
-            ...value.logs.map(
-              (e) => div(
-                styles: Styles.raw({
-                  'padding': '10px',
-                  'border-bottom': 'rgba(0,0,0,0.3) solid 1px'
-                }),
-                [
-                  Row([
-                    span(
-                      styles: Styles.raw({'flex': '1'}),
-                      [Text(e.message)],
-                    ),
-                    DateString(e.time),
-                  ]),
-                  if (e.command != null)
-                    CommandExecutionView(value: e.command!),
-                ],
-              ),
-            ),
-          ]),
+          div(
+              styles: Styles.raw({'border-left': 'rgba(0,0,0,0.3) solid 1px'}),
+              [
+                ...value.logs.map(
+                  (e) => div(
+                    styles: Styles.raw({
+                      'padding': '10px',
+                      'border-bottom': 'rgba(0,0,0,0.3) solid 1px'
+                    }),
+                    [
+                      Row([
+                        span(
+                          styles: Styles.raw({'flex': '1'}),
+                          [Text(e.message)],
+                        ),
+                        DateString(e.time),
+                      ]),
+                      if (e.command != null)
+                        CommandExecutionView(value: e.command!),
+                    ],
+                  ),
+                ),
+              ]),
         ]);
   }
 }

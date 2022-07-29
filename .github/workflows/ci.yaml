@@ -35,11 +35,15 @@ jobs:
         if: always()
 
       - name: Run code generation client
-        run: dart pub run --directory=dart_client build_runner build --delete-conflicting-outputs
+        run: cd dart_client && dart pub run build_runner build --delete-conflicting-outputs
         if: always() && steps.install_client.outcome == 'success'
 
+      - name: Run code generation web client
+        run: cd web_client && dart pub run build_runner build --delete-conflicting-outputs
+        if: always() && steps.install_web_client.outcome == 'success'
+
       - name: Run code generation
-        run: dart pub run --directory=leto_server build_runner build --delete-conflicting-outputs
+        run: cd leto_server && dart pub run build_runner build --delete-conflicting-outputs
         if: always() && steps.install.outcome == 'success'
 
       - name: Analyze project source
