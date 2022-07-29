@@ -27,7 +27,7 @@ class StatelessObserverElement extends StatelessElement {
 
   @override
   Iterable<Component> build() {
-    final children = mobxWrapper(ctx, markNeedsBuild, _build);
+    final children = _mobxHooksWrapper(ctx, markNeedsBuild, _build);
     // TODO: test hook effect execution timing
     ctx._afterRender();
     return children;
@@ -57,45 +57,60 @@ class StatefulObserverElement extends StatefulElement {
 
   @override
   Iterable<Component> build() {
-    final children = mobxWrapper(ctx, markNeedsBuild, _build);
+    final children = _mobxHooksWrapper(ctx, markNeedsBuild, _build);
     // TODO: test hook effect execution timing
     ctx._afterRender();
     return children;
   }
 }
 
-List<Component> mobxWrapper(
+List<Component> _mobxHooksWrapper(
   HookCtx ctx,
   void Function() markNeedsBuild,
   List<Component> Function() next,
 ) {
   final previousCtx = _ctx;
   _ctx = ctx;
-  final rxtRef = useRef<ReactionImpl>(
-    () => ReactionImpl(
-      mainContext,
-      () {
-        print('${ctx.hashCode} rerender');
-        markNeedsBuild();
-      },
-      name: ctx.hashCode.toString(),
-      onError: (err, stackTrace) => print('$err $stackTrace'),
-    ),
+  final List<Component> children = useTrack(
+    next,
+    markNeedsBuild,
+    name: ctx.hashCode.toString(),
   );
+  _ctx = previousCtx;
+  return children;
+}
 
+T useTrack<T>(
+  T Function() compute,
+  void Function() onDependencyChange, {
+  String? name,
+}) {
+  final reaction = useRef<ReactionImpl>(
+    () {
+      final _name = name ?? mainContext.nameFor('useTrack');
+      return ReactionImpl(
+        mainContext,
+        () {
+          print('$_name dependency-change');
+          onDependencyChange();
+        },
+        name: _name,
+        onError: (err, stackTrace) => print('useTrack $_name $err $stackTrace'),
+      );
+    },
+  ).value;
   useEffect(
-    () => rxtRef.value.dispose,
+    () => reaction.dispose,
     const [],
   );
 
-  late final List<Component> node;
-  rxtRef.value.track(() {
-    print('${ctx.hashCode} start-track');
-    node = next();
-    print('${ctx.hashCode} end-track');
+  late final T trackedValue;
+  reaction.track(() {
+    print('${reaction.name} start-track');
+    trackedValue = compute();
+    print('${reaction.name} end-track');
   });
-  _ctx = previousCtx;
-  return node;
+  return trackedValue;
 }
 
 class Ref<T> {
