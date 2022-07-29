@@ -1,0 +1,284 @@
+import 'dart:convert' show jsonEncode;
+import 'dart:io';
+
+import 'package:leto/leto.dart';
+import 'package:leto_schema/validate_rules.dart';
+import 'package:leto_server/compiler.dart';
+import 'package:leto_server/graphql_api.schema.dart';
+import 'package:leto_shelf/leto_shelf.dart';
+import 'package:shelf/shelf_io.dart';
+import 'package:shelf_router/shelf_router.dart';
+import 'package:shelf_hotreload/shelf_hotreload.dart';
+import 'package:gql/language.dart' as gql;
+
+void main(List<String> arguments) async {
+  withHotreload(() async {
+    // print(Directory.current.path);
+    // print(Platform.environment['HOST']);
+    // print(String.fromEnvironment('HOST', defaultValue: 'localhost'));
+    // print(const String.fromEnvironment('HOST', defaultValue: 'localhost'));
+    final clientQueries = await readClientGraphQLFiles();
+    final service = CompilerService();
+    final router = makeCompilerRouter(service, clientQueries);
+    final server = startCompilerServer(router);
+
+    return server;
+  });
+}
+
+Future<List<DocumentNode>> readClientGraphQLFiles() async {
+  final paths = Directory.current.uri.pathSegments;
+  final clientDirPath = ['']
+      .followedBy(paths.take(paths.length - 2))
+      .followedBy(['dart_client', 'lib']).join(Platform.pathSeparator);
+
+  final schemaFile = File(
+    '$clientDirPath${Platform.pathSeparator}schema.graphql',
+  );
+  final exists = await schemaFile.exists();
+  if (!exists ||
+      await schemaFile.readAsString() != graphqlApiSchema.schemaStr) {
+    if (!exists) {
+      await schemaFile.create();
+    }
+    await schemaFile.writeAsString(graphqlApiSchema.schemaStr);
+  }
+
+  return Directory(clientDirPath)
+      .list(recursive: true, followLinks: false)
+      .where((event) =>
+          event is File &&
+          event.path != schemaFile.path &&
+          event.path.endsWith('.graphql'))
+      .cast<File>()
+      .asyncMap((event) => event.readAsString())
+      .map((event) {
+        try {
+          return gql.parseString(event);
+        } catch (_) {
+          return null;
+        }
+      })
+      .where((event) => event != null)
+      .cast<DocumentNode>()
+      .toList();
+}
+
+Router makeCompilerRouter(
+  CompilerService service,
+  List<DocumentNode> clientQueries,
+) {
+  final computeHash = GraphQLPersistedQueries.defaultComputeHash;
+
+  final executor = GraphQL(
+    graphqlApiSchema,
+    customValidationRules: [
+      queryComplexityRuleBuilder(maxComplexity: 1000, maxDepth: 4),
+    ],
+    extensions: [
+      if (Platform.environment['GRAPHQL_TRACING'] == 'true')
+        GraphQLTracingExtension(
+          returnInResponse: true,
+        ),
+      GraphQLPersistedQueries(
+        returnHashInResponse: true,
+        cache: LruCacheSimple.fromMap(
+          100,
+          Map.fromIterables(
+            clientQueries.map(gql.printNode).map(computeHash),
+            clientQueries,
+          ),
+        ),
+        computeHash: computeHash,
+      ),
+      CacheExtension(cache: LruCacheSimple(50)),
+      LoggingExtension((log) {
+        if (log.operationName != 'IntrospectionQuery') {
+          print(log);
+        }
+      }),
+    ],
+  );
+
+  // Configure routes.
+  final router = Router()
+    ..get(
+      '/',
+      (Request request) {
+        return Response.ok(
+          _rootHtml,
+          headers: {'content-type': 'text/html'},
+        );
+      },
+    )
+    // ..post(
+    //   '/compile',
+    //   (Request request) {},
+    // )
+    ..all('/graphql', graphQLHttp(executor))
+    ..all('/graphql-subscription', graphQLWebSocket(executor))
+    ..get(
+      '/compile',
+      (Request request) async {
+        List<CompilerLog> result;
+        Object? error;
+        try {
+          result = await service.startService();
+          // } on StateError catch (e) {
+          //   result = service.compilationLogs;
+        } catch (e) {
+          error = e;
+          result = service.compilationLogs;
+        }
+
+        final body = {
+          'currentCompilation': {
+            'errorCode': error == null
+                ? null
+                : error is StateError
+                    ? error.message
+                    : 'execution',
+            'errorString': error is! StateError ? error?.toString() : null,
+            'logs': result,
+          },
+          'deployed': service.currentCommitId == null
+              ? null
+              : {
+                  'commitId': service.currentCommitId,
+                  'topOutput': await service.topOutput(),
+                  'logs': service.logs[service.currentCommitId],
+                },
+          'allCompilations': service.logs,
+        };
+
+        return Response.ok(
+          jsonEncode(body),
+          headers: {'content-type': 'application/json'},
+        );
+      },
+    );
+  return router;
+}
+
+Future<HttpServer> startCompilerServer(Router router) async {
+  // Use any available host or container IP (usually `0.0.0.0`).
+  final ip = InternetAddress.anyIPv4;
+  final server = await HttpServer.bind(ip, 8060);
+  final adminPassword = Platform.environment['COMPILER_ADMIN_PASSWORD'];
+
+  // Configure a pipeline that logs requests.
+  final handler = Pipeline()
+      .addMiddleware((innerHandler) {
+        return (request) {
+          final authHeader = request.headers[HttpHeaders.authorizationHeader];
+          if (request.url.path.isNotEmpty &&
+              (authHeader == null || authHeader != adminPassword)) {
+            return Response(HttpStatus.unauthorized);
+          }
+          return innerHandler(request);
+        };
+      })
+      .addMiddleware(customLog())
+      .addMiddleware(etag())
+      .addMiddleware(jsonParse())
+      .addHandler(router);
+
+  serveRequests(server, handler);
+  print(
+    'Compiler server listening at "http://localhost:${server.port}"',
+  );
+  return server;
+}
+
+const _rootHtml = '''
+<html>
+<head></head>
+<body>
+
+<div style="display:flex;flex-direction:column;height:100%;width:100%;">
+  <div style="display:flex;flex-direction:row;height:25px;justify-content:center;">
+  <label for="authInput" style="padding:3px 3px 0 0;">Authorization</label>
+  <input id="authInput" type="password">
+  </input>
+  <button id="refreshButton">Refresh</button>
+  <select id="selectFromAll">Refresh</select>
+  </div>
+
+  <h2>Output</h2>
+  <div id="loadingMessage"></div>
+  <pre id="mainOutput" style="flex:1;white-space:pre-wrap;overflow:auto;margin-top:0;">
+    Empty, set the authorization and click "Refresh".
+  </pre>
+</div>
+
+
+<script>
+const removeChildren = (e) => {
+  let child = e.lastElementChild; 
+  while (child) {
+      e.removeChild(child);
+      child = e.lastElementChild;
+  }
+}
+
+const elemById = (id) => document.getElementById(id);
+const refreshButton = elemById("refreshButton");
+const mainOutput = elemById("mainOutput");
+const authInput = elemById("authInput");
+const loadingMessage = elemById("loadingMessage");
+const selectFromAll = elemById("selectFromAll");
+let allCompilations;
+let authHeader;
+let loading = false;
+
+const onClick = async () => {
+  if (loading) return;
+  if (authInput.value) {
+    authHeader = authInput.value;
+    authInput.value = '';
+  }
+  loading = true;
+  loadingMessage.textContent = "Loading...";
+
+  let content;
+  try {
+    const response = await fetch('/compile', {
+      method: 'GET',
+      headers: {
+        'Authorization': authHeader,
+      },
+    });
+    if (response.ok) {
+      const responseJson = await response.json();
+      if (responseJson.allCompilations) {
+        allCompilations = responseJson.allCompilations;
+      }
+      
+      removeChildren(selectFromAll);
+      for (const k of Object.keys(allCompilations)) {
+        const op = document.createElement('option');
+        op.value = k;
+        selectFromAll.appendChild(op);
+      }
+
+      content = JSON.stringify(responseJson, null, 2);
+    } else {
+      const responseText = await response.text();
+      content = ''+ response.status +' '+ response.statusText +'. '+ responseText
+    }
+  } catch (e) {
+    content = String(e);
+  }
+
+  mainOutput.textContent = content;
+  loadingMessage.textContent = '';
+  loading = false;
+};
+
+
+refreshButton.addEventListener('click', () => onClick());
+selectFromAll.addEventListener('input', () => onClick());
+
+</script>
+</body>
+</html>''';
