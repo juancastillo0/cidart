@@ -7,6 +7,8 @@ class Validators {
   static const typeMap = <Type, Validator>{
     DateTimeFilter: validatorDateTimeFilter,
     StringFilter: validatorStringFilter,
+    ServiceConfigInput: validatorServiceConfigInput,
+    CliCommandInput: validatorCliCommandInput,
     CompilationFilter: validatorCompilationFilter,
   };
 
@@ -14,6 +16,10 @@ class Validators {
       Validator(DateTimeFilterValidation.fromValue);
   static const validatorStringFilter =
       Validator(StringFilterValidation.fromValue);
+  static const validatorServiceConfigInput =
+      Validator(ServiceConfigInputValidation.fromValue);
+  static const validatorCliCommandInput =
+      Validator(CliCommandInputValidation.fromValue);
   static const validatorCompilationFilter =
       Validator(CompilationFilterValidation.fromValue);
 

@@ -22,9 +22,19 @@ final _serviceConfigInputGraphQLTypeInput =
   setValue(__serviceConfigInputGraphQLTypeInput);
   __serviceConfigInputGraphQLTypeInput.fields.addAll(
     [
-      graphQLString.nonNull().inputField('gitRepo'),
-      graphQLString.nonNull().inputField('gitBranch'),
-      graphQLString.nonNull().inputField('serverFile'),
+      graphQLString.nonNull().inputField('gitRepo', attachments: [
+        ValidaAttachment(ValidaString(
+            matches:
+                r'^https://github.com/([a-zA-Z0-9\-\_]+)/([a-zA-Z0-9\-\_]+)$',
+            isUrl: true)),
+      ]),
+      graphQLString.nonNull().inputField('gitBranch', attachments: [
+        ValidaAttachment(ValidaString(matches: GIT_BRANCH_REGEXP)),
+      ]),
+      graphQLString.nonNull().inputField('serverFile', attachments: [
+        ValidaAttachment(ValidaString(
+            matches: r'^[a-zA-Z0-9\_\.]([a-zA-Z0-9\-\_/\.]+)[a-zA-Z0-9]$')),
+      ]),
       cliCommandInputGraphQLTypeInput
           .nonNull()
           .list()
@@ -58,12 +68,14 @@ final _cliCommandInputGraphQLTypeInput =
   __cliCommandInputGraphQLTypeInput.fields.addAll(
     [
       graphQLString.nonNull().inputField('name'),
-      graphQLString.nonNull().inputField('command'),
+      graphQLString.nonNull().inputField('command', attachments: [
+        ValidaAttachment(ValidaString(matches: r'^([^\s]+.*[^\s]+|[^\s]{1})$')),
+      ]),
       cliCommandVariableGraphQLTypeInput
           .nonNull()
           .list()
           .nonNull()
-          .inputField('variables')
+          .inputField('variables', defaultValue: const [])
     ],
   );
 
@@ -177,9 +189,11 @@ CliCommandInput _$CliCommandInputFromJson(Map<String, dynamic> json) =>
     CliCommandInput(
       name: json['name'] as String,
       command: json['command'] as String,
-      variables: (json['variables'] as List<dynamic>)
-          .map((e) => CliCommandVariable.fromJson(e as Map<String, dynamic>))
-          .toList(),
+      variables: (json['variables'] as List<dynamic>?)
+              ?.map(
+                  (e) => CliCommandVariable.fromJson(e as Map<String, dynamic>))
+              .toList() ??
+          const [],
     );
 
 Map<String, dynamic> _$CliCommandInputToJson(CliCommandInput instance) =>
@@ -257,6 +271,158 @@ const _$CompilationStatusEnumMap = {
 // **************************************************************************
 // ValidatorGenerator
 // **************************************************************************
+
+enum ServiceConfigInputField {
+  gitRepo,
+  gitBranch,
+  serverFile,
+}
+
+class ServiceConfigInputValidationFields {
+  const ServiceConfigInputValidationFields(this.errorsMap);
+  final Map<ServiceConfigInputField, List<ValidaError>> errorsMap;
+
+  List<ValidaError> get gitRepo =>
+      errorsMap[ServiceConfigInputField.gitRepo] ?? const [];
+  List<ValidaError> get gitBranch =>
+      errorsMap[ServiceConfigInputField.gitBranch] ?? const [];
+  List<ValidaError> get serverFile =>
+      errorsMap[ServiceConfigInputField.serverFile] ?? const [];
+}
+
+class ServiceConfigInputValidation
+    extends Validation<ServiceConfigInput, ServiceConfigInputField> {
+  ServiceConfigInputValidation(this.errorsMap, this.value, this.fields)
+      : super(errorsMap);
+  @override
+  final Map<ServiceConfigInputField, List<ValidaError>> errorsMap;
+  @override
+  final ServiceConfigInput value;
+  @override
+  final ServiceConfigInputValidationFields fields;
+
+  /// Validates [value] and returns a [ServiceConfigInputValidation] with the errors found as a result
+  static ServiceConfigInputValidation fromValue(ServiceConfigInput value) {
+    Object? _getProperty(String property) => spec.getField(value, property);
+
+    final errors = <ServiceConfigInputField, List<ValidaError>>{
+      ...spec.fieldsMap.map(
+        (key, field) => MapEntry(
+          key,
+          field.validate(key.name, _getProperty),
+        ),
+      )
+    };
+    errors.removeWhere((key, value) => value.isEmpty);
+    return ServiceConfigInputValidation(
+        errors, value, ServiceConfigInputValidationFields(errors));
+  }
+
+  static const spec = ValidaSpec(
+    fieldsMap: {
+      ServiceConfigInputField.gitRepo: ValidaString(
+          matches:
+              r'^https://github.com/([a-zA-Z0-9\-\_]+)/([a-zA-Z0-9\-\_]+)$',
+          isUrl: true),
+      ServiceConfigInputField.gitBranch:
+          ValidaString(matches: GIT_BRANCH_REGEXP),
+      ServiceConfigInputField.serverFile: ValidaString(
+          matches: r'^[a-zA-Z0-9\_\.]([a-zA-Z0-9\-\_/\.]+)[a-zA-Z0-9]$'),
+    },
+    getField: _getField,
+  );
+
+  static List<ValidaError> _globalValidate(ServiceConfigInput value) => [];
+
+  static Object? _getField(ServiceConfigInput value, String field) {
+    switch (field) {
+      case 'gitRepo':
+        return value.gitRepo;
+      case 'gitBranch':
+        return value.gitBranch;
+      case 'serverFile':
+        return value.serverFile;
+      case 'commands':
+        return value.commands;
+      case 'id':
+        return value.id;
+      case 'hashCode':
+        return value.hashCode;
+      case 'runtimeType':
+        return value.runtimeType;
+      default:
+        throw Exception('Could not find field "$field" for value $value.');
+    }
+  }
+}
+
+enum CliCommandInputField {
+  command,
+}
+
+class CliCommandInputValidationFields {
+  const CliCommandInputValidationFields(this.errorsMap);
+  final Map<CliCommandInputField, List<ValidaError>> errorsMap;
+
+  List<ValidaError> get command =>
+      errorsMap[CliCommandInputField.command] ?? const [];
+}
+
+class CliCommandInputValidation
+    extends Validation<CliCommandInput, CliCommandInputField> {
+  CliCommandInputValidation(this.errorsMap, this.value, this.fields)
+      : super(errorsMap);
+  @override
+  final Map<CliCommandInputField, List<ValidaError>> errorsMap;
+  @override
+  final CliCommandInput value;
+  @override
+  final CliCommandInputValidationFields fields;
+
+  /// Validates [value] and returns a [CliCommandInputValidation] with the errors found as a result
+  static CliCommandInputValidation fromValue(CliCommandInput value) {
+    Object? _getProperty(String property) => spec.getField(value, property);
+
+    final errors = <CliCommandInputField, List<ValidaError>>{
+      ...spec.fieldsMap.map(
+        (key, field) => MapEntry(
+          key,
+          field.validate(key.name, _getProperty),
+        ),
+      )
+    };
+    errors.removeWhere((key, value) => value.isEmpty);
+    return CliCommandInputValidation(
+        errors, value, CliCommandInputValidationFields(errors));
+  }
+
+  static const spec = ValidaSpec(
+    fieldsMap: {
+      CliCommandInputField.command:
+          ValidaString(matches: r'^([^\s]+.*[^\s]+|[^\s]{1})$'),
+    },
+    getField: _getField,
+  );
+
+  static List<ValidaError> _globalValidate(CliCommandInput value) => [];
+
+  static Object? _getField(CliCommandInput value, String field) {
+    switch (field) {
+      case 'name':
+        return value.name;
+      case 'command':
+        return value.command;
+      case 'variables':
+        return value.variables;
+      case 'hashCode':
+        return value.hashCode;
+      case 'runtimeType':
+        return value.runtimeType;
+      default:
+        throw Exception('Could not find field "$field" for value $value.');
+    }
+  }
+}
 
 enum CompilationFilterField {
   gitRepo,

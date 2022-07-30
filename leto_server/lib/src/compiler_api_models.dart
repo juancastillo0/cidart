@@ -7,13 +7,32 @@ import 'filters.dart';
 
 part 'compiler_api_models.g.dart';
 
+const GIT_BRANCH_REGEXP =
+    r'^(?!.*/\.)(?!.*\.\.)(?!/)(?!.*//)(?!.*@\{)(?!.*\\)[^\000-\037\177 ~^:?*[]+/[^\000-\037\177 ~^:?*[]+(?<!\.lock)(?<!/)(?<!\.)$';
+
+@Valida()
 @JsonSerializable()
 @GraphQLInput()
 class ServiceConfigInput {
+  @ValidaString(
+    matches: r'^https://github.com/([a-zA-Z0-9\-\_]+)/([a-zA-Z0-9\-\_]+)$',
+    isUrl: true,
+  )
   final String gitRepo;
+  @ValidaString(matches: GIT_BRANCH_REGEXP)
   final String gitBranch;
+  @ValidaString(
+    matches: r'^[a-zA-Z0-9\_\.]([a-zA-Z0-9\-\_/\.]+)[a-zA-Z0-9]$',
+  )
   final String serverFile;
+  // TODO: this is not being taken into account in validation
   final List<CliCommandInput> commands;
+
+  late final String id = [
+    gitRepo,
+    gitBranch,
+    serverFile,
+  ].map(Uri.encodeComponent).join('/');
 
   ServiceConfigInput({
     required this.gitRepo,
@@ -27,17 +46,22 @@ class ServiceConfigInput {
   Map<String, Object?> toJson() => _$ServiceConfigInputToJson(this);
 }
 
+@Valida()
 @JsonSerializable()
 @GraphQLInput()
 class CliCommandInput {
   final String name;
+  @ValidaString(
+    // not white space
+    matches: r'^([^\s]+.*[^\s]+|[^\s]{1})$',
+  )
   final String command;
   final List<CliCommandVariable> variables;
 
   CliCommandInput({
     required this.name,
     required this.command,
-    required this.variables,
+    this.variables = const [],
   });
 
   factory CliCommandInput.fromJson(Map<String, Object?> json) =>
@@ -55,7 +79,7 @@ class ServiceConfig {
   // TODO: List<CliCommandInput> commands was not thorowing
   final List<CliCommand> commands;
 
-  ServiceConfig({
+  const ServiceConfig({
     required this.serviceId,
     required this.gitRepo,
     required this.gitBranch,

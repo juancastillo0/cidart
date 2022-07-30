@@ -55,6 +55,27 @@ final _createServiceGraphQLField = HotReloadableDefinition<
       'createService',
       resolve: (obj, ctx) {
         final args = ctx.args;
+        final validationErrorMap = <String, List<ValidaError>>{};
+
+        if ((args["config"] as ServiceConfigInput) != null) {
+          final configValidationResult = ServiceConfigInputValidation.fromValue(
+              (args["config"] as ServiceConfigInput) as ServiceConfigInput);
+          if (configValidationResult.hasErrors) {
+            validationErrorMap['config'] = [
+              configValidationResult.toError(property: 'config')!
+            ];
+          }
+        }
+
+        if (validationErrorMap.isNotEmpty) {
+          throw GraphQLError(
+            'Input validation error',
+            extensions: {
+              'validaErrors': validationErrorMap,
+            },
+            sourceError: validationErrorMap,
+          );
+        }
 
         return createService(ctx, (args["config"] as ServiceConfigInput));
       },
