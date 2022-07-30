@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:json_annotation/json_annotation.dart';
 import 'package:leto_schema/leto_schema.dart';
 
 part 'compiler_models.g.dart';
@@ -77,13 +78,10 @@ class CompilerLog {
 class ProcessExecResult implements ProcessResult {
   @override
   final int exitCode;
-
   @override
   final int pid;
-
   @override
   final String stderr;
-
   @override
   final String stdout;
 
@@ -99,4 +97,161 @@ class ProcessExecResult implements ProcessResult {
         pid = result.pid,
         stderr = result.stderr,
         stdout = result.stdout;
+}
+
+final compilationsListMock = [
+  Compilation(
+    commitHash: 'dwadanoawi829',
+    gitBranch: 'main',
+    gitRepo: 'juancastillo0/room_signals',
+    serverFile: 'bin/server',
+    startTime: DateTime.now(),
+    status: CompilationStatus.started,
+    logs: [
+      CompilationLog(
+        message: 'started',
+        time: DateTime.now(),
+      ),
+    ],
+  ),
+  Compilation(
+    commitHash: 'rytvxyawuinpbnclsaby',
+    gitBranch: 'main',
+    gitRepo: 'juancastillo0/room_signals',
+    serverFile: 'bin/compilation_server',
+    startTime: DateTime.now().subtract(Duration(hours: 3)),
+    endTime: DateTime.now().subtract(Duration(hours: 4)),
+    status: CompilationStatus.error,
+    logs: [
+      CompilationLog(
+        message: 'started',
+        time: DateTime.now().subtract(Duration(hours: 3)),
+      ),
+      CompilationLog(
+        message: 'getting commit hash from git',
+        time: DateTime.now().subtract(Duration(hours: 3)),
+        command: CommandExecution(
+          command: CliCommand(
+            command: 'git repo juancastillo0/room_signals --branch=main',
+            name: 'get_last_commit_hash',
+            variables: [],
+            createdDate: DateTime.now().subtract(Duration(hours: 6)),
+          ),
+          durationMs: Duration(hours: 1).inMilliseconds,
+          endTime: DateTime.now().subtract(Duration(hours: 4)),
+          status: CompilationStatus.error,
+          result: ProcessExecResult(
+            pid: 343,
+            exitCode: 23,
+            stdout: '',
+            stderr: 'connection error',
+          ),
+        ),
+      ),
+    ],
+  ),
+];
+
+@GraphQLClass()
+class Compilation {
+  final String gitRepo;
+  final String gitBranch;
+  final String serverFile;
+  final String commitHash;
+  final CompilationStatus status;
+  final DateTime startTime;
+  final DateTime? endTime;
+  final List<CompilationLog> logs;
+
+  Compilation({
+    required this.gitRepo,
+    required this.gitBranch,
+    required this.serverFile,
+    required this.commitHash,
+    required this.status,
+    required this.startTime,
+    this.endTime,
+    required this.logs,
+  });
+}
+
+@GraphQLEnum()
+enum CompilationStatus {
+  pending,
+  started,
+  error,
+  success,
+}
+
+@GraphQLClass()
+class CompilationLog {
+  final CommandExecution? command;
+  final DateTime time;
+  final String message;
+
+  CompilationLog({
+    this.command,
+    required this.time,
+    required this.message,
+  });
+}
+
+@GraphQLClass()
+class CommandExecution {
+  final CliCommand command;
+  final CompilationStatus status;
+
+  final int? durationMs;
+  final DateTime? endTime;
+  // TODO: make this non nullable and send stdout and stderr in deltas
+  final ProcessExecResult? result;
+
+  CommandExecution({
+    required this.command,
+    required this.durationMs,
+    required this.endTime,
+    this.result,
+    required this.status,
+  });
+}
+
+@JsonSerializable()
+@GraphQLClass()
+@GraphQLInput()
+class CliCommandVariable {
+  final CliCommandVariableType type;
+  final String value;
+
+  CliCommandVariable(this.type, this.value);
+
+  factory CliCommandVariable.fromJson(Map<String, Object?> json) =>
+      _$CliCommandVariableFromJson(json);
+  Map<String, Object?> toJson() => _$CliCommandVariableToJson(this);
+}
+
+@GraphQLEnum()
+enum CliCommandVariableType {
+  environment,
+  constant,
+  dynamic,
+}
+
+@JsonSerializable()
+@GraphQLClass()
+class CliCommand {
+  final String name;
+  final String command;
+  final DateTime createdDate;
+  final List<CliCommandVariable> variables;
+
+  CliCommand({
+    required this.name,
+    required this.command,
+    required this.createdDate,
+    required this.variables,
+  });
+
+  factory CliCommand.fromJson(Map<String, Object?> json) =>
+      _$CliCommandFromJson(json);
+  Map<String, Object?> toJson() => _$CliCommandToJson(this);
 }
