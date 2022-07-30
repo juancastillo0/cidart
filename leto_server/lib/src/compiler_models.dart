@@ -1,7 +1,9 @@
+import 'dart:convert' show jsonEncode;
 import 'dart:io';
 
 import 'package:json_annotation/json_annotation.dart';
 import 'package:leto_schema/leto_schema.dart';
+import 'package:valida/valida.dart';
 
 part 'compiler_models.g.dart';
 
@@ -135,7 +137,7 @@ final compilationsListMock = [
             command: 'git repo juancastillo0/room_signals --branch=main',
             name: 'get_last_commit_hash',
             variables: [],
-            createdDate: DateTime.now().subtract(Duration(hours: 6)),
+            modifiedDate: DateTime.now().subtract(Duration(hours: 6)),
           ),
           durationMs: Duration(hours: 1).inMilliseconds,
           endTime: DateTime.now().subtract(Duration(hours: 4)),
@@ -215,12 +217,49 @@ class CommandExecution {
   });
 }
 
+@Valida()
 @JsonSerializable()
 @GraphQLClass()
 @GraphQLInput()
+@Valida(customValidate: CliCommandVariable.validateValue)
 class CliCommandVariable {
   final CliCommandVariableType type;
+  // TODO: @ValidaString() not in serviceId, gitRepo, gitBranch, serverFile
+  @ValidaString(minLength: 1)
   final String value;
+
+  String get key =>
+      type == CliCommandVariableType.constant ? value.split('=').first : value;
+
+  static List<ValidaError> validateValue(Object? _obj) {
+    final obj = _obj as CliCommandVariable;
+    const dynamicVariableKeys = [
+      'serviceId',
+      'gitRepo',
+      'gitBranch',
+      'serverFile',
+    ];
+    return [
+      // TODO: don't use the "=" for constants. Use separate key and value fields
+      if (obj.type == CliCommandVariableType.constant &&
+          !obj.value.contains('='))
+        ValidaError(
+          property: CliCommandVariableField.value.name,
+          value: obj.value,
+          errorCode: 'CliCommandVariable.constantNoEqual',
+          message: 'A constant variable should have an "=" separator',
+        ),
+      if (obj.type == CliCommandVariableType.dynamic &&
+          !dynamicVariableKeys.contains(obj.value))
+        ValidaError(
+          property: CliCommandVariableField.value.name,
+          value: obj.value,
+          errorCode: 'CliCommandVariable.dynamicNotFound',
+          message:
+              'A dynamic variable should be one of "${dynamicVariableKeys.join('", "')}"',
+        ),
+    ];
+  }
 
   CliCommandVariable(this.type, this.value);
 
@@ -241,17 +280,28 @@ enum CliCommandVariableType {
 class CliCommand {
   final String name;
   final String command;
-  final DateTime createdDate;
+  final DateTime modifiedDate;
   final List<CliCommandVariable> variables;
 
-  CliCommand({
+  const CliCommand({
     required this.name,
     required this.command,
-    required this.createdDate,
+    required this.modifiedDate,
     required this.variables,
   });
+
+  @GraphQLField(omit: true)
+  Map<String, CliCommandVariable> variablesMap() => Map.fromIterables(
+        variables.map((e) => e.key),
+        variables,
+      );
 
   factory CliCommand.fromJson(Map<String, Object?> json) =>
       _$CliCommandFromJson(json);
   Map<String, Object?> toJson() => _$CliCommandToJson(this);
+
+  @override
+  String toString() {
+    return jsonEncode(this);
+  }
 }

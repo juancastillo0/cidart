@@ -45,7 +45,7 @@ Future<ServiceConfig> createService(Ctx ctx, ServiceConfigInput config) async {
     commands: config.commands
         .map((e) => CliCommand(
               command: e.command,
-              createdDate: now,
+              modifiedDate: now,
               name: e.name,
               variables: e.variables,
             ))

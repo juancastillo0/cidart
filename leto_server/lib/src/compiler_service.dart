@@ -3,19 +3,56 @@ import 'dart:io';
 import 'compiler_api_models.dart';
 import 'compiler_models.dart';
 
-const ServiceConfig configDefault = ServiceConfig(
+final ServiceConfig configDefault = ServiceConfig(
   gitRepo: 'https://github.com/juancastillo0/room_signals',
   gitBranch: 'main',
   serverFile: 'bin/server',
   serviceId: 'default',
-  commands: [],
+  commands: [
+    CliCommand(
+      name: '',
+      command: 'dart pub get',
+      modifiedDate: DateTime.now(),
+      variables: [],
+    ),
+    CliCommand(
+      name: '',
+      command: 'dart analyze',
+      modifiedDate: DateTime.now(),
+      variables: [],
+    ),
+    CliCommand(
+      name: '',
+      command: 'dart test',
+      modifiedDate: DateTime.now(),
+      variables: [],
+    ),
+    CliCommand(
+      name: '',
+      command: 'compile exe \${serverFile}.dart --output \${serverFile}',
+      modifiedDate: DateTime.now(),
+      variables: [
+        CliCommandVariable(
+          CliCommandVariableType.dynamic,
+          'serverFile',
+        ),
+      ],
+    ),
+  ],
 );
 
 class CompilerService {
   CompilerService({
-    this.config = configDefault,
-  });
+    ServiceConfig? config,
+  }) : config = config ?? configDefault;
   final ServiceConfig config;
+
+  Map<String, String> get _dynamicVariables => {
+        '\${serviceId}': config.serviceId,
+        '\${gitRepo}': config.gitRepo,
+        '\${gitBranch}': config.gitBranch,
+        '\${serverFile}': config.serverFile,
+      };
 
   final Map<String, List<CompilerLog>> logs = {};
   CurrentExecutedService? currentService;
@@ -94,13 +131,33 @@ class CompilerService {
     await _exec('git', ['clone', '--branch', _gitBranch, _gitRepo, dirName]);
     _workingDirectory =
         '${Directory.current.path}${Platform.pathSeparator}$dirName';
-    await _exec(dart, ['pub', 'get']);
-    await _exec(dart, ['analyze']);
-    await _exec(dart, ['test']);
-    await _exec(
-      dart,
-      'compile exe $_serverFile.dart --output $_serverFile'.split(' '),
-    );
+
+    for (final command in config.commands) {
+      final variables = command.variablesMap();
+      final mapped = command.command.replaceAllMapped(
+        RegExp('(${command.variables.map((e) => '\${${e.key}}').join('|')})'),
+        (match) {
+          final value = match.input.substring(match.start, match.end);
+          final variable = variables[value]!;
+          return _getVariableValue(variable);
+        },
+      );
+      // TODO:
+      final split = mapped.split(RegExp(r'\s'));
+      await _exec(
+        split[0],
+        split.sublist(1),
+        context: command.toString(),
+      );
+    }
+
+    // await _exec(dart, ['pub', 'get']);
+    // await _exec(dart, ['analyze']);
+    // await _exec(dart, ['test']);
+    // await _exec(
+    //   dart,
+    //   'compile exe $_serverFile.dart --output $_serverFile'.split(' '),
+    // );
   }
 
   Future<void> _initProcess(String commitId) async {
@@ -175,6 +232,17 @@ class CompilerService {
       );
     }
     return result.stdout as String;
+  }
+
+  String _getVariableValue(CliCommandVariable variable) {
+    switch (variable.type) {
+      case CliCommandVariableType.constant:
+        return variable.value.split('=').skip(1).join('=');
+      case CliCommandVariableType.dynamic:
+        return _dynamicVariables[variable.key]!;
+      case CliCommandVariableType.environment:
+        return Platform.environment[variable.key]!;
+    }
   }
 }
 

@@ -75,7 +75,10 @@ final _cliCommandInputGraphQLTypeInput =
           .nonNull()
           .list()
           .nonNull()
-          .inputField('variables', defaultValue: const [])
+          .inputField('variables', defaultValue: const [], attachments: [
+        ValidaAttachment(
+            ValidaList(customValidate: CliCommandInput.validateVariables)),
+      ])
     ],
   );
 
@@ -358,6 +361,7 @@ class ServiceConfigInputValidation
 
 enum CliCommandInputField {
   command,
+  variables,
 }
 
 class CliCommandInputValidationFields {
@@ -366,6 +370,8 @@ class CliCommandInputValidationFields {
 
   List<ValidaError> get command =>
       errorsMap[CliCommandInputField.command] ?? const [];
+  List<ValidaError> get variables =>
+      errorsMap[CliCommandInputField.variables] ?? const [];
 }
 
 class CliCommandInputValidation
@@ -400,6 +406,8 @@ class CliCommandInputValidation
     fieldsMap: {
       CliCommandInputField.command:
           ValidaString(matches: r'^([^\s]+.*[^\s]+|[^\s]{1})$'),
+      CliCommandInputField.variables:
+          ValidaList(customValidate: CliCommandInput.validateVariables),
     },
     getField: _getField,
   );

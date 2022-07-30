@@ -189,7 +189,12 @@ final _cliCommandVariableGraphQLType =
       cliCommandVariableTypeGraphQLType
           .nonNull()
           .field('type', resolve: (obj, ctx) => obj.type),
-      graphQLString.nonNull().field('value', resolve: (obj, ctx) => obj.value)
+      graphQLString
+          .nonNull()
+          .field('value', resolve: (obj, ctx) => obj.value, attachments: [
+        ValidaAttachment(ValidaString(minLength: 1)),
+      ]),
+      graphQLString.nonNull().field('key', resolve: (obj, ctx) => obj.key)
     ],
   );
 
@@ -211,7 +216,9 @@ final _cliCommandVariableGraphQLTypeInput =
   __cliCommandVariableGraphQLTypeInput.fields.addAll(
     [
       cliCommandVariableTypeGraphQLType.nonNull().inputField('type'),
-      graphQLString.nonNull().inputField('value')
+      graphQLString.nonNull().inputField('value', attachments: [
+        ValidaAttachment(ValidaString(minLength: 1)),
+      ])
     ],
   );
 
@@ -238,13 +245,18 @@ final _cliCommandGraphQLType =
   setValue(__cliCommandGraphQLType);
   __cliCommandGraphQLType.fields.addAll(
     [
+      graphQLString.nonNull().field('toString', resolve: (obj, ctx) {
+        final args = ctx.args;
+
+        return obj.toString();
+      }),
       graphQLString.nonNull().field('name', resolve: (obj, ctx) => obj.name),
       graphQLString
           .nonNull()
           .field('command', resolve: (obj, ctx) => obj.command),
       graphQLDate
           .nonNull()
-          .field('createdDate', resolve: (obj, ctx) => obj.createdDate),
+          .field('modifiedDate', resolve: (obj, ctx) => obj.modifiedDate),
       cliCommandVariableGraphQLType
           .nonNull()
           .list()
@@ -303,7 +315,7 @@ const _$CliCommandVariableTypeEnumMap = {
 CliCommand _$CliCommandFromJson(Map<String, dynamic> json) => CliCommand(
       name: json['name'] as String,
       command: json['command'] as String,
-      createdDate: DateTime.parse(json['createdDate'] as String),
+      modifiedDate: DateTime.parse(json['modifiedDate'] as String),
       variables: (json['variables'] as List<dynamic>)
           .map((e) => CliCommandVariable.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -313,6 +325,77 @@ Map<String, dynamic> _$CliCommandToJson(CliCommand instance) =>
     <String, dynamic>{
       'name': instance.name,
       'command': instance.command,
-      'createdDate': instance.createdDate.toIso8601String(),
+      'modifiedDate': instance.modifiedDate.toIso8601String(),
       'variables': instance.variables,
     };
+
+// **************************************************************************
+// ValidatorGenerator
+// **************************************************************************
+
+enum CliCommandVariableField {
+  value,
+}
+
+class CliCommandVariableValidationFields {
+  const CliCommandVariableValidationFields(this.errorsMap);
+  final Map<CliCommandVariableField, List<ValidaError>> errorsMap;
+
+  List<ValidaError> get value =>
+      errorsMap[CliCommandVariableField.value] ?? const [];
+}
+
+class CliCommandVariableValidation
+    extends Validation<CliCommandVariable, CliCommandVariableField> {
+  CliCommandVariableValidation(this.errorsMap, this.value, this.fields)
+      : super(errorsMap);
+  @override
+  final Map<CliCommandVariableField, List<ValidaError>> errorsMap;
+  @override
+  final CliCommandVariable value;
+  @override
+  final CliCommandVariableValidationFields fields;
+
+  /// Validates [value] and returns a [CliCommandVariableValidation] with the errors found as a result
+  static CliCommandVariableValidation fromValue(CliCommandVariable value) {
+    Object? _getProperty(String property) => spec.getField(value, property);
+
+    final errors = <CliCommandVariableField, List<ValidaError>>{
+      ...spec.fieldsMap.map(
+        (key, field) => MapEntry(
+          key,
+          field.validate(key.name, _getProperty),
+        ),
+      )
+    };
+    errors.removeWhere((key, value) => value.isEmpty);
+    return CliCommandVariableValidation(
+        errors, value, CliCommandVariableValidationFields(errors));
+  }
+
+  static const spec = ValidaSpec(
+    fieldsMap: {
+      CliCommandVariableField.value: ValidaString(minLength: 1),
+    },
+    getField: _getField,
+  );
+
+  static List<ValidaError> _globalValidate(CliCommandVariable value) => [];
+
+  static Object? _getField(CliCommandVariable value, String field) {
+    switch (field) {
+      case 'type':
+        return value.type;
+      case 'value':
+        return value.value;
+      case 'key':
+        return value.key;
+      case 'hashCode':
+        return value.hashCode;
+      case 'runtimeType':
+        return value.runtimeType;
+      default:
+        throw Exception('Could not find field "$field" for value $value.');
+    }
+  }
+}

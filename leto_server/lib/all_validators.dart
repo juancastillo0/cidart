@@ -1,10 +1,12 @@
 import 'package:valida/valida.dart';
+import 'package:leto_server/src/compiler_models.dart';
 import 'package:leto_server/src/filters.dart';
 import 'package:leto_server/src/compiler_api_models.dart';
 
 // ignore: avoid_classes_with_only_static_members
 class Validators {
   static const typeMap = <Type, Validator>{
+    CliCommandVariable: validatorCliCommandVariable,
     DateTimeFilter: validatorDateTimeFilter,
     StringFilter: validatorStringFilter,
     ServiceConfigInput: validatorServiceConfigInput,
@@ -12,6 +14,8 @@ class Validators {
     CompilationFilter: validatorCompilationFilter,
   };
 
+  static const validatorCliCommandVariable =
+      Validator(CliCommandVariableValidation.fromValue);
   static const validatorDateTimeFilter =
       Validator(DateTimeFilterValidation.fromValue);
   static const validatorStringFilter =

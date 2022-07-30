@@ -56,7 +56,30 @@ class CliCommandInput {
     matches: r'^([^\s]+.*[^\s]+|[^\s]{1})$',
   )
   final String command;
+  @ValidaList(customValidate: CliCommandInput.validateVariables)
   final List<CliCommandVariable> variables;
+
+  static List<ValidaError> validateVariables(
+    List<CliCommandVariable> variables,
+  ) {
+    final Map<String, List<CliCommandVariable>> map = {};
+    for (final v in variables) {
+      map.putIfAbsent(v.key, () => []).add(v);
+    }
+    map.removeWhere((key, value) => value.length <= 1);
+    return [
+      if (map.isNotEmpty)
+        ValidaError(
+          errorCode: 'CliCommandInput.duplicateKey',
+          message: map.entries
+              .map((e) =>
+                  'Found ${e.value.length} duplicate values for key "${e.key}":${e.value.map((e) => e.type.name).join(', ')}')
+              .join('. '),
+          property: 'variables',
+          value: variables,
+        ),
+    ];
+  }
 
   CliCommandInput({
     required this.name,
