@@ -43,7 +43,7 @@ class CompilerClient {
 }
 
 const Ok = Result.ok;
-const Err = Result.ok;
+const Err = Result.err;
 
 class Result<T, E> {
   final T? ok;

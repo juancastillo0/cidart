@@ -2,6 +2,8 @@
 import 'package:leto_schema/leto_schema.dart';
 import 'package:leto_server/src/compiler_api.dart';
 import 'package:leto_server/src/compiler_models.dart';
+import 'package:leto_server/src/filters.dart';
+import 'package:leto_server/src/compiler_api_models.dart';
 
 GraphQLSchema recreateGraphQLApiSchema() {
   HotReloadableDefinition.incrementCounter();
@@ -14,18 +16,38 @@ GraphQLSchema get graphqlApiSchema => _graphqlApiSchema ??= GraphQLSchema(
       serdeCtx: SerdeCtx()
         ..addAll([
           compilerLogSerializer,
+          cliCommandVariableSerializer,
+          cliCommandSerializer,
+          dateTimeFilterSerializer,
+          stringFilterSerializer,
+          serviceConfigInputSerializer,
+          cliCommandInputSerializer,
+          serviceConfigSerializer,
+          compilationFilterSerializer,
         ])
-        ..children.addAll([]),
+        ..children.addAll([
+          compFilterSerdeCtx,
+        ]),
       queryType: objectType(
         'Query',
         fields: [
           topOutputGraphQLField,
+          servicesGraphQLField,
         ],
       ),
       mutationType: objectType(
         'Mutation',
         fields: [
           startServiceGraphQLField,
+          createServiceGraphQLField,
+          deleteServiceGraphQLField,
+          compilationsGraphQLField,
+        ],
+      ),
+      subscriptionType: objectType(
+        'Subscription',
+        fields: [
+          serviceUpdatesGraphQLField,
         ],
       ),
     );
