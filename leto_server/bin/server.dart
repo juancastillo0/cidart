@@ -12,21 +12,30 @@ import 'package:shelf_hotreload/shelf_hotreload.dart';
 import 'package:gql/language.dart' as gql;
 
 void main(List<String> arguments) async {
-  withHotreload(() async {
-    // print(Directory.current.path);
-    // print(Platform.environment['HOST']);
-    // print(String.fromEnvironment('HOST', defaultValue: 'localhost'));
-    // print(const String.fromEnvironment('HOST', defaultValue: 'localhost'));
-    final clientQueries = await readClientGraphQLFiles();
-    final service = CompilerService();
-    final router = makeCompilerRouter(service, clientQueries);
-    final server = startCompilerServer(router);
-
-    return server;
-  });
+  final verifyClient = arguments.any((arg) => arg == '--verify-client');
+  if (verifyClient) {
+    final queries = await readClientGraphQLFiles(verify: true, edit: false);
+    print('Found ${queries.length} GraphQL queries in the client.');
+  } else {
+    withHotreload(() {
+      return createServer();
+    });
+  }
 }
 
-Future<List<DocumentNode>> readClientGraphQLFiles() async {
+Future<HttpServer> createServer() async {
+  final clientQueries = await readClientGraphQLFiles();
+  final service = CompilerService();
+  final router = makeCompilerRouter(service, clientQueries);
+  final server = startCompilerServer(router);
+
+  return server;
+}
+
+Future<List<DocumentNode>> readClientGraphQLFiles({
+  bool edit = true,
+  bool verify = false,
+}) async {
   final paths = Directory.current.uri.pathSegments;
   final clientDirPath = ['']
       .followedBy(paths.take(paths.length - 2))
@@ -35,33 +44,51 @@ Future<List<DocumentNode>> readClientGraphQLFiles() async {
   final schemaFile = File(
     '$clientDirPath${Platform.pathSeparator}schema.graphql',
   );
+  final List<String> errors = [];
   final exists = await schemaFile.exists();
-  if (!exists ||
-      await schemaFile.readAsString() != graphqlApiSchema.schemaStr) {
-    if (!exists) {
-      await schemaFile.create();
+  final foundSchema = exists ? await schemaFile.readAsString() : null;
+  if (!exists || foundSchema != graphqlApiSchema.schemaStr) {
+    if (verify) {
+      errors.add(
+        exists
+            ? 'FOUND_GRAPHQL_SCHEMA\n$foundSchema'
+                '\nEXPECTED_GRAPHQL_SCHEMA\n${graphqlApiSchema.schemaStr}'
+            : 'GRAPHQL_SCHEMA_FILE_NOT_FOUND: ${schemaFile.path}',
+      );
     }
-    await schemaFile.writeAsString(graphqlApiSchema.schemaStr);
+    if (edit) {
+      if (!exists) {
+        await schemaFile.create();
+      }
+      await schemaFile.writeAsString(graphqlApiSchema.schemaStr);
+    }
   }
 
-  return Directory(clientDirPath)
+  final values = await Directory(clientDirPath)
       .list(recursive: true, followLinks: false)
       .where((event) =>
           event is File &&
           event.path != schemaFile.path &&
           event.path.endsWith('.graphql'))
       .cast<File>()
-      .asyncMap((event) => event.readAsString())
+      .asyncMap((event) async => MapEntry(event, await event.readAsString()))
       .map((event) {
         try {
-          return gql.parseString(event);
-        } catch (_) {
+          return gql.parseString(event.value);
+        } catch (e, s) {
+          if (verify) {
+            errors.add('DOCUMENT_PARSING_ERROR: ${event.key.path}\n$e\n$s');
+          }
           return null;
         }
       })
       .where((event) => event != null)
       .cast<DocumentNode>()
       .toList();
+  if (verify && errors.isNotEmpty) {
+    throw errors.join('\n\n');
+  }
+  return values;
 }
 
 Router makeCompilerRouter(

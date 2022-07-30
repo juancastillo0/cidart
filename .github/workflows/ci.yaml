@@ -50,6 +50,9 @@ jobs:
         run: dart analyze
         if: always() && steps.install.outcome == 'success'
 
+      - run: cd leto_server && dart run bin/server.dart --verify-client
+        if: always() && steps.install.outcome == 'success'
+
       # - id: test
       #   name: Run tests
       #   run: dart test
