@@ -62,16 +62,24 @@ type ProcessExecResult {
 }
 
 input ServiceConfigInput {
-  gitRepo: String!
-  gitBranch: String!
-  serverFile: String!
+  gitRepo: String! @valida(jsonSpec: """
+{"variantType":"string","isUrl":true,"matches":"^https://github.com/([a-zA-Z0-9\\-\\_]+)/([a-zA-Z0-9\\-\\_]+)$"}
+""")
+  gitBranch: String! @valida(jsonSpec: """
+{"variantType":"string","matches":"^(?!.*/\\.)(?!.*\\.\\.)(?!/)(?!.*//)(?!.*@\\{)(?!.*\\\\)[^\\000-\\037\\177 ~^:?*[]+/[^\\000-\\037\\177 ~^:?*[]+(?<!\\.lock)(?<!/)(?<!\\.)$"}
+""")
+  serverFile: String! @valida(jsonSpec: """
+{"variantType":"string","matches":"^[a-zA-Z0-9\\_\\.]([a-zA-Z0-9\\-\\_/\\.]+)[a-zA-Z0-9]$"}
+""")
   commands: [CliCommandInput!]!
 }
 
 input CliCommandInput {
   name: String!
-  command: String!
-  variables: [CliCommandVariableInput!]!
+  command: String! @valida(jsonSpec: """
+{"variantType":"string","matches":"^([^\\s]+.*[^\\s]+|[^\\s]{1})$"}
+""")
+  variables: [CliCommandVariableInput!]! = []
 }
 
 input CliCommandVariableInput {
