@@ -15,9 +15,11 @@ type ServiceConfig {
 }
 
 type CliCommand {
+  """TODO: this should not be exposed by default"""
+  toString: String!
   name: String!
   command: String!
-  createdDate: Date!
+  modifiedDate: Date!
   variables: [CliCommandVariable!]!
 }
 
@@ -26,7 +28,10 @@ scalar Date
 
 type CliCommandVariable {
   type: CliCommandVariableType!
-  value: String!
+  value: String! @valida(jsonSpec: """
+{"variantType":"string","minLength":1}
+""")
+  key: String!
 }
 
 enum CliCommandVariableType {
@@ -79,12 +84,16 @@ input CliCommandInput {
   command: String! @valida(jsonSpec: """
 {"variantType":"string","matches":"^([^\\s]+.*[^\\s]+|[^\\s]{1})$"}
 """)
-  variables: [CliCommandVariableInput!]! = []
+  variables: [CliCommandVariableInput!]! = [] @valida(jsonSpec: """
+{"variantType":"list"}
+""")
 }
 
 input CliCommandVariableInput {
   type: CliCommandVariableType!
-  value: String!
+  value: String! @valida(jsonSpec: """
+{"variantType":"string","minLength":1}
+""")
 }
 
 type Compilation {

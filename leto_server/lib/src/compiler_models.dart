@@ -300,6 +300,7 @@ class CliCommand {
       _$CliCommandFromJson(json);
   Map<String, Object?> toJson() => _$CliCommandToJson(this);
 
+  /// TODO: this should not be exposed by default
   @override
   String toString() {
     return jsonEncode(this);

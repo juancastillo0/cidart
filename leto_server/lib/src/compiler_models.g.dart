@@ -249,7 +249,7 @@ final _cliCommandGraphQLType =
         final args = ctx.args;
 
         return obj.toString();
-      }),
+      }, description: 'TODO: this should not be exposed by default'),
       graphQLString.nonNull().field('name', resolve: (obj, ctx) => obj.name),
       graphQLString
           .nonNull()
