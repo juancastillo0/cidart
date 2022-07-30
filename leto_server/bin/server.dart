@@ -168,12 +168,12 @@ Router makeCompilerRouter(
             'errorString': error is! StateError ? error?.toString() : null,
             'logs': result,
           },
-          'deployed': service.currentCommitId == null
+          'deployed': service.currentService == null
               ? null
               : {
-                  'commitId': service.currentCommitId,
+                  'commitId': service.currentService!.commitHash,
                   'topOutput': await service.topOutput(),
-                  'logs': service.logs[service.currentCommitId],
+                  'logs': service.logs[service.currentService!.commitHash],
                 },
           'allCompilations': service.logs,
         };
