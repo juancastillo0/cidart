@@ -1,34 +1,40 @@
 import 'dart:io';
 
+import 'compiler_api_models.dart';
 import 'compiler_models.dart';
+
+const ServiceConfig configDefault = ServiceConfig(
+  gitRepo: 'https://github.com/juancastillo0/room_signals',
+  gitBranch: 'main',
+  serverFile: 'bin/server',
+  serviceId: 'default',
+  commands: [],
+);
 
 class CompilerService {
   CompilerService({
-    this.gitRepo = 'https://github.com/juancastillo0/room_signals',
-    this.gitBranch = 'main',
-    this.serverFile = 'bin/server',
+    this.config = configDefault,
   });
-  final String gitRepo;
-  final String gitBranch;
-  final String serverFile;
-
-  String? currentCommitId;
-  Process? currentServerProcess;
-  String? currentServerDirectory;
-
-  bool starting = false;
-  String workingDirectory = Directory.current.path;
-  List<CompilerLog> compilationLogs = [];
+  final ServiceConfig config;
 
   final Map<String, List<CompilerLog>> logs = {};
+  CurrentExecutedService? currentService;
+
+  List<CompilerLog> compilationLogs = [];
+  bool starting = false;
+  String _workingDirectory = Directory.current.path;
+
+  String get _gitRepo => config.gitRepo;
+  String get _gitBranch => config.gitBranch;
+  String get _serverFile => config.serverFile;
 
   Future<String?> topOutput() async {
-    if (currentServerProcess == null) return null;
+    if (currentService == null) return null;
     final str = await _exec(
       'top',
       [
         ...Platform.isLinux ? ['-b', '-n2', '-p'] : ['-l2', '-pid'],
-        '${currentServerProcess!.pid}',
+        '${currentService!.serverProcess.pid}',
       ],
     );
     final split = str.split('\n');
@@ -38,11 +44,16 @@ class CompilerService {
   Future<List<CompilerLog>> startService() async {
     if (starting) throw StateError('starting');
     starting = true;
-    workingDirectory = Directory.current.path;
+    _workingDirectory = Directory.current.path;
     String? commitId;
 
     void _onError(Object error, StackTrace stackTrace) {
-      if (commitId != null && commitId != currentCommitId) {
+      if (error is! ExecException) {
+        compilationLogs.add(CompilerLog(
+          'error: $error, stackTrace: $stackTrace',
+        ));
+      }
+      if (commitId != null && commitId != currentService?.commitHash) {
         logs[commitId] = compilationLogs;
       }
       starting = false;
@@ -52,13 +63,13 @@ class CompilerService {
       final now = DateTime.now();
       compilationLogs = [CompilerLog('starting compilation', time: now)];
       final commitResult =
-          await _exec('git', ['ls-remote', gitRepo, 'refs/heads/$gitBranch']);
+          await _exec('git', ['ls-remote', _gitRepo, 'refs/heads/$_gitBranch']);
       commitId = commitResult.split(RegExp(r'\s+')).first;
-      if (commitId == currentCommitId) {
+      if (commitId == currentService?.commitHash) {
         throw StateError('same commit: $commitId');
       }
       final dirName =
-          '${gitRepo.split('/').last}-${now.millisecondsSinceEpoch}-${commitId.substring(0, 10)}';
+          '${_gitRepo.split('/').last}-${now.millisecondsSinceEpoch}-${commitId.substring(0, 10)}';
       compilationLogs.add(CompilerLog(
         'commitId: $commitId, dirName: $dirName',
       ));
@@ -80,42 +91,53 @@ class CompilerService {
   Future<void> _cloneTestAndCompile(String dirName) async {
     const dart = 'dart';
 
-    await _exec('git', ['clone', '--branch', gitBranch, gitRepo, dirName]);
-    workingDirectory =
+    await _exec('git', ['clone', '--branch', _gitBranch, _gitRepo, dirName]);
+    _workingDirectory =
         '${Directory.current.path}${Platform.pathSeparator}$dirName';
     await _exec(dart, ['pub', 'get']);
     await _exec(dart, ['analyze']);
     await _exec(dart, ['test']);
     await _exec(
       dart,
-      'compile exe $serverFile.dart --output $serverFile'.split(' '),
+      'compile exe $_serverFile.dart --output $_serverFile'.split(' '),
     );
   }
 
   Future<void> _initProcess(String commitId) async {
-    if (currentServerProcess != null) {
-      currentServerProcess!.kill();
-      currentServerProcess = null;
+    final previousServer = currentService;
+    if (currentService != null) {
+      currentService!.serverProcess.kill();
+      currentService = null;
     }
     try {
-      currentServerProcess = await Process.start(
-        serverFile,
+      final process = await Process.start(
+        _serverFile,
         [],
         mode: ProcessStartMode.inheritStdio,
-        workingDirectory: workingDirectory,
+        workingDirectory: _workingDirectory,
       );
-      currentCommitId = commitId;
+
       logs[commitId] = compilationLogs;
-      currentServerDirectory = workingDirectory;
+
+      currentService = CurrentExecutedService(
+        commitHash: commitId,
+        serverDirectory: _workingDirectory,
+        serverProcess: process,
+      );
       // TODO: delete directory
     } catch (_) {
-      if (currentServerDirectory != null) {
+      if (previousServer != null) {
         // restart previous process
-        currentServerProcess = await Process.start(
-          serverFile,
+        final process = await Process.start(
+          _serverFile,
           [],
           mode: ProcessStartMode.inheritStdio,
-          workingDirectory: currentServerDirectory,
+          workingDirectory: previousServer.serverDirectory,
+        );
+        currentService = CurrentExecutedService(
+          commitHash: previousServer.commitHash,
+          serverDirectory: previousServer.serverDirectory,
+          serverProcess: process,
         );
       }
       rethrow;
@@ -135,11 +157,12 @@ class CompilerService {
     final result = await Process.run(
       executable,
       arguments,
-      workingDirectory: workingDirectory,
+      workingDirectory: _workingDirectory,
     );
+    final elapsed = watch.elapsed;
     compilationLogs.add(
       CompilerLog(
-        'exec: $commandStr. Duration:${watch.elapsedMilliseconds}ms.',
+        'exec: $commandStr. Duration:${elapsed.inMilliseconds}ms.',
         result: ProcessExecResult.fromResult(result),
       ),
     );
@@ -153,4 +176,16 @@ class CompilerService {
     }
     return result.stdout as String;
   }
+}
+
+class CurrentExecutedService {
+  final String commitHash;
+  final Process serverProcess;
+  final String serverDirectory;
+
+  CurrentExecutedService({
+    required this.commitHash,
+    required this.serverProcess,
+    required this.serverDirectory,
+  });
 }
