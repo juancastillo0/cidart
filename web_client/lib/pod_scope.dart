@@ -16,9 +16,7 @@ class PodScopeWidget extends StatelessObserverComponent {
   Iterable<Component> build(BuildContext context) sync* {
     final podScope = useRef(
       () => PodScope(
-        parent: context
-            .dependOnInheritedComponentOfExactType<_InheritedPodScope>()
-            ?.podScope,
+        parent: _InheritedPodScope.get(context),
         overrides: overrides,
       ),
     ).value;
@@ -39,13 +37,17 @@ class _InheritedPodScope extends InheritedComponent {
   bool updateShouldNotify(_InheritedPodScope oldComponent) {
     return podScope != oldComponent.podScope;
   }
+
+  static PodScope? get(BuildContext context) {
+    final element = context
+        .getElementForInheritedComponentOfExactType<_InheritedPodScope>();
+    if (element == null) return null;
+    return (element.component as _InheritedPodScope).podScope;
+  }
 }
 
 extension PodScopeBuildContext on BuildContext {
-  T pod<T>(Pod<T> pod) =>
-      dependOnInheritedComponentOfExactType<_InheritedPodScope>()!
-          .podScope
-          .get(pod);
+  T pod<T>(Pod<T> pod) => _InheritedPodScope.get(this)!.get(pod);
 }
 
 class PodScope {
