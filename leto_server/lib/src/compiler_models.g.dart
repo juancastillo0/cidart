@@ -26,6 +26,7 @@ final _compilerLogGraphQLType =
 
         return obj.toString();
       }),
+      graphQLInt.nonNull().field('id', resolve: (obj, ctx) => obj.id),
       graphQLString
           .nonNull()
           .field('message', resolve: (obj, ctx) => obj.message),

@@ -41,18 +41,36 @@ final ServiceConfig configDefault = ServiceConfig(
   ],
 );
 
+List<String> processCliCommand(ServiceConfig config, CliCommand command) {
+  final variables = command.variablesMap();
+  final mapped = command.command.replaceAllMapped(
+    RegExp('(${command.variables.map((e) => '\${${e.key}}').join('|')})'),
+    (match) {
+      final value = match.input.substring(match.start, match.end);
+      final variable = variables[value]!;
+      return getVariableValue(config, variable);
+    },
+  );
+  // TODO:
+  return mapped.split(RegExp(r'\s'));
+}
+
+String getVariableValue(ServiceConfig config, CliCommandVariable variable) {
+  switch (variable.type) {
+    case CliCommandVariableType.constant:
+      return variable.value.split('=').skip(1).join('=');
+    case CliCommandVariableType.dynamic:
+      return config.dynamicVariables[variable.key]!;
+    case CliCommandVariableType.environment:
+      return Platform.environment[variable.key]!;
+  }
+}
+
 class CompilerService {
   CompilerService({
     ServiceConfig? config,
   }) : config = config ?? configDefault;
   final ServiceConfig config;
-
-  Map<String, String> get _dynamicVariables => {
-        '\${serviceId}': config.serviceId,
-        '\${gitRepo}': config.gitRepo,
-        '\${gitBranch}': config.gitBranch,
-        '\${serverFile}': config.serverFile,
-      };
 
   final Map<String, List<CompilerLog>> logs = {};
   CurrentExecutedService? currentService;
@@ -86,9 +104,7 @@ class CompilerService {
 
     void _onError(Object error, StackTrace stackTrace) {
       if (error is! ExecException) {
-        compilationLogs.add(CompilerLog(
-          'error: $error, stackTrace: $stackTrace',
-        ));
+        _log('error: $error, stackTrace: $stackTrace');
       }
       if (commitId != null && commitId != currentService?.commitHash) {
         logs[commitId] = compilationLogs;
@@ -98,7 +114,8 @@ class CompilerService {
 
     try {
       final now = DateTime.now();
-      compilationLogs = [CompilerLog('starting compilation', time: now)];
+      compilationLogs = [];
+      _log('starting compilation', time: now);
       final commitResult =
           await _exec('git', ['ls-remote', _gitRepo, 'refs/heads/$_gitBranch']);
       commitId = commitResult.split(RegExp(r'\s+')).first;
@@ -107,9 +124,7 @@ class CompilerService {
       }
       final dirName =
           '${_gitRepo.split('/').last}-${now.millisecondsSinceEpoch}-${commitId.substring(0, 10)}';
-      compilationLogs.add(CompilerLog(
-        'commitId: $commitId, dirName: $dirName',
-      ));
+      _log('commitId: $commitId, dirName: $dirName');
       _cloneTestAndCompile(dirName)
           .then((_) => _initProcess(commitId!))
           .onError(_onError)
@@ -126,38 +141,18 @@ class CompilerService {
   }
 
   Future<void> _cloneTestAndCompile(String dirName) async {
-    const dart = 'dart';
-
     await _exec('git', ['clone', '--branch', _gitBranch, _gitRepo, dirName]);
     _workingDirectory =
         '${Directory.current.path}${Platform.pathSeparator}$dirName';
 
     for (final command in config.commands) {
-      final variables = command.variablesMap();
-      final mapped = command.command.replaceAllMapped(
-        RegExp('(${command.variables.map((e) => '\${${e.key}}').join('|')})'),
-        (match) {
-          final value = match.input.substring(match.start, match.end);
-          final variable = variables[value]!;
-          return _getVariableValue(variable);
-        },
-      );
-      // TODO:
-      final split = mapped.split(RegExp(r'\s'));
+      final commandSplit = processCliCommand(config, command);
       await _exec(
-        split[0],
-        split.sublist(1),
+        commandSplit[0],
+        commandSplit.sublist(1),
         context: command.toString(),
       );
     }
-
-    // await _exec(dart, ['pub', 'get']);
-    // await _exec(dart, ['analyze']);
-    // await _exec(dart, ['test']);
-    // await _exec(
-    //   dart,
-    //   'compile exe $_serverFile.dart --output $_serverFile'.split(' '),
-    // );
   }
 
   Future<void> _initProcess(String commitId) async {
@@ -208,7 +203,7 @@ class CompilerService {
   }) async {
     final commandStr = '"$executable ${arguments.join(' ')}"'
         '${context == null ? '' : '. context: $context'}';
-    compilationLogs.add(CompilerLog('exec: $commandStr'));
+    _log('exec: $commandStr');
 
     final watch = Stopwatch()..start();
     final result = await Process.run(
@@ -217,11 +212,9 @@ class CompilerService {
       workingDirectory: _workingDirectory,
     );
     final elapsed = watch.elapsed;
-    compilationLogs.add(
-      CompilerLog(
-        'exec: $commandStr. Duration:${elapsed.inMilliseconds}ms.',
-        result: ProcessExecResult.fromResult(result),
-      ),
+    _log(
+      'exec: $commandStr. Duration:${elapsed.inMilliseconds}ms.',
+      result: ProcessExecResult.fromResult(result),
     );
     if (result.exitCode != 0 &&
         // warnings
@@ -234,15 +227,17 @@ class CompilerService {
     return result.stdout as String;
   }
 
-  String _getVariableValue(CliCommandVariable variable) {
-    switch (variable.type) {
-      case CliCommandVariableType.constant:
-        return variable.value.split('=').skip(1).join('=');
-      case CliCommandVariableType.dynamic:
-        return _dynamicVariables[variable.key]!;
-      case CliCommandVariableType.environment:
-        return Platform.environment[variable.key]!;
-    }
+  void _log(
+    String message, {
+    DateTime? time,
+    ProcessExecResult? result,
+  }) {
+    compilationLogs.add(CompilerLog(
+      compilationLogs.length,
+      message,
+      time: time,
+      result: result,
+    ));
   }
 }
 

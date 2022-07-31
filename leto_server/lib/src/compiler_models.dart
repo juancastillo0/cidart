@@ -34,11 +34,13 @@ Map<String, Object?> processResultToJson(ProcessResult result) {
 
 @GraphQLClass()
 class CompilerLog {
+  final int id;
   final String message;
   final DateTime time;
   final ProcessExecResult? result;
 
   CompilerLog(
+    this.id,
     this.message, {
     DateTime? time,
     this.result,
@@ -62,6 +64,7 @@ class CompilerLog {
   factory CompilerLog.fromJson(Map<String, dynamic> map) {
     final result = map['result'] as Map<String, Object?>?;
     return CompilerLog(
+      map['id'] as int,
       map['message'] as String,
       time: DateTime.parse(map['time'] as String),
       result: result != null

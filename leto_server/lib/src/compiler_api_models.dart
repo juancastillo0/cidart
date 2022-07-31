@@ -110,6 +110,14 @@ class ServiceConfig {
     required this.commands,
   });
 
+  @GraphQLField(omit: true)
+  Map<String, String> get dynamicVariables => {
+        '\${serviceId}': serviceId,
+        '\${gitRepo}': gitRepo,
+        '\${gitBranch}': gitBranch,
+        '\${serverFile}': serverFile,
+      };
+
   factory ServiceConfig.fromJson(Map<String, Object?> json) =>
       _$ServiceConfigFromJson(json);
   Map<String, Object?> toJson() => _$ServiceConfigToJson(this);
