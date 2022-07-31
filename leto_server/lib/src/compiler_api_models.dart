@@ -25,7 +25,9 @@ class ServiceConfigInput {
     matches: r'^[a-zA-Z0-9\_\.]([a-zA-Z0-9\-\_/\.]+)[a-zA-Z0-9]$',
   )
   final String serverFile;
-  // TODO: this is not being taken into account in validation
+
+  /// TODO: this is not being taken into account in validation
+  @ValidaList(customValidate: ServiceConfigInput.validateCommands)
   final List<CliCommandInput> commands;
 
   late final String id = [
@@ -33,6 +35,28 @@ class ServiceConfigInput {
     gitBranch,
     serverFile,
   ].map(Uri.encodeComponent).join('/');
+
+  static List<ValidaError> validateCommands(
+    List<CliCommandInput> commands,
+  ) {
+    final Map<String, List<CliCommandInput>> map = {};
+    for (final v in commands) {
+      map.putIfAbsent(v.name, () => []).add(v);
+    }
+    map.removeWhere((key, value) => value.length <= 1);
+    return [
+      if (map.isNotEmpty)
+        ValidaError(
+          errorCode: 'ServiceConfigInput.commands.duplicateKey',
+          message: map.entries
+              .map((e) => 'Found ${e.value.length} duplicate values for key'
+                  ' "${e.key}":${e.value.map((e) => e.command).join(', ')}')
+              .join('. '),
+          property: 'variables',
+          value: commands,
+        ),
+    ];
+  }
 
   ServiceConfigInput({
     required this.gitRepo,
@@ -70,10 +94,10 @@ class CliCommandInput {
     return [
       if (map.isNotEmpty)
         ValidaError(
-          errorCode: 'CliCommandInput.duplicateKey',
+          errorCode: 'CliCommandInput.variables.duplicateKey',
           message: map.entries
-              .map((e) =>
-                  'Found ${e.value.length} duplicate values for key "${e.key}":${e.value.map((e) => e.type.name).join(', ')}')
+              .map((e) => 'Found ${e.value.length} duplicate values for key'
+                  ' "${e.key}":${e.value.map((e) => e.type.name).join(', ')}')
               .join('. '),
           property: 'variables',
           value: variables,

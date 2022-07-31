@@ -35,11 +35,14 @@ final _serviceConfigInputGraphQLTypeInput =
         ValidaAttachment(ValidaString(
             matches: r'^[a-zA-Z0-9\_\.]([a-zA-Z0-9\-\_/\.]+)[a-zA-Z0-9]$')),
       ]),
-      cliCommandInputGraphQLTypeInput
-          .nonNull()
-          .list()
-          .nonNull()
-          .inputField('commands')
+      cliCommandInputGraphQLTypeInput.nonNull().list().nonNull().inputField(
+          'commands',
+          description:
+              'TODO: this is not being taken into account in validation',
+          attachments: [
+            ValidaAttachment(ValidaList(
+                customValidate: ServiceConfigInput.validateCommands)),
+          ])
     ],
   );
 
@@ -279,6 +282,7 @@ enum ServiceConfigInputField {
   gitRepo,
   gitBranch,
   serverFile,
+  commands,
 }
 
 class ServiceConfigInputValidationFields {
@@ -291,6 +295,8 @@ class ServiceConfigInputValidationFields {
       errorsMap[ServiceConfigInputField.gitBranch] ?? const [];
   List<ValidaError> get serverFile =>
       errorsMap[ServiceConfigInputField.serverFile] ?? const [];
+  List<ValidaError> get commands =>
+      errorsMap[ServiceConfigInputField.commands] ?? const [];
 }
 
 class ServiceConfigInputValidation
@@ -331,6 +337,8 @@ class ServiceConfigInputValidation
           ValidaString(matches: GIT_BRANCH_REGEXP),
       ServiceConfigInputField.serverFile: ValidaString(
           matches: r'^[a-zA-Z0-9\_\.]([a-zA-Z0-9\-\_/\.]+)[a-zA-Z0-9]$'),
+      ServiceConfigInputField.commands:
+          ValidaList(customValidate: ServiceConfigInput.validateCommands),
     },
     getField: _getField,
   );
