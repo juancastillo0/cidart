@@ -54,6 +54,7 @@ type Mutation {
 
 type CompilerLog {
   toString: String!
+  id: Int!
   message: String!
   time: Date!
   result: ProcessExecResult
@@ -76,7 +77,9 @@ input ServiceConfigInput {
   serverFile: String! @valida(jsonSpec: """
 {"variantType":"string","matches":"^[a-zA-Z0-9\\_\\.]([a-zA-Z0-9\\-\\_/\\.]+)[a-zA-Z0-9]$"}
 """)
-  commands: [CliCommandInput!]!
+  commands: [CliCommandInput!]! @valida(jsonSpec: """
+{"variantType":"list","each":{"variantType":"nested"},"description":"The command names should be unique"}
+""")
 }
 
 input CliCommandInput {
