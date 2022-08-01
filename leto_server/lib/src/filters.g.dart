@@ -191,8 +191,9 @@ class DateTimeFilterValidationFields {
 
 class DateTimeFilterValidation
     extends Validation<DateTimeFilter, DateTimeFilterField> {
-  DateTimeFilterValidation(this.errorsMap, this.value, this.fields)
-      : super(errorsMap);
+  DateTimeFilterValidation(this.errorsMap, this.value)
+      : fields = DateTimeFilterValidationFields(errorsMap),
+        super(errorsMap);
   @override
   final Map<DateTimeFilterField, List<ValidaError>> errorsMap;
   @override
@@ -201,29 +202,18 @@ class DateTimeFilterValidation
   final DateTimeFilterValidationFields fields;
 
   /// Validates [value] and returns a [DateTimeFilterValidation] with the errors found as a result
-  static DateTimeFilterValidation fromValue(DateTimeFilter value) {
-    Object? _getProperty(String property) => spec.getField(value, property);
-
-    final errors = <DateTimeFilterField, List<ValidaError>>{
-      ...spec.fieldsMap.map(
-        (key, field) => MapEntry(
-          key,
-          field.validate(key.name, _getProperty),
-        ),
-      )
-    };
-    errors.removeWhere((key, value) => value.isEmpty);
-    return DateTimeFilterValidation(
-        errors, value, DateTimeFilterValidationFields(errors));
-  }
+  factory DateTimeFilterValidation.fromValue(DateTimeFilter value) =>
+      spec.validate(value);
 
   static const spec = ValidaSpec(
+    globalValidate: null,
+    validationFactory: DateTimeFilterValidation.new,
+    getField: _getField,
     fieldsMap: {
       DateTimeFilterField.after: ValidaDate(
           comp: ValidaComparison(
               moreEq: CompVal.ref('before', isRequired: false))),
     },
-    getField: _getField,
   );
 
   static List<ValidaError> _globalValidate(DateTimeFilter value) => [];
@@ -257,8 +247,9 @@ class StringFilterValidationFields {
 
 class StringFilterValidation
     extends Validation<StringFilter, StringFilterField> {
-  StringFilterValidation(this.errorsMap, this.value, this.fields)
-      : super(errorsMap);
+  StringFilterValidation(this.errorsMap, this.value)
+      : fields = StringFilterValidationFields(errorsMap),
+        super(errorsMap);
   @override
   final Map<StringFilterField, List<ValidaError>> errorsMap;
   @override
@@ -267,27 +258,16 @@ class StringFilterValidation
   final StringFilterValidationFields fields;
 
   /// Validates [value] and returns a [StringFilterValidation] with the errors found as a result
-  static StringFilterValidation fromValue(StringFilter value) {
-    Object? _getProperty(String property) => spec.getField(value, property);
-
-    final errors = <StringFilterField, List<ValidaError>>{
-      ...spec.fieldsMap.map(
-        (key, field) => MapEntry(
-          key,
-          field.validate(key.name, _getProperty),
-        ),
-      )
-    };
-    errors.removeWhere((key, value) => value.isEmpty);
-    return StringFilterValidation(
-        errors, value, StringFilterValidationFields(errors));
-  }
+  factory StringFilterValidation.fromValue(StringFilter value) =>
+      spec.validate(value);
 
   static const spec = ValidaSpec(
+    globalValidate: null,
+    validationFactory: StringFilterValidation.new,
+    getField: _getField,
     fieldsMap: {
       StringFilterField.isIn: ValidaList(minLength: 1),
     },
-    getField: _getField,
   );
 
   static List<ValidaError> _globalValidate(StringFilter value) => [];

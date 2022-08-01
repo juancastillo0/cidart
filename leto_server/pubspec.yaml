@@ -16,7 +16,7 @@ dependencies:
   leto_shelf:
   gql:
   valida:
-  json_annotation:
+  json_annotation: ^4.6.0
   dart_jsonwebtoken: ^2.4.1
   shelf_hotreload:
 
@@ -25,7 +25,7 @@ dev_dependencies:
   lints: ^2.0.0
   test: ^1.15.0
   build_runner:
-  json_serializable:
+  json_serializable: ^6.3.1
   valida_generator:
   leto_generator:
 

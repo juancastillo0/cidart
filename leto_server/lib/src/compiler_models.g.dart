@@ -348,8 +348,9 @@ class CliCommandVariableValidationFields {
 
 class CliCommandVariableValidation
     extends Validation<CliCommandVariable, CliCommandVariableField> {
-  CliCommandVariableValidation(this.errorsMap, this.value, this.fields)
-      : super(errorsMap);
+  CliCommandVariableValidation(this.errorsMap, this.value)
+      : fields = CliCommandVariableValidationFields(errorsMap),
+        super(errorsMap);
   @override
   final Map<CliCommandVariableField, List<ValidaError>> errorsMap;
   @override
@@ -358,27 +359,16 @@ class CliCommandVariableValidation
   final CliCommandVariableValidationFields fields;
 
   /// Validates [value] and returns a [CliCommandVariableValidation] with the errors found as a result
-  static CliCommandVariableValidation fromValue(CliCommandVariable value) {
-    Object? _getProperty(String property) => spec.getField(value, property);
-
-    final errors = <CliCommandVariableField, List<ValidaError>>{
-      ...spec.fieldsMap.map(
-        (key, field) => MapEntry(
-          key,
-          field.validate(key.name, _getProperty),
-        ),
-      )
-    };
-    errors.removeWhere((key, value) => value.isEmpty);
-    return CliCommandVariableValidation(
-        errors, value, CliCommandVariableValidationFields(errors));
-  }
+  factory CliCommandVariableValidation.fromValue(CliCommandVariable value) =>
+      spec.validate(value);
 
   static const spec = ValidaSpec(
+    globalValidate: null,
+    validationFactory: CliCommandVariableValidation.new,
+    getField: _getField,
     fieldsMap: {
       CliCommandVariableField.value: ValidaString(minLength: 1),
     },
-    getField: _getField,
   );
 
   static List<ValidaError> _globalValidate(CliCommandVariable value) => [];

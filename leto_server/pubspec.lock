@@ -581,7 +581,7 @@ packages:
     description:
       path: valida
       ref: HEAD
-      resolved-ref: effddbbc7ef41aa480f7891bd28828ea5d9ba02a
+      resolved-ref: "50d6788c562a61766348b0c3616335fa37e1e6db"
       url: "https://github.com/juancastillo0/valida"
     source: git
     version: "0.1.0"
@@ -590,7 +590,7 @@ packages:
     description:
       path: valida_generator
       ref: HEAD
-      resolved-ref: effddbbc7ef41aa480f7891bd28828ea5d9ba02a
+      resolved-ref: "50d6788c562a61766348b0c3616335fa37e1e6db"
       url: "https://github.com/juancastillo0/valida"
     source: git
     version: "0.1.0"

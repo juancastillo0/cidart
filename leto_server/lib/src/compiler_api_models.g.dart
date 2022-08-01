@@ -35,14 +35,17 @@ final _serviceConfigInputGraphQLTypeInput =
         ValidaAttachment(ValidaString(
             matches: r'^[a-zA-Z0-9\_\.]([a-zA-Z0-9\-\_/\.]+)[a-zA-Z0-9]$')),
       ]),
-      cliCommandInputGraphQLTypeInput.nonNull().list().nonNull().inputField(
-          'commands',
-          description:
-              'TODO: this is not being taken into account in validation',
-          attachments: [
-            ValidaAttachment(ValidaList(
-                customValidate: ServiceConfigInput.validateCommands)),
-          ])
+      cliCommandInputGraphQLTypeInput
+          .nonNull()
+          .list()
+          .nonNull()
+          .inputField('commands', attachments: [
+        ValidaAttachment(ValidaList(
+            description: 'The command names should be unique',
+            customValidate: ServiceConfigInput.validateCommands,
+            each: ValidaNested(
+                overrideValidation: CliCommandInputValidation.fromValue))),
+      ])
     ],
   );
 
@@ -301,8 +304,9 @@ class ServiceConfigInputValidationFields {
 
 class ServiceConfigInputValidation
     extends Validation<ServiceConfigInput, ServiceConfigInputField> {
-  ServiceConfigInputValidation(this.errorsMap, this.value, this.fields)
-      : super(errorsMap);
+  ServiceConfigInputValidation(this.errorsMap, this.value)
+      : fields = ServiceConfigInputValidationFields(errorsMap),
+        super(errorsMap);
   @override
   final Map<ServiceConfigInputField, List<ValidaError>> errorsMap;
   @override
@@ -311,23 +315,13 @@ class ServiceConfigInputValidation
   final ServiceConfigInputValidationFields fields;
 
   /// Validates [value] and returns a [ServiceConfigInputValidation] with the errors found as a result
-  static ServiceConfigInputValidation fromValue(ServiceConfigInput value) {
-    Object? _getProperty(String property) => spec.getField(value, property);
-
-    final errors = <ServiceConfigInputField, List<ValidaError>>{
-      ...spec.fieldsMap.map(
-        (key, field) => MapEntry(
-          key,
-          field.validate(key.name, _getProperty),
-        ),
-      )
-    };
-    errors.removeWhere((key, value) => value.isEmpty);
-    return ServiceConfigInputValidation(
-        errors, value, ServiceConfigInputValidationFields(errors));
-  }
+  factory ServiceConfigInputValidation.fromValue(ServiceConfigInput value) =>
+      spec.validate(value);
 
   static const spec = ValidaSpec(
+    globalValidate: null,
+    validationFactory: ServiceConfigInputValidation.new,
+    getField: _getField,
     fieldsMap: {
       ServiceConfigInputField.gitRepo: ValidaString(
           matches:
@@ -337,10 +331,12 @@ class ServiceConfigInputValidation
           ValidaString(matches: GIT_BRANCH_REGEXP),
       ServiceConfigInputField.serverFile: ValidaString(
           matches: r'^[a-zA-Z0-9\_\.]([a-zA-Z0-9\-\_/\.]+)[a-zA-Z0-9]$'),
-      ServiceConfigInputField.commands:
-          ValidaList(customValidate: ServiceConfigInput.validateCommands),
+      ServiceConfigInputField.commands: ValidaList(
+          description: 'The command names should be unique',
+          customValidate: ServiceConfigInput.validateCommands,
+          each: ValidaNested(
+              overrideValidation: CliCommandInputValidation.fromValue)),
     },
-    getField: _getField,
   );
 
   static List<ValidaError> _globalValidate(ServiceConfigInput value) => [];
@@ -384,8 +380,9 @@ class CliCommandInputValidationFields {
 
 class CliCommandInputValidation
     extends Validation<CliCommandInput, CliCommandInputField> {
-  CliCommandInputValidation(this.errorsMap, this.value, this.fields)
-      : super(errorsMap);
+  CliCommandInputValidation(this.errorsMap, this.value)
+      : fields = CliCommandInputValidationFields(errorsMap),
+        super(errorsMap);
   @override
   final Map<CliCommandInputField, List<ValidaError>> errorsMap;
   @override
@@ -394,30 +391,19 @@ class CliCommandInputValidation
   final CliCommandInputValidationFields fields;
 
   /// Validates [value] and returns a [CliCommandInputValidation] with the errors found as a result
-  static CliCommandInputValidation fromValue(CliCommandInput value) {
-    Object? _getProperty(String property) => spec.getField(value, property);
-
-    final errors = <CliCommandInputField, List<ValidaError>>{
-      ...spec.fieldsMap.map(
-        (key, field) => MapEntry(
-          key,
-          field.validate(key.name, _getProperty),
-        ),
-      )
-    };
-    errors.removeWhere((key, value) => value.isEmpty);
-    return CliCommandInputValidation(
-        errors, value, CliCommandInputValidationFields(errors));
-  }
+  factory CliCommandInputValidation.fromValue(CliCommandInput value) =>
+      spec.validate(value);
 
   static const spec = ValidaSpec(
+    globalValidate: null,
+    validationFactory: CliCommandInputValidation.new,
+    getField: _getField,
     fieldsMap: {
       CliCommandInputField.command:
           ValidaString(matches: r'^([^\s]+.*[^\s]+|[^\s]{1})$'),
       CliCommandInputField.variables:
           ValidaList(customValidate: CliCommandInput.validateVariables),
     },
-    getField: _getField,
   );
 
   static List<ValidaError> _globalValidate(CliCommandInput value) => [];
@@ -498,8 +484,9 @@ class CompilationFilterValidationFields {
 
 class CompilationFilterValidation
     extends Validation<CompilationFilter, CompilationFilterField> {
-  CompilationFilterValidation(this.errorsMap, this.value, this.fields)
-      : super(errorsMap);
+  CompilationFilterValidation(this.errorsMap, this.value)
+      : fields = CompilationFilterValidationFields(errorsMap),
+        super(errorsMap);
   @override
   final Map<CompilationFilterField, List<ValidaError>> errorsMap;
   @override
@@ -508,23 +495,13 @@ class CompilationFilterValidation
   final CompilationFilterValidationFields fields;
 
   /// Validates [value] and returns a [CompilationFilterValidation] with the errors found as a result
-  static CompilationFilterValidation fromValue(CompilationFilter value) {
-    Object? _getProperty(String property) => spec.getField(value, property);
-
-    final errors = <CompilationFilterField, List<ValidaError>>{
-      ...spec.fieldsMap.map(
-        (key, field) => MapEntry(
-          key,
-          field.validate(key.name, _getProperty),
-        ),
-      )
-    };
-    errors.removeWhere((key, value) => value.isEmpty);
-    return CompilationFilterValidation(
-        errors, value, CompilationFilterValidationFields(errors));
-  }
+  factory CompilationFilterValidation.fromValue(CompilationFilter value) =>
+      spec.validate(value);
 
   static const spec = ValidaSpec(
+    globalValidate: null,
+    validationFactory: CompilationFilterValidation.new,
+    getField: _getField,
     fieldsMap: {
       CompilationFilterField.gitRepo: ValidaNested<StringFilter>(
         omit: null,
@@ -557,7 +534,6 @@ class CompilationFilterValidation
         overrideValidation: DateTimeFilterValidation.fromValue,
       ),
     },
-    getField: _getField,
   );
 
   static List<ValidaError> _globalValidate(CompilationFilter value) => [];

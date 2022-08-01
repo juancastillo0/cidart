@@ -26,8 +26,11 @@ class ServiceConfigInput {
   )
   final String serverFile;
 
-  /// TODO: this is not being taken into account in validation
-  @ValidaList(customValidate: ServiceConfigInput.validateCommands)
+  @ValidaList(
+    description: 'The command names should be unique',
+    customValidate: ServiceConfigInput.validateCommands,
+    each: ValidaNested(overrideValidation: CliCommandInputValidation.fromValue),
+  )
   final List<CliCommandInput> commands;
 
   late final String id = [

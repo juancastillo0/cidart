@@ -223,8 +223,9 @@ class CompilationsArgsValidationFields {
 
 class CompilationsArgsValidation
     extends Validation<CompilationsArgs, CompilationsArgsField> {
-  CompilationsArgsValidation(this.errorsMap, this.value, this.fields)
-      : super(errorsMap);
+  CompilationsArgsValidation(this.errorsMap, this.value)
+      : fields = CompilationsArgsValidationFields(errorsMap),
+        super(errorsMap);
   @override
   final Map<CompilationsArgsField, List<ValidaError>> errorsMap;
   @override
@@ -233,29 +234,18 @@ class CompilationsArgsValidation
   final CompilationsArgsValidationFields fields;
 
   /// Validates [value] and returns a [CompilationsArgsValidation] with the errors found as a result
-  static CompilationsArgsValidation fromValue(CompilationsArgs value) {
-    Object? _getProperty(String property) => spec.getField(value, property);
-
-    final errors = <CompilationsArgsField, List<ValidaError>>{
-      ...spec.fieldsMap.map(
-        (key, field) => MapEntry(
-          key,
-          field.validate(key.name, _getProperty),
-        ),
-      )
-    };
-    errors.removeWhere((key, value) => value.isEmpty);
-    return CompilationsArgsValidation(
-        errors, value, CompilationsArgsValidationFields(errors));
-  }
+  factory CompilationsArgsValidation.fromValue(CompilationsArgs value) =>
+      spec.validate(value);
 
   static const spec = ValidaSpec(
+    globalValidate: null,
+    validationFactory: CompilationsArgsValidation.new,
+    getField: _getField,
     fieldsMap: {
       CompilationsArgsField.anyOf: ValidaList(
           each: ValidaNested(
               overrideValidation: CompilationFilterValidation.fromValue)),
     },
-    getField: _getField,
   );
 
   static List<ValidaError> _globalValidate(CompilationsArgs value) => [];
