@@ -119,37 +119,6 @@ class CliCommandInput {
   Map<String, Object?> toJson() => _$CliCommandInputToJson(this);
 }
 
-@JsonSerializable()
-@GraphQLClass()
-class ServiceConfig {
-  final String serviceId;
-  final String gitRepo;
-  final String gitBranch;
-  final String serverFile;
-  // TODO: List<CliCommandInput> commands was not thorowing
-  final List<CliCommand> commands;
-
-  const ServiceConfig({
-    required this.serviceId,
-    required this.gitRepo,
-    required this.gitBranch,
-    required this.serverFile,
-    required this.commands,
-  });
-
-  @GraphQLField(omit: true)
-  Map<String, String> get dynamicVariables => {
-        '\${serviceId}': serviceId,
-        '\${gitRepo}': gitRepo,
-        '\${gitBranch}': gitBranch,
-        '\${serverFile}': serverFile,
-      };
-
-  factory ServiceConfig.fromJson(Map<String, Object?> json) =>
-      _$ServiceConfigFromJson(json);
-  Map<String, Object?> toJson() => _$ServiceConfigToJson(this);
-}
-
 @Valida()
 @JsonSerializable()
 @GraphQLInput()

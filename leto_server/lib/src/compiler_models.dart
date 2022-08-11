@@ -309,3 +309,36 @@ class CliCommand {
     return jsonEncode(this);
   }
 }
+
+@JsonSerializable()
+@GraphQLObject()
+class ServiceConfig {
+  final String serviceId;
+  final String gitRepo;
+  final String gitBranch;
+  final String serverFile;
+  // TODO: List<CliCommandInput> commands was not thorowing
+  final List<CliCommand> commands;
+  final DateTime createdDate;
+
+  const ServiceConfig({
+    required this.serviceId,
+    required this.gitRepo,
+    required this.gitBranch,
+    required this.serverFile,
+    required this.commands,
+    required this.createdDate,
+  });
+
+  @GraphQLField(omit: true)
+  Map<String, String> get dynamicVariables => {
+        '\${serviceId}': serviceId,
+        '\${gitRepo}': gitRepo,
+        '\${gitBranch}': gitBranch,
+        '\${serverFile}': serverFile,
+      };
+
+  factory ServiceConfig.fromJson(Map<String, Object?> json) =>
+      _$ServiceConfigFromJson(json);
+  Map<String, Object?> toJson() => _$ServiceConfigToJson(this);
+}
