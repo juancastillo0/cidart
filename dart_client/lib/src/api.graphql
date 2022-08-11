@@ -4,13 +4,30 @@ query topResult {
 
 mutation startService {
   startService {
-    ...CompilerLogF
+    ...CompilationLogF
   }
 }
 
-fragment CompilerLogF on CompilerLog {
+fragment CompilationLogF on CompilationLog {
   message
   time
+  command {
+    result {
+      ...ProcessExecResultF
+    }
+  }
+  __typename
+}
+
+fragment CommandExecutionF on CommandExecution {
+  command {
+    name
+    command
+    modifiedDate
+  }
+  status
+  durationMs
+  endTime
   result {
     ...ProcessExecResultF
   }

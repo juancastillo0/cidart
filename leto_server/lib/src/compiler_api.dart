@@ -1,21 +1,51 @@
 import 'package:leto_schema/leto_schema.dart';
+import 'package:leto_server/src/compiler_service_mock.dart';
 import 'package:valida/valida.dart';
 
+import 'compilation_event.dart';
 import 'compiler_models.dart';
 import 'compiler_service.dart';
 import 'compiler_api_models.dart';
-import 'util.dart';
 
 part 'compiler_api.g.dart';
 
-final _compilerService = RefWithDefault.global((scope) => CompilerService());
+final _compilerService = ScopedRef.global((scope) => CompilerService());
 
 class CompilerServicesStore {
   final Map<String, CompilerService> services = {};
+
+  static final ref = ScopedRef.global((scope) => CompilerServicesStore());
+
+  CompilerService createService(ServiceConfigInput config) {
+    final s = services[config.id];
+    if (s != null) {
+      return s;
+    }
+
+    final now = DateTime.now();
+    final service = ServiceConfig(
+      serviceId: config.id,
+      gitBranch: config.gitBranch,
+      gitRepo: config.gitRepo,
+      serverFile: config.serverFile,
+      createdDate: now,
+      commands: config.commands
+          .map((e) => CliCommand(
+                command: e.command,
+                modifiedDate: now,
+                name: e.name,
+                variables: e.variables,
+              ))
+          .toList(),
+    );
+    final compiler = CompilerServiceMock(null, service);
+    services[service.serviceId] = compiler;
+    return compiler;
+  }
 }
 
 @Mutation()
-Future<List<CompilerLog>> startService(Ctx ctx) async {
+Future<List<CompilationLog>> startService(Ctx ctx) async {
   final service = _compilerService.get(ctx);
 
   return service.startService();
@@ -30,27 +60,17 @@ Future<String?> topOutput(Ctx ctx) async {
 
 @Query()
 Future<List<ServiceConfig>> services(Ctx ctx) async {
-  return [];
+  return CompilerServicesStore.ref
+      .get(ctx)
+      .services
+      .values
+      .map((e) => e.config)
+      .toList();
 }
 
 @Mutation()
 Future<ServiceConfig> createService(Ctx ctx, ServiceConfigInput config) async {
-  final now = DateTime.now();
-
-  return ServiceConfig(
-    serviceId: randomId(),
-    gitBranch: config.gitBranch,
-    gitRepo: config.gitRepo,
-    serverFile: config.serverFile,
-    commands: config.commands
-        .map((e) => CliCommand(
-              command: e.command,
-              modifiedDate: now,
-              name: e.name,
-              variables: e.variables,
-            ))
-        .toList(),
-  );
+  return CompilerServicesStore.ref.get(ctx).createService(config).config;
 }
 
 @Mutation()
@@ -63,21 +83,42 @@ Future<ServiceConfig?> deleteService(Ctx ctx, String serviceId) async {
 // #1      _buildForElement (package:leto_generator/resolver_generator.dart:72:27)
 // <asynchronous suspension>
 @Subscription()
-Stream<Compilation> serviceUpdates(Ctx ctx, String serviceId) {
-  return Stream.fromIterable(compilationsListMock);
+Stream<CompilationEvent> serviceUpdates(Ctx ctx, String serviceId) {
+  final store = CompilerServicesStore.ref.get(ctx);
+  final service = store.services[serviceId];
+  if (service == null) {
+    throw 'serviceId $serviceId not found.';
+  }
+  return Stream.multi((controller) {
+    if (service.currentCompilation != null) {
+      final compilation = Compilation.fromCurrentCompilation(
+        service.currentCompilation!,
+        service.config,
+      );
+      controller.add(CompilationEvent.currentCompilation(compilation));
+    }
+    controller.addStream(service.stream);
+  });
+}
+
+@Subscription()
+Future<Stream<CompilationEvent>> createServiceAndReceiveUpdates(
+  Ctx ctx,
+  ServiceConfigInput config,
+) async {
+  final service = CompilerServicesStore.ref.get(ctx).createService(config);
+
+  return Stream.multi((controller) {
+    controller.add(CompilationEvent.created(service.config));
+    controller.addStream(service.stream);
+  });
 }
 
 @Valida()
 @Mutation()
 Future<List<Compilation>> compilations(
   Ctx ctx,
-  // TODO: should the annotation be necessary?
-  @ValidaList(
-    each: ValidaNested(
-      overrideValidation: CompilationFilterValidation.fromValue,
-    ),
-  )
-      List<CompilationFilter>? anyOf,
+  List<CompilationFilter>? anyOf,
 ) async {
   if (anyOf == null || anyOf.isEmpty) return compilationsListMock;
 

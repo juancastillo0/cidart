@@ -12,13 +12,12 @@ type ServiceConfig {
   gitBranch: String!
   serverFile: String!
   commands: [CliCommand!]!
+  createdDate: Date!
 }
 
 type CliCommand {
-  """TODO: this should not be exposed by default"""
-  toString: String!
   name: String!
-  command: String!
+  command: [String!]!
   modifiedDate: Date!
   variables: [CliCommandVariable!]!
 }
@@ -41,23 +40,32 @@ enum CliCommandVariableType {
 }
 
 type Mutation {
-  startService: [CompilerLog!]!
+  startService: [CompilationLog!]!
   createService(config: ServiceConfigInput!): ServiceConfig!
   deleteService(serviceId: String!): ServiceConfig
-  compilations(
-    """TODO: should the annotation be necessary?"""
-    anyOf: [CompilationFilter!] @valida(jsonSpec: """
-{"variantType":"list","each":{"variantType":"nested"}}
-""")
-  ): [Compilation!]!
+  compilations(anyOf: [CompilationFilter!]): [Compilation!]!
 }
 
-type CompilerLog {
-  toString: String!
+type CompilationLog {
   id: Int!
-  message: String!
+  command: CommandExecution
   time: Date!
+  message: String!
+}
+
+type CommandExecution {
+  command: CliCommand!
+  status: CompilationStatus!
+  durationMs: Int
+  endTime: Date
   result: ProcessExecResult
+}
+
+enum CompilationStatus {
+  pending
+  started
+  error
+  success
 }
 
 type ProcessExecResult {
@@ -84,7 +92,7 @@ input ServiceConfigInput {
 
 input CliCommandInput {
   name: String!
-  command: String! @valida(jsonSpec: """
+  command: [String!]! @valida(jsonSpec: """
 {"variantType":"string","matches":"^([^\\s]+.*[^\\s]+|[^\\s]{1})$"}
 """)
   variables: [CliCommandVariableInput!]! = [] @valida(jsonSpec: """
@@ -100,9 +108,7 @@ input CliCommandVariableInput {
 }
 
 type Compilation {
-  gitRepo: String!
-  gitBranch: String!
-  serverFile: String!
+  serviceConfig: ServiceConfig!
   commitHash: String!
   status: CompilationStatus!
   startTime: Date!
@@ -110,35 +116,20 @@ type Compilation {
   logs: [CompilationLog!]!
 }
 
-enum CompilationStatus {
-  pending
-  started
-  error
-  success
-}
-
-type CompilationLog {
-  command: CommandExecution
-  time: Date!
-  message: String!
-}
-
-type CommandExecution {
-  command: CliCommand!
-  status: CompilationStatus!
-  durationMs: Int
-  endTime: Date
-  result: ProcessExecResult
-}
-
 input CompilationFilter {
-  gitRepo: StringFilter
-  gitBranch: StringFilter
-  serverFile: StringFilter
+  serviceConfig: ServiceConfigFilter
   commitHash: StringFilter
   statusIsIn: [CompilationStatus!]
   startTime: DateTimeFilter
   endTime: DateTimeFilter
+}
+
+input ServiceConfigFilter {
+  serviceId: StringFilter
+  gitRepo: StringFilter
+  gitBranch: StringFilter
+  serverFile: StringFilter
+  createdDate: DateTimeFilter
 }
 
 input StringFilter {
@@ -157,5 +148,34 @@ input DateTimeFilter {
 }
 
 type Subscription {
-  serviceUpdates(serviceId: String!): Compilation!
+  serviceUpdates(serviceId: String!): CompilationEvent!
+  createServiceAndReceiveUpdates(config: ServiceConfigInput!): CompilationEvent!
+}
+
+union CompilationEvent = CompilationEventCreated | CompilationEventCompilation | CompilationEventCreationError | CompilationEventLog | CompilationEventExecution | CompilationEventPartialExecution
+
+type CompilationEventCreated {
+  service: ServiceConfig!
+}
+
+type CompilationEventCompilation {
+  compilation: Compilation!
+}
+
+type CompilationEventCreationError {
+  message: String!
+}
+
+type CompilationEventLog {
+  log: CompilationLog!
+}
+
+type CompilationEventExecution {
+  command: CommandExecution!
+  logIndex: Int!
+}
+
+type CompilationEventPartialExecution {
+  stderr: [String!]!
+  stdout: [String!]!
 }

@@ -4,6 +4,7 @@ import 'package:leto_server/src/compiler_api.dart';
 import 'package:leto_server/src/compiler_api_models.dart';
 import 'package:leto_server/src/filters.dart';
 import 'package:leto_server/src/compiler_models.dart';
+import 'package:leto_server/src/compilation_event.dart';
 
 GraphQLSchema recreateGraphQLApiSchema() {
   HotReloadableDefinition.incrementCounter();
@@ -17,13 +18,13 @@ GraphQLSchema get graphqlApiSchema => _graphqlApiSchema ??= GraphQLSchema(
         ..addAll([
           serviceConfigInputSerializer,
           cliCommandInputSerializer,
-          serviceConfigSerializer,
           compilationFilterSerializer,
+          serviceConfigFilterSerializer,
           dateTimeFilterSerializer,
           stringFilterSerializer,
-          compilerLogSerializer,
           cliCommandVariableSerializer,
           cliCommandSerializer,
+          serviceConfigSerializer,
         ])
         ..children.addAll([
           compFilterSerdeCtx,
@@ -48,6 +49,7 @@ GraphQLSchema get graphqlApiSchema => _graphqlApiSchema ??= GraphQLSchema(
         'Subscription',
         fields: [
           serviceUpdatesGraphQLField,
+          createServiceAndReceiveUpdatesGraphQLField,
         ],
       ),
     );

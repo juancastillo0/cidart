@@ -18,7 +18,7 @@ class CompilerClient {
   /// }
   CompilerClient(this.client);
 
-  Future<Result<List<Fragment$CompilerLogF>, OperationException>>
+  Future<Result<List<Fragment$CompilationLogF>, OperationException>>
       startService() async {
     final result = await client.mutate$startService(
       Options$Mutation$startService(),

@@ -149,7 +149,7 @@ class Input$CliCommandInput {
 
   final String name;
 
-  final String command;
+  final List<String> command;
 
   final List<Input$CliCommandVariableInput> variables;
 
@@ -158,8 +158,11 @@ class Input$CliCommandInput {
     final l$name = name;
     final l$command = command;
     final l$variables = variables;
-    return Object.hashAll(
-        [l$name, l$command, Object.hashAll(l$variables.map((v) => v))]);
+    return Object.hashAll([
+      l$name,
+      Object.hashAll(l$command.map((v) => v)),
+      Object.hashAll(l$variables.map((v) => v))
+    ]);
   }
 
   @override
@@ -172,7 +175,13 @@ class Input$CliCommandInput {
     if (l$name != lOther$name) return false;
     final l$command = command;
     final lOther$command = other.command;
-    if (l$command != lOther$command) return false;
+    if (l$command.length != lOther$command.length) return false;
+    for (int i = 0; i < l$command.length; i++) {
+      final l$command$entry = l$command[i];
+      final lOther$command$entry = lOther$command[i];
+      if (l$command$entry != lOther$command$entry) return false;
+    }
+
     final l$variables = variables;
     final lOther$variables = other.variables;
     if (l$variables.length != lOther$variables.length) return false;
@@ -199,7 +208,7 @@ abstract class CopyWith$Input$CliCommandInput<TRes> {
 
   TRes call(
       {String? name,
-      String? command,
+      List<String>? command,
       List<Input$CliCommandVariableInput>? variables});
   TRes variables(
       Iterable<Input$CliCommandVariableInput> Function(
@@ -229,7 +238,7 @@ class _CopyWithImpl$Input$CliCommandInput<TRes>
               : (name as String),
           command: command == _undefined || command == null
               ? _instance.command
-              : (command as String),
+              : (command as List<String>),
           variables: variables == _undefined || variables == null
               ? _instance.variables
               : (variables as List<Input$CliCommandVariableInput>)));
@@ -253,7 +262,7 @@ class _CopyWithStubImpl$Input$CliCommandInput<TRes>
 
   call(
           {String? name,
-          String? command,
+          List<String>? command,
           List<Input$CliCommandVariableInput>? variables}) =>
       _res;
   variables(_fn) => _res;
@@ -341,9 +350,7 @@ class _CopyWithStubImpl$Input$CliCommandVariableInput<TRes>
 @JsonSerializable(explicitToJson: true)
 class Input$CompilationFilter {
   Input$CompilationFilter(
-      {this.gitRepo,
-      this.gitBranch,
-      this.serverFile,
+      {this.serviceConfig,
       this.commitHash,
       this.statusIsIn,
       this.startTime,
@@ -353,11 +360,7 @@ class Input$CompilationFilter {
   factory Input$CompilationFilter.fromJson(Map<String, dynamic> json) =>
       _$Input$CompilationFilterFromJson(json);
 
-  final Input$StringFilter? gitRepo;
-
-  final Input$StringFilter? gitBranch;
-
-  final Input$StringFilter? serverFile;
+  final Input$ServiceConfigFilter? serviceConfig;
 
   final Input$StringFilter? commitHash;
 
@@ -370,17 +373,13 @@ class Input$CompilationFilter {
 
   Map<String, dynamic> toJson() => _$Input$CompilationFilterToJson(this);
   int get hashCode {
-    final l$gitRepo = gitRepo;
-    final l$gitBranch = gitBranch;
-    final l$serverFile = serverFile;
+    final l$serviceConfig = serviceConfig;
     final l$commitHash = commitHash;
     final l$statusIsIn = statusIsIn;
     final l$startTime = startTime;
     final l$endTime = endTime;
     return Object.hashAll([
-      l$gitRepo,
-      l$gitBranch,
-      l$serverFile,
+      l$serviceConfig,
       l$commitHash,
       l$statusIsIn == null ? null : Object.hashAll(l$statusIsIn.map((v) => v)),
       l$startTime,
@@ -393,15 +392,9 @@ class Input$CompilationFilter {
     if (identical(this, other)) return true;
     if (!(other is Input$CompilationFilter) || runtimeType != other.runtimeType)
       return false;
-    final l$gitRepo = gitRepo;
-    final lOther$gitRepo = other.gitRepo;
-    if (l$gitRepo != lOther$gitRepo) return false;
-    final l$gitBranch = gitBranch;
-    final lOther$gitBranch = other.gitBranch;
-    if (l$gitBranch != lOther$gitBranch) return false;
-    final l$serverFile = serverFile;
-    final lOther$serverFile = other.serverFile;
-    if (l$serverFile != lOther$serverFile) return false;
+    final l$serviceConfig = serviceConfig;
+    final lOther$serviceConfig = other.serviceConfig;
+    if (l$serviceConfig != lOther$serviceConfig) return false;
     final l$commitHash = commitHash;
     final lOther$commitHash = other.commitHash;
     if (l$commitHash != lOther$commitHash) return false;
@@ -440,16 +433,12 @@ abstract class CopyWith$Input$CompilationFilter<TRes> {
       _CopyWithStubImpl$Input$CompilationFilter;
 
   TRes call(
-      {Input$StringFilter? gitRepo,
-      Input$StringFilter? gitBranch,
-      Input$StringFilter? serverFile,
+      {Input$ServiceConfigFilter? serviceConfig,
       Input$StringFilter? commitHash,
       List<Enum$CompilationStatus>? statusIsIn,
       Input$DateTimeFilter? startTime,
       Input$DateTimeFilter? endTime});
-  CopyWith$Input$StringFilter<TRes> get gitRepo;
-  CopyWith$Input$StringFilter<TRes> get gitBranch;
-  CopyWith$Input$StringFilter<TRes> get serverFile;
+  CopyWith$Input$ServiceConfigFilter<TRes> get serviceConfig;
   CopyWith$Input$StringFilter<TRes> get commitHash;
   CopyWith$Input$DateTimeFilter<TRes> get startTime;
   CopyWith$Input$DateTimeFilter<TRes> get endTime;
@@ -466,23 +455,15 @@ class _CopyWithImpl$Input$CompilationFilter<TRes>
   static const _undefined = {};
 
   TRes call(
-          {Object? gitRepo = _undefined,
-          Object? gitBranch = _undefined,
-          Object? serverFile = _undefined,
+          {Object? serviceConfig = _undefined,
           Object? commitHash = _undefined,
           Object? statusIsIn = _undefined,
           Object? startTime = _undefined,
           Object? endTime = _undefined}) =>
       _then(Input$CompilationFilter(
-          gitRepo: gitRepo == _undefined
-              ? _instance.gitRepo
-              : (gitRepo as Input$StringFilter?),
-          gitBranch: gitBranch == _undefined
-              ? _instance.gitBranch
-              : (gitBranch as Input$StringFilter?),
-          serverFile: serverFile == _undefined
-              ? _instance.serverFile
-              : (serverFile as Input$StringFilter?),
+          serviceConfig: serviceConfig == _undefined
+              ? _instance.serviceConfig
+              : (serviceConfig as Input$ServiceConfigFilter?),
           commitHash: commitHash == _undefined
               ? _instance.commitHash
               : (commitHash as Input$StringFilter?),
@@ -495,27 +476,12 @@ class _CopyWithImpl$Input$CompilationFilter<TRes>
           endTime: endTime == _undefined
               ? _instance.endTime
               : (endTime as Input$DateTimeFilter?)));
-  CopyWith$Input$StringFilter<TRes> get gitRepo {
-    final local$gitRepo = _instance.gitRepo;
-    return local$gitRepo == null
-        ? CopyWith$Input$StringFilter.stub(_then(_instance))
-        : CopyWith$Input$StringFilter(local$gitRepo, (e) => call(gitRepo: e));
-  }
-
-  CopyWith$Input$StringFilter<TRes> get gitBranch {
-    final local$gitBranch = _instance.gitBranch;
-    return local$gitBranch == null
-        ? CopyWith$Input$StringFilter.stub(_then(_instance))
-        : CopyWith$Input$StringFilter(
-            local$gitBranch, (e) => call(gitBranch: e));
-  }
-
-  CopyWith$Input$StringFilter<TRes> get serverFile {
-    final local$serverFile = _instance.serverFile;
-    return local$serverFile == null
-        ? CopyWith$Input$StringFilter.stub(_then(_instance))
-        : CopyWith$Input$StringFilter(
-            local$serverFile, (e) => call(serverFile: e));
+  CopyWith$Input$ServiceConfigFilter<TRes> get serviceConfig {
+    final local$serviceConfig = _instance.serviceConfig;
+    return local$serviceConfig == null
+        ? CopyWith$Input$ServiceConfigFilter.stub(_then(_instance))
+        : CopyWith$Input$ServiceConfigFilter(
+            local$serviceConfig, (e) => call(serviceConfig: e));
   }
 
   CopyWith$Input$StringFilter<TRes> get commitHash {
@@ -549,25 +515,198 @@ class _CopyWithStubImpl$Input$CompilationFilter<TRes>
   TRes _res;
 
   call(
-          {Input$StringFilter? gitRepo,
-          Input$StringFilter? gitBranch,
-          Input$StringFilter? serverFile,
+          {Input$ServiceConfigFilter? serviceConfig,
           Input$StringFilter? commitHash,
           List<Enum$CompilationStatus>? statusIsIn,
           Input$DateTimeFilter? startTime,
           Input$DateTimeFilter? endTime}) =>
       _res;
+  CopyWith$Input$ServiceConfigFilter<TRes> get serviceConfig =>
+      CopyWith$Input$ServiceConfigFilter.stub(_res);
+  CopyWith$Input$StringFilter<TRes> get commitHash =>
+      CopyWith$Input$StringFilter.stub(_res);
+  CopyWith$Input$DateTimeFilter<TRes> get startTime =>
+      CopyWith$Input$DateTimeFilter.stub(_res);
+  CopyWith$Input$DateTimeFilter<TRes> get endTime =>
+      CopyWith$Input$DateTimeFilter.stub(_res);
+}
+
+@JsonSerializable(explicitToJson: true)
+class Input$ServiceConfigFilter {
+  Input$ServiceConfigFilter(
+      {this.serviceId,
+      this.gitRepo,
+      this.gitBranch,
+      this.serverFile,
+      this.createdDate});
+
+  @override
+  factory Input$ServiceConfigFilter.fromJson(Map<String, dynamic> json) =>
+      _$Input$ServiceConfigFilterFromJson(json);
+
+  final Input$StringFilter? serviceId;
+
+  final Input$StringFilter? gitRepo;
+
+  final Input$StringFilter? gitBranch;
+
+  final Input$StringFilter? serverFile;
+
+  final Input$DateTimeFilter? createdDate;
+
+  Map<String, dynamic> toJson() => _$Input$ServiceConfigFilterToJson(this);
+  int get hashCode {
+    final l$serviceId = serviceId;
+    final l$gitRepo = gitRepo;
+    final l$gitBranch = gitBranch;
+    final l$serverFile = serverFile;
+    final l$createdDate = createdDate;
+    return Object.hashAll(
+        [l$serviceId, l$gitRepo, l$gitBranch, l$serverFile, l$createdDate]);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    if (!(other is Input$ServiceConfigFilter) ||
+        runtimeType != other.runtimeType) return false;
+    final l$serviceId = serviceId;
+    final lOther$serviceId = other.serviceId;
+    if (l$serviceId != lOther$serviceId) return false;
+    final l$gitRepo = gitRepo;
+    final lOther$gitRepo = other.gitRepo;
+    if (l$gitRepo != lOther$gitRepo) return false;
+    final l$gitBranch = gitBranch;
+    final lOther$gitBranch = other.gitBranch;
+    if (l$gitBranch != lOther$gitBranch) return false;
+    final l$serverFile = serverFile;
+    final lOther$serverFile = other.serverFile;
+    if (l$serverFile != lOther$serverFile) return false;
+    final l$createdDate = createdDate;
+    final lOther$createdDate = other.createdDate;
+    if (l$createdDate != lOther$createdDate) return false;
+    return true;
+  }
+
+  CopyWith$Input$ServiceConfigFilter<Input$ServiceConfigFilter> get copyWith =>
+      CopyWith$Input$ServiceConfigFilter(this, (i) => i);
+}
+
+abstract class CopyWith$Input$ServiceConfigFilter<TRes> {
+  factory CopyWith$Input$ServiceConfigFilter(Input$ServiceConfigFilter instance,
+          TRes Function(Input$ServiceConfigFilter) then) =
+      _CopyWithImpl$Input$ServiceConfigFilter;
+
+  factory CopyWith$Input$ServiceConfigFilter.stub(TRes res) =
+      _CopyWithStubImpl$Input$ServiceConfigFilter;
+
+  TRes call(
+      {Input$StringFilter? serviceId,
+      Input$StringFilter? gitRepo,
+      Input$StringFilter? gitBranch,
+      Input$StringFilter? serverFile,
+      Input$DateTimeFilter? createdDate});
+  CopyWith$Input$StringFilter<TRes> get serviceId;
+  CopyWith$Input$StringFilter<TRes> get gitRepo;
+  CopyWith$Input$StringFilter<TRes> get gitBranch;
+  CopyWith$Input$StringFilter<TRes> get serverFile;
+  CopyWith$Input$DateTimeFilter<TRes> get createdDate;
+}
+
+class _CopyWithImpl$Input$ServiceConfigFilter<TRes>
+    implements CopyWith$Input$ServiceConfigFilter<TRes> {
+  _CopyWithImpl$Input$ServiceConfigFilter(this._instance, this._then);
+
+  final Input$ServiceConfigFilter _instance;
+
+  final TRes Function(Input$ServiceConfigFilter) _then;
+
+  static const _undefined = {};
+
+  TRes call(
+          {Object? serviceId = _undefined,
+          Object? gitRepo = _undefined,
+          Object? gitBranch = _undefined,
+          Object? serverFile = _undefined,
+          Object? createdDate = _undefined}) =>
+      _then(Input$ServiceConfigFilter(
+          serviceId: serviceId == _undefined
+              ? _instance.serviceId
+              : (serviceId as Input$StringFilter?),
+          gitRepo: gitRepo == _undefined
+              ? _instance.gitRepo
+              : (gitRepo as Input$StringFilter?),
+          gitBranch: gitBranch == _undefined
+              ? _instance.gitBranch
+              : (gitBranch as Input$StringFilter?),
+          serverFile: serverFile == _undefined
+              ? _instance.serverFile
+              : (serverFile as Input$StringFilter?),
+          createdDate: createdDate == _undefined
+              ? _instance.createdDate
+              : (createdDate as Input$DateTimeFilter?)));
+  CopyWith$Input$StringFilter<TRes> get serviceId {
+    final local$serviceId = _instance.serviceId;
+    return local$serviceId == null
+        ? CopyWith$Input$StringFilter.stub(_then(_instance))
+        : CopyWith$Input$StringFilter(
+            local$serviceId, (e) => call(serviceId: e));
+  }
+
+  CopyWith$Input$StringFilter<TRes> get gitRepo {
+    final local$gitRepo = _instance.gitRepo;
+    return local$gitRepo == null
+        ? CopyWith$Input$StringFilter.stub(_then(_instance))
+        : CopyWith$Input$StringFilter(local$gitRepo, (e) => call(gitRepo: e));
+  }
+
+  CopyWith$Input$StringFilter<TRes> get gitBranch {
+    final local$gitBranch = _instance.gitBranch;
+    return local$gitBranch == null
+        ? CopyWith$Input$StringFilter.stub(_then(_instance))
+        : CopyWith$Input$StringFilter(
+            local$gitBranch, (e) => call(gitBranch: e));
+  }
+
+  CopyWith$Input$StringFilter<TRes> get serverFile {
+    final local$serverFile = _instance.serverFile;
+    return local$serverFile == null
+        ? CopyWith$Input$StringFilter.stub(_then(_instance))
+        : CopyWith$Input$StringFilter(
+            local$serverFile, (e) => call(serverFile: e));
+  }
+
+  CopyWith$Input$DateTimeFilter<TRes> get createdDate {
+    final local$createdDate = _instance.createdDate;
+    return local$createdDate == null
+        ? CopyWith$Input$DateTimeFilter.stub(_then(_instance))
+        : CopyWith$Input$DateTimeFilter(
+            local$createdDate, (e) => call(createdDate: e));
+  }
+}
+
+class _CopyWithStubImpl$Input$ServiceConfigFilter<TRes>
+    implements CopyWith$Input$ServiceConfigFilter<TRes> {
+  _CopyWithStubImpl$Input$ServiceConfigFilter(this._res);
+
+  TRes _res;
+
+  call(
+          {Input$StringFilter? serviceId,
+          Input$StringFilter? gitRepo,
+          Input$StringFilter? gitBranch,
+          Input$StringFilter? serverFile,
+          Input$DateTimeFilter? createdDate}) =>
+      _res;
+  CopyWith$Input$StringFilter<TRes> get serviceId =>
+      CopyWith$Input$StringFilter.stub(_res);
   CopyWith$Input$StringFilter<TRes> get gitRepo =>
       CopyWith$Input$StringFilter.stub(_res);
   CopyWith$Input$StringFilter<TRes> get gitBranch =>
       CopyWith$Input$StringFilter.stub(_res);
   CopyWith$Input$StringFilter<TRes> get serverFile =>
       CopyWith$Input$StringFilter.stub(_res);
-  CopyWith$Input$StringFilter<TRes> get commitHash =>
-      CopyWith$Input$StringFilter.stub(_res);
-  CopyWith$Input$DateTimeFilter<TRes> get startTime =>
-      CopyWith$Input$DateTimeFilter.stub(_res);
-  CopyWith$Input$DateTimeFilter<TRes> get endTime =>
+  CopyWith$Input$DateTimeFilter<TRes> get createdDate =>
       CopyWith$Input$DateTimeFilter.stub(_res);
 }
 
@@ -766,4 +905,13 @@ enum Enum$CompilationStatus {
   $unknown
 }
 
-const possibleTypesMap = {};
+const possibleTypesMap = {
+  'CompilationEvent': {
+    'CompilationEventCreated',
+    'CompilationEventCompilation',
+    'CompilationEventCreationError',
+    'CompilationEventLog',
+    'CompilationEventExecution',
+    'CompilationEventPartialExecution'
+  }
+};

@@ -30,7 +30,8 @@ Input$CliCommandInput _$Input$CliCommandInputFromJson(
         Map<String, dynamic> json) =>
     Input$CliCommandInput(
       name: json['name'] as String,
-      command: json['command'] as String,
+      command:
+          (json['command'] as List<dynamic>).map((e) => e as String).toList(),
       variables: (json['variables'] as List<dynamic>)
           .map((e) =>
               Input$CliCommandVariableInput.fromJson(e as Map<String, dynamic>))
@@ -70,18 +71,10 @@ const _$Enum$CliCommandVariableTypeEnumMap = {
 Input$CompilationFilter _$Input$CompilationFilterFromJson(
         Map<String, dynamic> json) =>
     Input$CompilationFilter(
-      gitRepo: json['gitRepo'] == null
+      serviceConfig: json['serviceConfig'] == null
           ? null
-          : Input$StringFilter.fromJson(
-              json['gitRepo'] as Map<String, dynamic>),
-      gitBranch: json['gitBranch'] == null
-          ? null
-          : Input$StringFilter.fromJson(
-              json['gitBranch'] as Map<String, dynamic>),
-      serverFile: json['serverFile'] == null
-          ? null
-          : Input$StringFilter.fromJson(
-              json['serverFile'] as Map<String, dynamic>),
+          : Input$ServiceConfigFilter.fromJson(
+              json['serviceConfig'] as Map<String, dynamic>),
       commitHash: json['commitHash'] == null
           ? null
           : Input$StringFilter.fromJson(
@@ -103,9 +96,7 @@ Input$CompilationFilter _$Input$CompilationFilterFromJson(
 Map<String, dynamic> _$Input$CompilationFilterToJson(
         Input$CompilationFilter instance) =>
     <String, dynamic>{
-      'gitRepo': instance.gitRepo?.toJson(),
-      'gitBranch': instance.gitBranch?.toJson(),
-      'serverFile': instance.serverFile?.toJson(),
+      'serviceConfig': instance.serviceConfig?.toJson(),
       'commitHash': instance.commitHash?.toJson(),
       'statusIsIn': instance.statusIsIn
           ?.map((e) => _$Enum$CompilationStatusEnumMap[e]!)
@@ -121,6 +112,41 @@ const _$Enum$CompilationStatusEnumMap = {
   Enum$CompilationStatus.success: 'success',
   Enum$CompilationStatus.$unknown: r'$unknown',
 };
+
+Input$ServiceConfigFilter _$Input$ServiceConfigFilterFromJson(
+        Map<String, dynamic> json) =>
+    Input$ServiceConfigFilter(
+      serviceId: json['serviceId'] == null
+          ? null
+          : Input$StringFilter.fromJson(
+              json['serviceId'] as Map<String, dynamic>),
+      gitRepo: json['gitRepo'] == null
+          ? null
+          : Input$StringFilter.fromJson(
+              json['gitRepo'] as Map<String, dynamic>),
+      gitBranch: json['gitBranch'] == null
+          ? null
+          : Input$StringFilter.fromJson(
+              json['gitBranch'] as Map<String, dynamic>),
+      serverFile: json['serverFile'] == null
+          ? null
+          : Input$StringFilter.fromJson(
+              json['serverFile'] as Map<String, dynamic>),
+      createdDate: json['createdDate'] == null
+          ? null
+          : Input$DateTimeFilter.fromJson(
+              json['createdDate'] as Map<String, dynamic>),
+    );
+
+Map<String, dynamic> _$Input$ServiceConfigFilterToJson(
+        Input$ServiceConfigFilter instance) =>
+    <String, dynamic>{
+      'serviceId': instance.serviceId?.toJson(),
+      'gitRepo': instance.gitRepo?.toJson(),
+      'gitBranch': instance.gitBranch?.toJson(),
+      'serverFile': instance.serverFile?.toJson(),
+      'createdDate': instance.createdDate?.toJson(),
+    };
 
 Input$StringFilter _$Input$StringFilterFromJson(Map<String, dynamic> json) =>
     Input$StringFilter(

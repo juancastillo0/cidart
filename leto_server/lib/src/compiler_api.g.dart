@@ -6,12 +6,12 @@ part of 'compiler_api.dart';
 // _GraphQLGenerator
 // **************************************************************************
 
-GraphQLObjectField<List<CompilerLog>, Object?, Object?>
+GraphQLObjectField<List<CompilationLog>, Object?, Object?>
     get startServiceGraphQLField => _startServiceGraphQLField.value;
 final _startServiceGraphQLField = HotReloadableDefinition<
-        GraphQLObjectField<List<CompilerLog>, Object?, Object?>>(
+        GraphQLObjectField<List<CompilationLog>, Object?, Object?>>(
     (setValue) => setValue(
-            compilerLogGraphQLType.nonNull().list().nonNull().field<Object?>(
+            compilationLogGraphQLType.nonNull().list().nonNull().field<Object?>(
           'startService',
           resolve: (obj, ctx) {
             final args = ctx.args;
@@ -97,11 +97,11 @@ final _deleteServiceGraphQLField = HotReloadableDefinition<
         ))
           ..inputs.addAll([graphQLString.nonNull().inputField('serviceId')]));
 
-GraphQLObjectField<Compilation, Object?, Object?>
+GraphQLObjectField<CompilationEvent, Object?, Object?>
     get serviceUpdatesGraphQLField => _serviceUpdatesGraphQLField.value;
 final _serviceUpdatesGraphQLField = HotReloadableDefinition<
-        GraphQLObjectField<Compilation, Object?, Object?>>(
-    (setValue) => setValue(compilationGraphQLType.nonNull().field<Object?>(
+        GraphQLObjectField<CompilationEvent, Object?, Object?>>(
+    (setValue) => setValue(compilationEventGraphQLType.nonNull().field<Object?>(
           'serviceUpdates',
           subscribe: (obj, ctx) {
             final args = ctx.args;
@@ -110,6 +110,45 @@ final _serviceUpdatesGraphQLField = HotReloadableDefinition<
           },
         ))
           ..inputs.addAll([graphQLString.nonNull().inputField('serviceId')]));
+
+GraphQLObjectField<CompilationEvent, Object?, Object?>
+    get createServiceAndReceiveUpdatesGraphQLField =>
+        _createServiceAndReceiveUpdatesGraphQLField.value;
+final _createServiceAndReceiveUpdatesGraphQLField = HotReloadableDefinition<
+    GraphQLObjectField<CompilationEvent, Object?,
+        Object?>>((setValue) =>
+    setValue(compilationEventGraphQLType.nonNull().field<Object?>(
+      'createServiceAndReceiveUpdates',
+      subscribe: (obj, ctx) {
+        final args = ctx.args;
+        final validationErrorMap = <String, List<ValidaError>>{};
+
+        if ((args["config"] as ServiceConfigInput) != null) {
+          final configValidationResult = ServiceConfigInputValidation.fromValue(
+              (args["config"] as ServiceConfigInput) as ServiceConfigInput);
+          if (configValidationResult.hasErrors) {
+            validationErrorMap['config'] = [
+              configValidationResult.toError(property: 'config')!
+            ];
+          }
+        }
+
+        if (validationErrorMap.isNotEmpty) {
+          throw GraphQLError(
+            'Input validation error',
+            extensions: {
+              'validaErrors': validationErrorMap,
+            },
+            sourceError: validationErrorMap,
+          );
+        }
+
+        return createServiceAndReceiveUpdates(
+            ctx, (args["config"] as ServiceConfigInput));
+      },
+    ))
+      ..inputs.addAll(
+          [serviceConfigInputGraphQLTypeInput.nonNull().inputField('config')]));
 
 GraphQLObjectField<List<Compilation>, Object?, Object?>
     get compilationsGraphQLField => _compilationsGraphQLField.value;
@@ -142,14 +181,7 @@ final _compilationsGraphQLField = HotReloadableDefinition<
       },
     ))
       ..inputs.addAll([
-        compilationFilterGraphQLTypeInput.nonNull().list().inputField('anyOf',
-            description: 'TODO: should the annotation be necessary?',
-            attachments: [
-              ValidaAttachment(ValidaList(
-                  each: ValidaNested(
-                      overrideValidation:
-                          CompilationFilterValidation.fromValue))),
-            ])
+        compilationFilterGraphQLTypeInput.nonNull().list().inputField('anyOf')
       ]));
 
 // **************************************************************************
@@ -242,7 +274,7 @@ class CompilationsArgsValidation
     validationFactory: CompilationsArgsValidation.new,
     getField: _getField,
     fieldsMap: {
-      CompilationsArgsField.anyOf: ValidaList(
+      CompilationsArgsField.anyOf: ValidaList<CompilationFilter>(
           each: ValidaNested(
               overrideValidation: CompilationFilterValidation.fromValue)),
     },
