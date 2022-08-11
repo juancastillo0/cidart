@@ -93,7 +93,7 @@ input ServiceConfigInput {
 input CliCommandInput {
   name: String!
   command: [String!]! @valida(jsonSpec: """
-{"variantType":"string","matches":"^([^\\s]+.*[^\\s]+|[^\\s]{1})$"}
+{"variantType":"list","each":{"variantType":"string","matches":"^([^\\s]+.*[^\\s]+|[^\\s]{1})$"}}
 """)
   variables: [CliCommandVariableInput!]! = [] @valida(jsonSpec: """
 {"variantType":"list"}

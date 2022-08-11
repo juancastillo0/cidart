@@ -79,7 +79,8 @@ final _cliCommandInputGraphQLTypeInput =
           .list()
           .nonNull()
           .inputField('command', attachments: [
-        ValidaAttachment(ValidaString(matches: r'^([^\s]+.*[^\s]+|[^\s]{1})$')),
+        ValidaAttachment(ValidaList(
+            each: ValidaString(matches: r'^([^\s]+.*[^\s]+|[^\s]{1})$'))),
       ]),
       cliCommandVariableGraphQLTypeInput
           .nonNull()
@@ -394,8 +395,8 @@ class CliCommandInputValidation
     validationFactory: CliCommandInputValidation.new,
     getField: _getField,
     fieldsMap: {
-      CliCommandInputField.command:
-          ValidaString(matches: r'^([^\s]+.*[^\s]+|[^\s]{1})$'),
+      CliCommandInputField.command: ValidaList(
+          each: ValidaString(matches: r'^([^\s]+.*[^\s]+|[^\s]{1})$')),
       CliCommandInputField.variables:
           ValidaList(customValidate: CliCommandInput.validateVariables),
     },

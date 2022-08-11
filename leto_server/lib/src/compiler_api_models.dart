@@ -76,9 +76,12 @@ class ServiceConfigInput {
 @GraphQLInput()
 class CliCommandInput {
   final String name;
-  @ValidaString(
-    // not white space
-    matches: r'^([^\s]+.*[^\s]+|[^\s]{1})$',
+  // TODO: this should throw. a ValidaString in a List<String>
+  @ValidaList(
+    each: ValidaString(
+      // not white space
+      matches: r'^([^\s]+.*[^\s]+|[^\s]{1})$',
+    ),
   )
   final List<String> command;
   @ValidaList(customValidate: CliCommandInput.validateVariables)
