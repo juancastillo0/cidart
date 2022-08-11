@@ -6,43 +6,6 @@ part of 'compiler_models.dart';
 // _GraphQLGenerator
 // **************************************************************************
 
-final compilerLogSerializer = SerializerValue<CompilerLog>(
-  key: "CompilerLog",
-  fromJson: (ctx, json) => CompilerLog.fromJson(json), // _$CompilerLogFromJson,
-  // toJson: (m) => _$CompilerLogToJson(m as CompilerLog),
-);
-final _compilerLogGraphQLType =
-    HotReloadableDefinition<GraphQLObjectType<CompilerLog>>((setValue) {
-  final __name = 'CompilerLog';
-
-  final __compilerLogGraphQLType =
-      objectType<CompilerLog>(__name, isInterface: false, interfaces: []);
-
-  setValue(__compilerLogGraphQLType);
-  __compilerLogGraphQLType.fields.addAll(
-    [
-      graphQLString.nonNull().field('toString', resolve: (obj, ctx) {
-        final args = ctx.args;
-
-        return obj.toString();
-      }),
-      graphQLInt.nonNull().field('id', resolve: (obj, ctx) => obj.id),
-      graphQLString
-          .nonNull()
-          .field('message', resolve: (obj, ctx) => obj.message),
-      graphQLDate.nonNull().field('time', resolve: (obj, ctx) => obj.time),
-      processExecResultGraphQLType.field('result',
-          resolve: (obj, ctx) => obj.result)
-    ],
-  );
-
-  return __compilerLogGraphQLType;
-});
-
-/// Auto-generated from [CompilerLog].
-GraphQLObjectType<CompilerLog> get compilerLogGraphQLType =>
-    _compilerLogGraphQLType.value;
-
 final _processExecResultGraphQLType =
     HotReloadableDefinition<GraphQLObjectType<ProcessExecResult>>((setValue) {
   final __name = 'ProcessExecResult';
@@ -81,15 +44,9 @@ final _compilationGraphQLType =
   setValue(__compilationGraphQLType);
   __compilationGraphQLType.fields.addAll(
     [
-      graphQLString
+      serviceConfigGraphQLType
           .nonNull()
-          .field('gitRepo', resolve: (obj, ctx) => obj.gitRepo),
-      graphQLString
-          .nonNull()
-          .field('gitBranch', resolve: (obj, ctx) => obj.gitBranch),
-      graphQLString
-          .nonNull()
-          .field('serverFile', resolve: (obj, ctx) => obj.serverFile),
+          .field('serviceConfig', resolve: (obj, ctx) => obj.serviceConfig),
       graphQLString
           .nonNull()
           .field('commitHash', resolve: (obj, ctx) => obj.commitHash),
@@ -125,6 +82,7 @@ final _compilationLogGraphQLType =
   setValue(__compilationLogGraphQLType);
   __compilationLogGraphQLType.fields.addAll(
     [
+      graphQLInt.nonNull().field('id', resolve: (obj, ctx) => obj.id),
       commandExecutionGraphQLType.field('command',
           resolve: (obj, ctx) => obj.command),
       graphQLDate.nonNull().field('time', resolve: (obj, ctx) => obj.time),
@@ -246,13 +204,10 @@ final _cliCommandGraphQLType =
   setValue(__cliCommandGraphQLType);
   __cliCommandGraphQLType.fields.addAll(
     [
-      graphQLString.nonNull().field('toString', resolve: (obj, ctx) {
-        final args = ctx.args;
-
-        return obj.toString();
-      }, description: 'TODO: this should not be exposed by default'),
       graphQLString.nonNull().field('name', resolve: (obj, ctx) => obj.name),
       graphQLString
+          .nonNull()
+          .list()
           .nonNull()
           .field('command', resolve: (obj, ctx) => obj.command),
       graphQLDate
@@ -272,6 +227,52 @@ final _cliCommandGraphQLType =
 /// Auto-generated from [CliCommand].
 GraphQLObjectType<CliCommand> get cliCommandGraphQLType =>
     _cliCommandGraphQLType.value;
+
+final serviceConfigSerializer = SerializerValue<ServiceConfig>(
+  key: "ServiceConfig",
+  fromJson: (ctx, json) =>
+      ServiceConfig.fromJson(json), // _$ServiceConfigFromJson,
+  // toJson: (m) => _$ServiceConfigToJson(m as ServiceConfig),
+);
+final _serviceConfigGraphQLType =
+    HotReloadableDefinition<GraphQLObjectType<ServiceConfig>>((setValue) {
+  final __name = 'ServiceConfig';
+
+  final __serviceConfigGraphQLType =
+      objectType<ServiceConfig>(__name, isInterface: false, interfaces: []);
+
+  setValue(__serviceConfigGraphQLType);
+  __serviceConfigGraphQLType.fields.addAll(
+    [
+      graphQLString
+          .nonNull()
+          .field('serviceId', resolve: (obj, ctx) => obj.serviceId),
+      graphQLString
+          .nonNull()
+          .field('gitRepo', resolve: (obj, ctx) => obj.gitRepo),
+      graphQLString
+          .nonNull()
+          .field('gitBranch', resolve: (obj, ctx) => obj.gitBranch),
+      graphQLString
+          .nonNull()
+          .field('serverFile', resolve: (obj, ctx) => obj.serverFile),
+      cliCommandGraphQLType
+          .nonNull()
+          .list()
+          .nonNull()
+          .field('commands', resolve: (obj, ctx) => obj.commands),
+      graphQLDate
+          .nonNull()
+          .field('createdDate', resolve: (obj, ctx) => obj.createdDate)
+    ],
+  );
+
+  return __serviceConfigGraphQLType;
+});
+
+/// Auto-generated from [ServiceConfig].
+GraphQLObjectType<ServiceConfig> get serviceConfigGraphQLType =>
+    _serviceConfigGraphQLType.value;
 
 /// Auto-generated from [CompilationStatus].
 final GraphQLEnumType<CompilationStatus> compilationStatusGraphQLType =
@@ -315,7 +316,8 @@ const _$CliCommandVariableTypeEnumMap = {
 
 CliCommand _$CliCommandFromJson(Map<String, dynamic> json) => CliCommand(
       name: json['name'] as String,
-      command: json['command'] as String,
+      command:
+          (json['command'] as List<dynamic>).map((e) => e as String).toList(),
       modifiedDate: DateTime.parse(json['modifiedDate'] as String),
       variables: (json['variables'] as List<dynamic>)
           .map((e) => CliCommandVariable.fromJson(e as Map<String, dynamic>))
@@ -328,6 +330,28 @@ Map<String, dynamic> _$CliCommandToJson(CliCommand instance) =>
       'command': instance.command,
       'modifiedDate': instance.modifiedDate.toIso8601String(),
       'variables': instance.variables,
+    };
+
+ServiceConfig _$ServiceConfigFromJson(Map<String, dynamic> json) =>
+    ServiceConfig(
+      serviceId: json['serviceId'] as String,
+      gitRepo: json['gitRepo'] as String,
+      gitBranch: json['gitBranch'] as String,
+      serverFile: json['serverFile'] as String,
+      commands: (json['commands'] as List<dynamic>)
+          .map((e) => CliCommand.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      createdDate: DateTime.parse(json['createdDate'] as String),
+    );
+
+Map<String, dynamic> _$ServiceConfigToJson(ServiceConfig instance) =>
+    <String, dynamic>{
+      'serviceId': instance.serviceId,
+      'gitRepo': instance.gitRepo,
+      'gitBranch': instance.gitBranch,
+      'serverFile': instance.serverFile,
+      'commands': instance.commands,
+      'createdDate': instance.createdDate.toIso8601String(),
     };
 
 // **************************************************************************

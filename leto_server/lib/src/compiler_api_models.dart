@@ -21,9 +21,7 @@ class ServiceConfigInput {
   final String gitRepo;
   @ValidaString(matches: GIT_BRANCH_REGEXP)
   final String gitBranch;
-  @ValidaString(
-    matches: r'^[a-zA-Z0-9\_\.]([a-zA-Z0-9\-\_/\.]+)[a-zA-Z0-9]$',
-  )
+  @ValidaString(matches: r'^[a-zA-Z0-9\_\.]([a-zA-Z0-9\-\_/\.]+)[a-zA-Z0-9]$')
   final String serverFile;
 
   @ValidaList(
@@ -82,7 +80,7 @@ class CliCommandInput {
     // not white space
     matches: r'^([^\s]+.*[^\s]+|[^\s]{1})$',
   )
-  final String command;
+  final List<String> command;
   @ValidaList(customValidate: CliCommandInput.validateVariables)
   final List<CliCommandVariable> variables;
 
@@ -123,18 +121,14 @@ class CliCommandInput {
 @JsonSerializable()
 @GraphQLInput()
 class CompilationFilter with Matcher<Compilation> {
-  final StringFilter? gitRepo;
-  final StringFilter? gitBranch;
-  final StringFilter? serverFile;
+  final ServiceConfigFilter? serviceConfig;
   final StringFilter? commitHash;
   final List<CompilationStatus>? statusIsIn;
   final DateTimeFilter? startTime;
   final DateTimeFilter? endTime;
 
   CompilationFilter({
-    required this.gitRepo,
-    required this.gitBranch,
-    required this.serverFile,
+    required this.serviceConfig,
     required this.commitHash,
     required this.statusIsIn,
     required this.startTime,
@@ -143,11 +137,8 @@ class CompilationFilter with Matcher<Compilation> {
 
   @override
   bool hasMatch(Compilation value) {
-    if (gitRepo != null && !gitRepo!.hasMatch(value.gitRepo)) {
-      return false;
-    } else if (gitBranch != null && !gitBranch!.hasMatch(value.gitBranch)) {
-      return false;
-    } else if (serverFile != null && !serverFile!.hasMatch(value.serverFile)) {
+    if (serviceConfig != null &&
+        !serviceConfig!.hasMatch(value.serviceConfig)) {
       return false;
     } else if (commitHash != null && !commitHash!.hasMatch(value.commitHash)) {
       return false;
@@ -166,4 +157,45 @@ class CompilationFilter with Matcher<Compilation> {
   factory CompilationFilter.fromJson(Map<String, Object?> json) =>
       _$CompilationFilterFromJson(json);
   Map<String, Object?> toJson() => _$CompilationFilterToJson(this);
+}
+
+// TODO: could this be generated?
+
+@JsonSerializable()
+@GraphQLInput()
+class ServiceConfigFilter with Matcher<ServiceConfig> {
+  final StringFilter? serviceId;
+  final StringFilter? gitRepo;
+  final StringFilter? gitBranch;
+  final StringFilter? serverFile;
+  final DateTimeFilter? createdDate;
+
+  ServiceConfigFilter({
+    this.serviceId,
+    this.gitRepo,
+    this.gitBranch,
+    this.serverFile,
+    this.createdDate,
+  });
+
+  @override
+  bool hasMatch(ServiceConfig value) {
+    if (gitRepo != null && !gitRepo!.hasMatch(value.gitRepo)) {
+      return false;
+    } else if (gitBranch != null && !gitBranch!.hasMatch(value.gitBranch)) {
+      return false;
+    } else if (serverFile != null && !serverFile!.hasMatch(value.serverFile)) {
+      return false;
+    } else if (serviceId != null && !serviceId!.hasMatch(value.serviceId)) {
+      return false;
+    } else if (createdDate != null &&
+        !createdDate!.hasMatch(value.createdDate)) {
+      return false;
+    }
+    return true;
+  }
+
+  factory ServiceConfigFilter.fromJson(Map<String, Object?> json) =>
+      _$ServiceConfigFilterFromJson(json);
+  Map<String, Object?> toJson() => _$ServiceConfigFilterToJson(this);
 }

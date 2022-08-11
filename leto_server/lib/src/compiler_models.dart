@@ -5,6 +5,8 @@ import 'package:json_annotation/json_annotation.dart';
 import 'package:leto_schema/leto_schema.dart';
 import 'package:valida/valida.dart';
 
+import 'compiler_service.dart';
+
 part 'compiler_models.g.dart';
 
 class ExecException implements Exception {
@@ -32,54 +34,55 @@ Map<String, Object?> processResultToJson(ProcessResult result) {
   };
 }
 
-@GraphQLClass()
-class CompilerLog {
-  final int id;
-  final String message;
-  final DateTime time;
-  final ProcessExecResult? result;
+// @GraphQLObject()
+// class CompilerLog {
+//   final int id;
+//   final String message;
+//   final DateTime time;
+//   final ProcessExecResult? result;
 
-  CompilerLog(
-    this.id,
-    this.message, {
-    DateTime? time,
-    this.result,
-  }) : time = time ?? DateTime.now();
+//   CompilerLog(
+//     this.id,
+//     this.message, {
+//     DateTime? time,
+//     this.result,
+//   }) : time = time ?? DateTime.now();
 
-  @override
-  String toString() {
-    final resultStr =
-        result == null ? '' : ', result: ${processResultToJson(result!)}';
-    return 'CompilerLog(message: $message, time: $time$resultStr)';
-  }
+//   @override
+//   String toString() {
+//     final resultStr =
+//         result == null ? '' : ', result: ${processResultToJson(result!)}';
+//     return 'CompilerLog(message: $message, time: $time$resultStr)';
+//   }
 
-  Map<String, dynamic> toJson() {
-    return {
-      'message': message,
-      'time': time.toIso8601String(),
-      'result': result == null ? null : processResultToJson(result!),
-    };
-  }
+//   Map<String, dynamic> toJson() {
+//     return {
+//       'id': id,
+//       'message': message,
+//       'time': time.toIso8601String(),
+//       'result': result == null ? null : processResultToJson(result!),
+//     };
+//   }
 
-  factory CompilerLog.fromJson(Map<String, dynamic> map) {
-    final result = map['result'] as Map<String, Object?>?;
-    return CompilerLog(
-      map['id'] as int,
-      map['message'] as String,
-      time: DateTime.parse(map['time'] as String),
-      result: result != null
-          ? ProcessExecResult(
-              pid: result['pid'] as int,
-              exitCode: result['exitCode'] as int,
-              stdout: result['stdout'] as String,
-              stderr: result['stderr'] as String,
-            )
-          : null,
-    );
-  }
-}
+//   factory CompilerLog.fromJson(Map<String, dynamic> map) {
+//     final result = map['result'] as Map<String, Object?>?;
+//     return CompilerLog(
+//       map['id'] as int,
+//       map['message'] as String,
+//       time: DateTime.parse(map['time'] as String),
+//       result: result != null
+//           ? ProcessExecResult(
+//               pid: result['pid'] as int,
+//               exitCode: result['exitCode'] as int,
+//               stdout: result['stdout'] as String,
+//               stderr: result['stderr'] as String,
+//             )
+//           : null,
+//     );
+//   }
+// }
 
-@GraphQLClass()
+@GraphQLObject()
 class ProcessExecResult implements ProcessResult {
   @override
   final int exitCode;
@@ -107,13 +110,19 @@ class ProcessExecResult implements ProcessResult {
 final compilationsListMock = [
   Compilation(
     commitHash: 'dwadanoawi829',
-    gitBranch: 'main',
-    gitRepo: 'juancastillo0/room_signals',
-    serverFile: 'bin/server',
+    serviceConfig: ServiceConfig(
+      gitBranch: 'main',
+      gitRepo: 'juancastillo0/room_signals',
+      serverFile: 'bin/server',
+      commands: [],
+      createdDate: DateTime.now(),
+      serviceId: 'dwad',
+    ),
     startTime: DateTime.now(),
     status: CompilationStatus.started,
     logs: [
       CompilationLog(
+        id: 0,
         message: 'started',
         time: DateTime.now(),
       ),
@@ -121,23 +130,31 @@ final compilationsListMock = [
   ),
   Compilation(
     commitHash: 'rytvxyawuinpbnclsaby',
-    gitBranch: 'main',
-    gitRepo: 'juancastillo0/room_signals',
-    serverFile: 'bin/compilation_server',
+    serviceConfig: ServiceConfig(
+      gitBranch: 'main',
+      gitRepo: 'juancastillo0/room_signals',
+      serverFile: 'bin/compilation_server',
+      commands: [],
+      createdDate: DateTime.now(),
+      serviceId: 'dwad',
+    ),
     startTime: DateTime.now().subtract(Duration(hours: 3)),
     endTime: DateTime.now().subtract(Duration(hours: 4)),
     status: CompilationStatus.error,
     logs: [
       CompilationLog(
+        id: 0,
         message: 'started',
         time: DateTime.now().subtract(Duration(hours: 3)),
       ),
       CompilationLog(
+        id: 1,
         message: 'getting commit hash from git',
         time: DateTime.now().subtract(Duration(hours: 3)),
         command: CommandExecution(
           command: CliCommand(
-            command: 'git repo juancastillo0/room_signals --branch=main',
+            command:
+                'git repo juancastillo0/room_signals --branch=main'.split(' '),
             name: 'get_last_commit_hash',
             variables: [],
             modifiedDate: DateTime.now().subtract(Duration(hours: 6)),
@@ -157,11 +174,9 @@ final compilationsListMock = [
   ),
 ];
 
-@GraphQLClass()
+@GraphQLObject()
 class Compilation {
-  final String gitRepo;
-  final String gitBranch;
-  final String serverFile;
+  final ServiceConfig serviceConfig;
   final String commitHash;
   final CompilationStatus status;
   final DateTime startTime;
@@ -169,15 +184,27 @@ class Compilation {
   final List<CompilationLog> logs;
 
   Compilation({
-    required this.gitRepo,
-    required this.gitBranch,
-    required this.serverFile,
+    required this.serviceConfig,
     required this.commitHash,
     required this.status,
     required this.startTime,
     this.endTime,
     required this.logs,
   });
+
+  factory Compilation.fromCurrentCompilation(
+    CurrentCompilation comp,
+    ServiceConfig config,
+  ) =>
+      Compilation(
+        serviceConfig: config,
+        commitHash: comp.commitHash,
+        logs: comp.compilationLogs,
+        startTime: comp.compilationLogs.first.time,
+        endTime: comp.status.isFinished ? comp.compilationLogs.last.time : null,
+        // currentService == null ? compilationLogs.last. CompilationStatus.started : CompilationStatus.success,
+        status: comp.status,
+      );
 }
 
 @GraphQLEnum()
@@ -185,23 +212,30 @@ enum CompilationStatus {
   pending,
   started,
   error,
-  success,
+  success;
+
+  bool get isFinished => this == success || this == error;
+
+  factory CompilationStatus.fromStatusCode(int statusCode) =>
+      statusCode == 0 ? CompilationStatus.success : CompilationStatus.error;
 }
 
-@GraphQLClass()
+@GraphQLObject()
 class CompilationLog {
+  final int id;
   final CommandExecution? command;
   final DateTime time;
   final String message;
 
   CompilationLog({
+    required this.id,
     this.command,
     required this.time,
     required this.message,
   });
 }
 
-@GraphQLClass()
+@GraphQLObject()
 class CommandExecution {
   final CliCommand command;
   final CompilationStatus status;
@@ -222,7 +256,7 @@ class CommandExecution {
 
 @Valida()
 @JsonSerializable()
-@GraphQLClass()
+@GraphQLObject()
 @GraphQLInput()
 @Valida(customValidate: CliCommandVariable.validateValue)
 class CliCommandVariable {
@@ -234,8 +268,7 @@ class CliCommandVariable {
   String get key =>
       type == CliCommandVariableType.constant ? value.split('=').first : value;
 
-  static List<ValidaError> validateValue(Object? _obj) {
-    final obj = _obj as CliCommandVariable;
+  static List<ValidaError> validateValue(CliCommandVariable obj) {
     const dynamicVariableKeys = [
       'serviceId',
       'gitRepo',
@@ -279,10 +312,10 @@ enum CliCommandVariableType {
 }
 
 @JsonSerializable()
-@GraphQLClass()
+@GraphQLObject()
 class CliCommand {
   final String name;
-  final String command;
+  final List<String> command;
   final DateTime modifiedDate;
   final List<CliCommandVariable> variables;
 

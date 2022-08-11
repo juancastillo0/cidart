@@ -74,7 +74,11 @@ final _cliCommandInputGraphQLTypeInput =
   __cliCommandInputGraphQLTypeInput.fields.addAll(
     [
       graphQLString.nonNull().inputField('name'),
-      graphQLString.nonNull().inputField('command', attachments: [
+      graphQLString
+          .nonNull()
+          .list()
+          .nonNull()
+          .inputField('command', attachments: [
         ValidaAttachment(ValidaString(matches: r'^([^\s]+.*[^\s]+|[^\s]{1})$')),
       ]),
       cliCommandVariableGraphQLTypeInput
@@ -95,49 +99,6 @@ final _cliCommandInputGraphQLTypeInput =
 GraphQLInputObjectType<CliCommandInput> get cliCommandInputGraphQLTypeInput =>
     _cliCommandInputGraphQLTypeInput.value;
 
-final serviceConfigSerializer = SerializerValue<ServiceConfig>(
-  key: "ServiceConfig",
-  fromJson: (ctx, json) =>
-      ServiceConfig.fromJson(json), // _$ServiceConfigFromJson,
-  // toJson: (m) => _$ServiceConfigToJson(m as ServiceConfig),
-);
-final _serviceConfigGraphQLType =
-    HotReloadableDefinition<GraphQLObjectType<ServiceConfig>>((setValue) {
-  final __name = 'ServiceConfig';
-
-  final __serviceConfigGraphQLType =
-      objectType<ServiceConfig>(__name, isInterface: false, interfaces: []);
-
-  setValue(__serviceConfigGraphQLType);
-  __serviceConfigGraphQLType.fields.addAll(
-    [
-      graphQLString
-          .nonNull()
-          .field('serviceId', resolve: (obj, ctx) => obj.serviceId),
-      graphQLString
-          .nonNull()
-          .field('gitRepo', resolve: (obj, ctx) => obj.gitRepo),
-      graphQLString
-          .nonNull()
-          .field('gitBranch', resolve: (obj, ctx) => obj.gitBranch),
-      graphQLString
-          .nonNull()
-          .field('serverFile', resolve: (obj, ctx) => obj.serverFile),
-      cliCommandGraphQLType
-          .nonNull()
-          .list()
-          .nonNull()
-          .field('commands', resolve: (obj, ctx) => obj.commands)
-    ],
-  );
-
-  return __serviceConfigGraphQLType;
-});
-
-/// Auto-generated from [ServiceConfig].
-GraphQLObjectType<ServiceConfig> get serviceConfigGraphQLType =>
-    _serviceConfigGraphQLType.value;
-
 final compilationFilterSerializer = SerializerValue<CompilationFilter>(
   key: "CompilationFilter",
   fromJson: (ctx, json) => CompilationFilter.fromJson(json), // _$$FromJson,
@@ -154,9 +115,7 @@ final _compilationFilterGraphQLTypeInput =
   setValue(__compilationFilterGraphQLTypeInput);
   __compilationFilterGraphQLTypeInput.fields.addAll(
     [
-      stringFilterGraphQLTypeInput.inputField('gitRepo'),
-      stringFilterGraphQLTypeInput.inputField('gitBranch'),
-      stringFilterGraphQLTypeInput.inputField('serverFile'),
+      serviceConfigFilterGraphQLTypeInput.inputField('serviceConfig'),
       stringFilterGraphQLTypeInput.inputField('commitHash'),
       compilationStatusGraphQLType.nonNull().list().inputField('statusIsIn'),
       dateTimeFilterGraphQLTypeInput.inputField('startTime'),
@@ -171,6 +130,38 @@ final _compilationFilterGraphQLTypeInput =
 GraphQLInputObjectType<CompilationFilter>
     get compilationFilterGraphQLTypeInput =>
         _compilationFilterGraphQLTypeInput.value;
+
+final serviceConfigFilterSerializer = SerializerValue<ServiceConfigFilter>(
+  key: "ServiceConfigFilter",
+  fromJson: (ctx, json) => ServiceConfigFilter.fromJson(json), // _$$FromJson,
+  // toJson: (m) => _$$ToJson(m as _$),
+);
+final _serviceConfigFilterGraphQLTypeInput =
+    HotReloadableDefinition<GraphQLInputObjectType<ServiceConfigFilter>>(
+        (setValue) {
+  final __name = 'ServiceConfigFilter';
+
+  final __serviceConfigFilterGraphQLTypeInput =
+      inputObjectType<ServiceConfigFilter>(__name);
+
+  setValue(__serviceConfigFilterGraphQLTypeInput);
+  __serviceConfigFilterGraphQLTypeInput.fields.addAll(
+    [
+      stringFilterGraphQLTypeInput.inputField('serviceId'),
+      stringFilterGraphQLTypeInput.inputField('gitRepo'),
+      stringFilterGraphQLTypeInput.inputField('gitBranch'),
+      stringFilterGraphQLTypeInput.inputField('serverFile'),
+      dateTimeFilterGraphQLTypeInput.inputField('createdDate')
+    ],
+  );
+
+  return __serviceConfigFilterGraphQLTypeInput;
+});
+
+/// Auto-generated from [ServiceConfigFilter].
+GraphQLInputObjectType<ServiceConfigFilter>
+    get serviceConfigFilterGraphQLTypeInput =>
+        _serviceConfigFilterGraphQLTypeInput.value;
 
 // **************************************************************************
 // JsonSerializableGenerator
@@ -197,7 +188,8 @@ Map<String, dynamic> _$ServiceConfigInputToJson(ServiceConfigInput instance) =>
 CliCommandInput _$CliCommandInputFromJson(Map<String, dynamic> json) =>
     CliCommandInput(
       name: json['name'] as String,
-      command: json['command'] as String,
+      command:
+          (json['command'] as List<dynamic>).map((e) => e as String).toList(),
       variables: (json['variables'] as List<dynamic>?)
               ?.map(
                   (e) => CliCommandVariable.fromJson(e as Map<String, dynamic>))
@@ -212,37 +204,12 @@ Map<String, dynamic> _$CliCommandInputToJson(CliCommandInput instance) =>
       'variables': instance.variables,
     };
 
-ServiceConfig _$ServiceConfigFromJson(Map<String, dynamic> json) =>
-    ServiceConfig(
-      serviceId: json['serviceId'] as String,
-      gitRepo: json['gitRepo'] as String,
-      gitBranch: json['gitBranch'] as String,
-      serverFile: json['serverFile'] as String,
-      commands: (json['commands'] as List<dynamic>)
-          .map((e) => CliCommand.fromJson(e as Map<String, dynamic>))
-          .toList(),
-    );
-
-Map<String, dynamic> _$ServiceConfigToJson(ServiceConfig instance) =>
-    <String, dynamic>{
-      'serviceId': instance.serviceId,
-      'gitRepo': instance.gitRepo,
-      'gitBranch': instance.gitBranch,
-      'serverFile': instance.serverFile,
-      'commands': instance.commands,
-    };
-
 CompilationFilter _$CompilationFilterFromJson(Map<String, dynamic> json) =>
     CompilationFilter(
-      gitRepo: json['gitRepo'] == null
+      serviceConfig: json['serviceConfig'] == null
           ? null
-          : StringFilter.fromJson(json['gitRepo'] as Map<String, dynamic>),
-      gitBranch: json['gitBranch'] == null
-          ? null
-          : StringFilter.fromJson(json['gitBranch'] as Map<String, dynamic>),
-      serverFile: json['serverFile'] == null
-          ? null
-          : StringFilter.fromJson(json['serverFile'] as Map<String, dynamic>),
+          : ServiceConfigFilter.fromJson(
+              json['serviceConfig'] as Map<String, dynamic>),
       commitHash: json['commitHash'] == null
           ? null
           : StringFilter.fromJson(json['commitHash'] as Map<String, dynamic>),
@@ -259,9 +226,7 @@ CompilationFilter _$CompilationFilterFromJson(Map<String, dynamic> json) =>
 
 Map<String, dynamic> _$CompilationFilterToJson(CompilationFilter instance) =>
     <String, dynamic>{
-      'gitRepo': instance.gitRepo,
-      'gitBranch': instance.gitBranch,
-      'serverFile': instance.serverFile,
+      'serviceConfig': instance.serviceConfig,
       'commitHash': instance.commitHash,
       'statusIsIn': instance.statusIsIn
           ?.map((e) => _$CompilationStatusEnumMap[e]!)
@@ -276,6 +241,36 @@ const _$CompilationStatusEnumMap = {
   CompilationStatus.error: 'error',
   CompilationStatus.success: 'success',
 };
+
+ServiceConfigFilter _$ServiceConfigFilterFromJson(Map<String, dynamic> json) =>
+    ServiceConfigFilter(
+      serviceId: json['serviceId'] == null
+          ? null
+          : StringFilter.fromJson(json['serviceId'] as Map<String, dynamic>),
+      gitRepo: json['gitRepo'] == null
+          ? null
+          : StringFilter.fromJson(json['gitRepo'] as Map<String, dynamic>),
+      gitBranch: json['gitBranch'] == null
+          ? null
+          : StringFilter.fromJson(json['gitBranch'] as Map<String, dynamic>),
+      serverFile: json['serverFile'] == null
+          ? null
+          : StringFilter.fromJson(json['serverFile'] as Map<String, dynamic>),
+      createdDate: json['createdDate'] == null
+          ? null
+          : DateTimeFilter.fromJson(
+              json['createdDate'] as Map<String, dynamic>),
+    );
+
+Map<String, dynamic> _$ServiceConfigFilterToJson(
+        ServiceConfigFilter instance) =>
+    <String, dynamic>{
+      'serviceId': instance.serviceId,
+      'gitRepo': instance.gitRepo,
+      'gitBranch': instance.gitBranch,
+      'serverFile': instance.serverFile,
+      'createdDate': instance.createdDate,
+    };
 
 // **************************************************************************
 // ValidatorGenerator
@@ -427,9 +422,6 @@ class CliCommandInputValidation
 }
 
 enum CompilationFilterField {
-  gitRepo,
-  gitBranch,
-  serverFile,
   commitHash,
   startTime,
   endTime,
@@ -438,27 +430,6 @@ enum CompilationFilterField {
 class CompilationFilterValidationFields {
   const CompilationFilterValidationFields(this.errorsMap);
   final Map<CompilationFilterField, List<ValidaError>> errorsMap;
-
-  StringFilterValidation? get gitRepo {
-    final l = errorsMap[CompilationFilterField.gitRepo];
-    return (l != null && l.isNotEmpty)
-        ? l.first.nestedValidation as StringFilterValidation?
-        : null;
-  }
-
-  StringFilterValidation? get gitBranch {
-    final l = errorsMap[CompilationFilterField.gitBranch];
-    return (l != null && l.isNotEmpty)
-        ? l.first.nestedValidation as StringFilterValidation?
-        : null;
-  }
-
-  StringFilterValidation? get serverFile {
-    final l = errorsMap[CompilationFilterField.serverFile];
-    return (l != null && l.isNotEmpty)
-        ? l.first.nestedValidation as StringFilterValidation?
-        : null;
-  }
 
   StringFilterValidation? get commitHash {
     final l = errorsMap[CompilationFilterField.commitHash];
@@ -503,21 +474,6 @@ class CompilationFilterValidation
     validationFactory: CompilationFilterValidation.new,
     getField: _getField,
     fieldsMap: {
-      CompilationFilterField.gitRepo: ValidaNested<StringFilter>(
-        omit: null,
-        customValidate: null,
-        overrideValidation: StringFilterValidation.fromValue,
-      ),
-      CompilationFilterField.gitBranch: ValidaNested<StringFilter>(
-        omit: null,
-        customValidate: null,
-        overrideValidation: StringFilterValidation.fromValue,
-      ),
-      CompilationFilterField.serverFile: ValidaNested<StringFilter>(
-        omit: null,
-        customValidate: null,
-        overrideValidation: StringFilterValidation.fromValue,
-      ),
       CompilationFilterField.commitHash: ValidaNested<StringFilter>(
         omit: null,
         customValidate: null,
@@ -540,12 +496,8 @@ class CompilationFilterValidation
 
   static Object? _getField(CompilationFilter value, String field) {
     switch (field) {
-      case 'gitRepo':
-        return value.gitRepo;
-      case 'gitBranch':
-        return value.gitBranch;
-      case 'serverFile':
-        return value.serverFile;
+      case 'serviceConfig':
+        return value.serviceConfig;
       case 'commitHash':
         return value.commitHash;
       case 'statusIsIn':
