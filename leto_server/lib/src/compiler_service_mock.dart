@@ -1,77 +1,81 @@
 import 'dart:async';
-import 'dart:convert' show utf8;
-import 'dart:io';
 import 'dart:math' show Random;
 
-import 'compiler_api_models.dart';
+import 'package:leto_server/src/util.dart';
+
+import 'compilation_event.dart';
 import 'compiler_models.dart';
 import 'compiler_service.dart';
 
 class CompilerServiceMock implements CompilerService {
-  CompilerServiceMock(int seed, this.config) : random = Random(seed);
+  CompilerServiceMock(int? seed, this.config) : random = Random(seed);
 
   final Random random;
   @override
   final ServiceConfig config;
 
   @override
-  final Map<String, List<CompilerLog>> logs = {};
+  final Map<String, CurrentCompilation> logs = {};
 
   @override
   CurrentExecutedService? currentService;
 
   @override
-  List<CompilerLog> compilationLogs = [];
+  CurrentCompilation? currentCompilation;
+
+  List<CompilationLog> get _compilationLogs =>
+      currentCompilation!.compilationLogs;
 
   @override
   bool starting = false;
 
-  List<CompilerLog> _batchedLogs = [];
-  final _streamController = StreamController<List<CompilerLog>>.broadcast();
+  List<CompilationLog> _batchedLogs = [];
+  final _streamController = StreamController<CompilationEvent>.broadcast();
   Timer? batchTimer;
 
-  Stream<List<CompilerLog>> get stream {
-    int prevLength = 0;
-    return _streamController.stream.where((event) {
-      final isDifferent = event.length != prevLength;
-      if (isDifferent) {
-        prevLength = event.length;
-      }
-      return isDifferent;
-    });
-  }
+  @override
+  Stream<CompilationEvent> get stream => _streamController.stream;
 
   void _log(
     String message, {
     DateTime? time,
-    ProcessExecResult? result,
+    CommandExecution? execution,
   }) {
-    final item = CompilerLog(
-      compilationLogs.length,
-      message,
-      time: time,
-      result: result,
+    final item = CompilationLog(
+      id: _compilationLogs.length,
+      message: message,
+      time: time ?? DateTime.now(),
+      command: execution,
     );
-    compilationLogs.add(item);
+    _compilationLogs.add(item);
     _batchedLogs.add(item);
 
     batchTimer ??= Timer(const Duration(milliseconds: 400), () {
-      _streamController.add(_batchedLogs);
+      _batchedLogs.map(CompilationEvent.log).map(_streamController.add);
       batchTimer = null;
       _batchedLogs = [];
     });
   }
 
   @override
-  Future<List<CompilerLog>> startService() async {
-    if (starting) return compilationLogs;
+  Future<List<CompilationLog>> startService() async {
+    if (starting) return _compilationLogs;
     starting = true;
     _log('starting');
 
-    compilationLogs = [];
+    currentCompilation = CurrentCompilation(
+      commitHash: randomId(),
+      compilationLogs: [],
+      status: CompilationStatus.started,
+    );
     await Future.delayed(Duration(seconds: 2));
 
-    _executeAll().onError((error, stackTrace) {
+    _executeAll().then((value) {
+      currentCompilation =
+          currentCompilation!.copyWith(status: CompilationStatus.success);
+    }).onError((error, stackTrace) {
+      currentCompilation =
+          currentCompilation!.copyWith(status: CompilationStatus.error);
       if (error is! ExecException) {
         _log('$error $stackTrace');
       }
@@ -80,12 +84,12 @@ class CompilerServiceMock implements CompilerService {
       starting = false;
     });
 
-    return compilationLogs;
+    return _compilationLogs;
   }
 
   Future<void> _executeAll() async {
     for (final c in config.commands) {
-      final processed = processCliCommand(config, c);
+      final processed = processCliCommand(config.dynamicVariables, c);
       await _exec(
         processed.first,
         processed.sublist(1),
@@ -105,9 +109,10 @@ class CompilerServiceMock implements CompilerService {
     List<String> arguments, {
     String? context,
   }) async {
+    final start = DateTime.now();
     final commandStr = '"$executable ${arguments.join(' ')}"'
         '${context == null ? '' : '. context: $context'}';
-    _log('exec: $commandStr');
+    _log('exec: $commandStr', time: start);
 
     final watch = Stopwatch()..start();
     await Future.delayed(const Duration(seconds: 1));
@@ -132,7 +137,14 @@ class CompilerServiceMock implements CompilerService {
     final elapsed = watch.elapsed;
     _log(
       'exec: $commandStr. Duration:${elapsed.inMilliseconds}ms.',
-      result: result,
+      execution: CommandExecution(
+        command: configDefault
+            .commands[random.nextInt(configDefault.commands.length)],
+        durationMs: elapsed.inMilliseconds,
+        endTime: start.add(elapsed),
+        status: CompilationStatus.fromStatusCode(result.exitCode),
+        result: result,
+      ),
     );
     if (result.exitCode != 0) {
       throw ExecException(

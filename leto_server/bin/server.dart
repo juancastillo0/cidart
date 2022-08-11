@@ -147,7 +147,7 @@ Router makeCompilerRouter(
     ..get(
       '/compile',
       (Request request) async {
-        List<CompilerLog> result;
+        List<CompilationLog> result;
         Object? error;
         try {
           result = await service.startService();
@@ -155,7 +155,7 @@ Router makeCompilerRouter(
           //   result = service.compilationLogs;
         } catch (e) {
           error = e;
-          result = service.compilationLogs;
+          result = service.currentCompilation?.compilationLogs ?? [];
         }
 
         final body = {

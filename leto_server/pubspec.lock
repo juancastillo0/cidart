@@ -7,14 +7,14 @@ packages:
       name: _fe_analyzer_shared
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "43.0.0"
+    version: "45.0.0"
   analyzer:
     dependency: transitive
     description:
       name: analyzer
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "4.3.1"
+    version: "4.5.0"
   args:
     dependency: transitive
     description:
@@ -224,7 +224,7 @@ packages:
       name: http
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.13.4"
+    version: "0.13.5"
   http_methods:
     dependency: transitive
     description:
@@ -293,7 +293,7 @@ packages:
     description:
       path: leto
       ref: HEAD
-      resolved-ref: "13fe057b863022e8cb0d664082feb9f43d018c2a"
+      resolved-ref: e0e84dc629663ac58f5048d051b2b39ede46bc57
       url: "https://github.com/juancastillo0/leto"
     source: git
     version: "0.0.1"
@@ -302,7 +302,7 @@ packages:
     description:
       path: leto_generator
       ref: HEAD
-      resolved-ref: "13fe057b863022e8cb0d664082feb9f43d018c2a"
+      resolved-ref: e0e84dc629663ac58f5048d051b2b39ede46bc57
       url: "https://github.com/juancastillo0/leto"
     source: git
     version: "0.0.1"
@@ -311,7 +311,7 @@ packages:
     description:
       path: leto_schema
       ref: HEAD
-      resolved-ref: "13fe057b863022e8cb0d664082feb9f43d018c2a"
+      resolved-ref: e0e84dc629663ac58f5048d051b2b39ede46bc57
       url: "https://github.com/juancastillo0/leto"
     source: git
     version: "0.0.1"
@@ -320,7 +320,7 @@ packages:
     description:
       path: leto_shelf
       ref: HEAD
-      resolved-ref: "13fe057b863022e8cb0d664082feb9f43d018c2a"
+      resolved-ref: e0e84dc629663ac58f5048d051b2b39ede46bc57
       url: "https://github.com/juancastillo0/leto"
     source: git
     version: "0.0.1"
@@ -581,7 +581,7 @@ packages:
     description:
       path: valida
       ref: HEAD
-      resolved-ref: "50d6788c562a61766348b0c3616335fa37e1e6db"
+      resolved-ref: "46fe0b154bbb6f6d6e98dc40784ef121082465f8"
       url: "https://github.com/juancastillo0/valida"
     source: git
     version: "0.1.0"
@@ -590,7 +590,7 @@ packages:
     description:
       path: valida_generator
       ref: HEAD
-      resolved-ref: "50d6788c562a61766348b0c3616335fa37e1e6db"
+      resolved-ref: "46fe0b154bbb6f6d6e98dc40784ef121082465f8"
       url: "https://github.com/juancastillo0/valida"
     source: git
     version: "0.1.0"
