@@ -8,22 +8,32 @@ mutation startService {
   }
 }
 
+subscription createServiceAndReceiveUpdates(
+  $serviceConfig: ServiceConfigInput!
+) {
+  createServiceAndReceiveUpdates(config: $serviceConfig) {
+    ...CompilationEventF
+  }
+}
+
+subscription serviceUpdates($serviceId: String!) {
+  serviceUpdates(serviceId: $serviceId) {
+    ...CompilationEventF
+  }
+}
+
 fragment CompilationLogF on CompilationLog {
   message
   time
   command {
-    result {
-      ...ProcessExecResultF
-    }
+    ...CommandExecutionF
   }
   __typename
 }
 
 fragment CommandExecutionF on CommandExecution {
   command {
-    name
-    command
-    modifiedDate
+    ...CliCommandF
   }
   status
   durationMs
@@ -39,5 +49,77 @@ fragment ProcessExecResultF on ProcessExecResult {
   pid
   stderr
   stdout
+  __typename
+}
+
+# TODO: https://github.com/comigor/artemis/issues/346
+fragment CompilationEventF on CompilationEvent {
+  __typename
+  ... on CompilationEventCompilation {
+    compilation {
+      ...CompilationF
+    }
+  }
+  ... on CompilationEventCreated {
+    service {
+      ...ServiceConfigF
+    }
+  }
+  ... on CompilationEventCreationError {
+    message
+  }
+  ... on CompilationEventExecution {
+    logIndex
+    command {
+      ...CommandExecutionF
+    }
+  }
+  ... on CompilationEventPartialExecution {
+    stderr
+    stdout
+  }
+  ... on CompilationEventLog {
+    log {
+      ...CompilationLogF
+    }
+  }
+}
+
+fragment CompilationF on Compilation {
+  commitHash
+  status
+  startTime
+  endTime
+  logs {
+    ...CompilationLogF
+  }
+  serviceConfig {
+    ...ServiceConfigF
+  }
+  __typename
+}
+
+fragment ServiceConfigF on ServiceConfig {
+  serviceId
+  gitRepo
+  gitBranch
+  serverFile
+  createdDate
+  commands {
+    ...CliCommandF
+  }
+  __typename
+}
+
+fragment CliCommandF on CliCommand {
+  name
+  command
+  modifiedDate
+  variables {
+    type
+    value
+    key
+    __typename
+  }
   __typename
 }

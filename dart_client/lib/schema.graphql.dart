@@ -1,427 +1,183 @@
-import 'package:json_annotation/json_annotation.dart';
-part 'schema.graphql.g.dart';
-
-@JsonSerializable(explicitToJson: true)
-class Input$ServiceConfigInput {
-  Input$ServiceConfigInput(
-      {required this.gitRepo,
-      required this.gitBranch,
-      required this.serverFile,
-      required this.commands});
-
-  @override
-  factory Input$ServiceConfigInput.fromJson(Map<String, dynamic> json) =>
-      _$Input$ServiceConfigInputFromJson(json);
-
-  final String gitRepo;
-
-  final String gitBranch;
-
-  final String serverFile;
-
-  final List<Input$CliCommandInput> commands;
-
-  Map<String, dynamic> toJson() => _$Input$ServiceConfigInputToJson(this);
-  int get hashCode {
-    final l$gitRepo = gitRepo;
-    final l$gitBranch = gitBranch;
-    final l$serverFile = serverFile;
-    final l$commands = commands;
-    return Object.hashAll([
-      l$gitRepo,
-      l$gitBranch,
-      l$serverFile,
-      Object.hashAll(l$commands.map((v) => v))
-    ]);
-  }
-
-  @override
-  bool operator ==(Object other) {
-    if (identical(this, other)) return true;
-    if (!(other is Input$ServiceConfigInput) ||
-        runtimeType != other.runtimeType) return false;
-    final l$gitRepo = gitRepo;
-    final lOther$gitRepo = other.gitRepo;
-    if (l$gitRepo != lOther$gitRepo) return false;
-    final l$gitBranch = gitBranch;
-    final lOther$gitBranch = other.gitBranch;
-    if (l$gitBranch != lOther$gitBranch) return false;
-    final l$serverFile = serverFile;
-    final lOther$serverFile = other.serverFile;
-    if (l$serverFile != lOther$serverFile) return false;
-    final l$commands = commands;
-    final lOther$commands = other.commands;
-    if (l$commands.length != lOther$commands.length) return false;
-    for (int i = 0; i < l$commands.length; i++) {
-      final l$commands$entry = l$commands[i];
-      final lOther$commands$entry = lOther$commands[i];
-      if (l$commands$entry != lOther$commands$entry) return false;
-    }
-
-    return true;
-  }
-
-  CopyWith$Input$ServiceConfigInput<Input$ServiceConfigInput> get copyWith =>
-      CopyWith$Input$ServiceConfigInput(this, (i) => i);
-}
-
-abstract class CopyWith$Input$ServiceConfigInput<TRes> {
-  factory CopyWith$Input$ServiceConfigInput(Input$ServiceConfigInput instance,
-          TRes Function(Input$ServiceConfigInput) then) =
-      _CopyWithImpl$Input$ServiceConfigInput;
-
-  factory CopyWith$Input$ServiceConfigInput.stub(TRes res) =
-      _CopyWithStubImpl$Input$ServiceConfigInput;
-
-  TRes call(
-      {String? gitRepo,
-      String? gitBranch,
-      String? serverFile,
-      List<Input$CliCommandInput>? commands});
-  TRes commands(
-      Iterable<Input$CliCommandInput> Function(
-              Iterable<CopyWith$Input$CliCommandInput<Input$CliCommandInput>>)
-          _fn);
-}
-
-class _CopyWithImpl$Input$ServiceConfigInput<TRes>
-    implements CopyWith$Input$ServiceConfigInput<TRes> {
-  _CopyWithImpl$Input$ServiceConfigInput(this._instance, this._then);
-
-  final Input$ServiceConfigInput _instance;
-
-  final TRes Function(Input$ServiceConfigInput) _then;
-
-  static const _undefined = {};
-
-  TRes call(
-          {Object? gitRepo = _undefined,
-          Object? gitBranch = _undefined,
-          Object? serverFile = _undefined,
-          Object? commands = _undefined}) =>
-      _then(Input$ServiceConfigInput(
-          gitRepo: gitRepo == _undefined || gitRepo == null
-              ? _instance.gitRepo
-              : (gitRepo as String),
-          gitBranch: gitBranch == _undefined || gitBranch == null
-              ? _instance.gitBranch
-              : (gitBranch as String),
-          serverFile: serverFile == _undefined || serverFile == null
-              ? _instance.serverFile
-              : (serverFile as String),
-          commands: commands == _undefined || commands == null
-              ? _instance.commands
-              : (commands as List<Input$CliCommandInput>)));
-  TRes commands(
-          Iterable<Input$CliCommandInput> Function(
-                  Iterable<
-                      CopyWith$Input$CliCommandInput<Input$CliCommandInput>>)
-              _fn) =>
-      call(
-          commands: _fn(_instance.commands
-                  .map((e) => CopyWith$Input$CliCommandInput(e, (i) => i)))
-              .toList());
-}
-
-class _CopyWithStubImpl$Input$ServiceConfigInput<TRes>
-    implements CopyWith$Input$ServiceConfigInput<TRes> {
-  _CopyWithStubImpl$Input$ServiceConfigInput(this._res);
-
-  TRes _res;
-
-  call(
-          {String? gitRepo,
-          String? gitBranch,
-          String? serverFile,
-          List<Input$CliCommandInput>? commands}) =>
-      _res;
-  commands(_fn) => _res;
-}
-
-@JsonSerializable(explicitToJson: true)
-class Input$CliCommandInput {
-  Input$CliCommandInput(
-      {required this.name, required this.command, required this.variables});
-
-  @override
-  factory Input$CliCommandInput.fromJson(Map<String, dynamic> json) =>
-      _$Input$CliCommandInputFromJson(json);
-
-  final String name;
-
-  final List<String> command;
-
-  final List<Input$CliCommandVariableInput> variables;
-
-  Map<String, dynamic> toJson() => _$Input$CliCommandInputToJson(this);
-  int get hashCode {
-    final l$name = name;
-    final l$command = command;
-    final l$variables = variables;
-    return Object.hashAll([
-      l$name,
-      Object.hashAll(l$command.map((v) => v)),
-      Object.hashAll(l$variables.map((v) => v))
-    ]);
-  }
-
-  @override
-  bool operator ==(Object other) {
-    if (identical(this, other)) return true;
-    if (!(other is Input$CliCommandInput) || runtimeType != other.runtimeType)
-      return false;
-    final l$name = name;
-    final lOther$name = other.name;
-    if (l$name != lOther$name) return false;
-    final l$command = command;
-    final lOther$command = other.command;
-    if (l$command.length != lOther$command.length) return false;
-    for (int i = 0; i < l$command.length; i++) {
-      final l$command$entry = l$command[i];
-      final lOther$command$entry = lOther$command[i];
-      if (l$command$entry != lOther$command$entry) return false;
-    }
-
-    final l$variables = variables;
-    final lOther$variables = other.variables;
-    if (l$variables.length != lOther$variables.length) return false;
-    for (int i = 0; i < l$variables.length; i++) {
-      final l$variables$entry = l$variables[i];
-      final lOther$variables$entry = lOther$variables[i];
-      if (l$variables$entry != lOther$variables$entry) return false;
-    }
-
-    return true;
-  }
-
-  CopyWith$Input$CliCommandInput<Input$CliCommandInput> get copyWith =>
-      CopyWith$Input$CliCommandInput(this, (i) => i);
-}
-
-abstract class CopyWith$Input$CliCommandInput<TRes> {
-  factory CopyWith$Input$CliCommandInput(Input$CliCommandInput instance,
-          TRes Function(Input$CliCommandInput) then) =
-      _CopyWithImpl$Input$CliCommandInput;
-
-  factory CopyWith$Input$CliCommandInput.stub(TRes res) =
-      _CopyWithStubImpl$Input$CliCommandInput;
-
-  TRes call(
-      {String? name,
-      List<String>? command,
-      List<Input$CliCommandVariableInput>? variables});
-  TRes variables(
-      Iterable<Input$CliCommandVariableInput> Function(
-              Iterable<
-                  CopyWith$Input$CliCommandVariableInput<
-                      Input$CliCommandVariableInput>>)
-          _fn);
-}
-
-class _CopyWithImpl$Input$CliCommandInput<TRes>
-    implements CopyWith$Input$CliCommandInput<TRes> {
-  _CopyWithImpl$Input$CliCommandInput(this._instance, this._then);
-
-  final Input$CliCommandInput _instance;
-
-  final TRes Function(Input$CliCommandInput) _then;
-
-  static const _undefined = {};
-
-  TRes call(
-          {Object? name = _undefined,
-          Object? command = _undefined,
-          Object? variables = _undefined}) =>
-      _then(Input$CliCommandInput(
-          name: name == _undefined || name == null
-              ? _instance.name
-              : (name as String),
-          command: command == _undefined || command == null
-              ? _instance.command
-              : (command as List<String>),
-          variables: variables == _undefined || variables == null
-              ? _instance.variables
-              : (variables as List<Input$CliCommandVariableInput>)));
-  TRes variables(
-          Iterable<Input$CliCommandVariableInput> Function(
-                  Iterable<
-                      CopyWith$Input$CliCommandVariableInput<
-                          Input$CliCommandVariableInput>>)
-              _fn) =>
-      call(
-          variables: _fn(_instance.variables.map(
-                  (e) => CopyWith$Input$CliCommandVariableInput(e, (i) => i)))
-              .toList());
-}
-
-class _CopyWithStubImpl$Input$CliCommandInput<TRes>
-    implements CopyWith$Input$CliCommandInput<TRes> {
-  _CopyWithStubImpl$Input$CliCommandInput(this._res);
-
-  TRes _res;
-
-  call(
-          {String? name,
-          List<String>? command,
-          List<Input$CliCommandVariableInput>? variables}) =>
-      _res;
-  variables(_fn) => _res;
-}
-
-@JsonSerializable(explicitToJson: true)
-class Input$CliCommandVariableInput {
-  Input$CliCommandVariableInput({required this.type, required this.value});
-
-  @override
-  factory Input$CliCommandVariableInput.fromJson(Map<String, dynamic> json) =>
-      _$Input$CliCommandVariableInputFromJson(json);
-
-  @JsonKey(unknownEnumValue: Enum$CliCommandVariableType.$unknown)
-  final Enum$CliCommandVariableType type;
-
-  final String value;
-
-  Map<String, dynamic> toJson() => _$Input$CliCommandVariableInputToJson(this);
-  int get hashCode {
-    final l$type = type;
-    final l$value = value;
-    return Object.hashAll([l$type, l$value]);
-  }
-
-  @override
-  bool operator ==(Object other) {
-    if (identical(this, other)) return true;
-    if (!(other is Input$CliCommandVariableInput) ||
-        runtimeType != other.runtimeType) return false;
-    final l$type = type;
-    final lOther$type = other.type;
-    if (l$type != lOther$type) return false;
-    final l$value = value;
-    final lOther$value = other.value;
-    if (l$value != lOther$value) return false;
-    return true;
-  }
-
-  CopyWith$Input$CliCommandVariableInput<Input$CliCommandVariableInput>
-      get copyWith => CopyWith$Input$CliCommandVariableInput(this, (i) => i);
-}
-
-abstract class CopyWith$Input$CliCommandVariableInput<TRes> {
-  factory CopyWith$Input$CliCommandVariableInput(
-          Input$CliCommandVariableInput instance,
-          TRes Function(Input$CliCommandVariableInput) then) =
-      _CopyWithImpl$Input$CliCommandVariableInput;
-
-  factory CopyWith$Input$CliCommandVariableInput.stub(TRes res) =
-      _CopyWithStubImpl$Input$CliCommandVariableInput;
-
-  TRes call({Enum$CliCommandVariableType? type, String? value});
-}
-
-class _CopyWithImpl$Input$CliCommandVariableInput<TRes>
-    implements CopyWith$Input$CliCommandVariableInput<TRes> {
-  _CopyWithImpl$Input$CliCommandVariableInput(this._instance, this._then);
-
-  final Input$CliCommandVariableInput _instance;
-
-  final TRes Function(Input$CliCommandVariableInput) _then;
-
-  static const _undefined = {};
-
-  TRes call({Object? type = _undefined, Object? value = _undefined}) =>
-      _then(Input$CliCommandVariableInput(
-          type: type == _undefined || type == null
-              ? _instance.type
-              : (type as Enum$CliCommandVariableType),
-          value: value == _undefined || value == null
-              ? _instance.value
-              : (value as String)));
-}
-
-class _CopyWithStubImpl$Input$CliCommandVariableInput<TRes>
-    implements CopyWith$Input$CliCommandVariableInput<TRes> {
-  _CopyWithStubImpl$Input$CliCommandVariableInput(this._res);
-
-  TRes _res;
-
-  call({Enum$CliCommandVariableType? type, String? value}) => _res;
-}
-
-@JsonSerializable(explicitToJson: true)
 class Input$CompilationFilter {
-  Input$CompilationFilter(
-      {this.serviceConfig,
-      this.commitHash,
-      this.statusIsIn,
-      this.startTime,
-      this.endTime});
+  factory Input$CompilationFilter(
+          {Input$ServiceConfigFilter? serviceConfig,
+          Input$StringFilter? commitHash,
+          List<Enum$CompilationStatus>? statusIsIn,
+          Input$DateTimeFilter? startTime,
+          Input$DateTimeFilter? endTime}) =>
+      Input$CompilationFilter._({
+        if (serviceConfig != null) r'serviceConfig': serviceConfig,
+        if (commitHash != null) r'commitHash': commitHash,
+        if (statusIsIn != null) r'statusIsIn': statusIsIn,
+        if (startTime != null) r'startTime': startTime,
+        if (endTime != null) r'endTime': endTime,
+      });
 
-  @override
-  factory Input$CompilationFilter.fromJson(Map<String, dynamic> json) =>
-      _$Input$CompilationFilterFromJson(json);
+  Input$CompilationFilter._(this._$data);
 
-  final Input$ServiceConfigFilter? serviceConfig;
-
-  final Input$StringFilter? commitHash;
-
-  @JsonKey(unknownEnumValue: Enum$CompilationStatus.$unknown)
-  final List<Enum$CompilationStatus>? statusIsIn;
-
-  final Input$DateTimeFilter? startTime;
-
-  final Input$DateTimeFilter? endTime;
-
-  Map<String, dynamic> toJson() => _$Input$CompilationFilterToJson(this);
-  int get hashCode {
-    final l$serviceConfig = serviceConfig;
-    final l$commitHash = commitHash;
-    final l$statusIsIn = statusIsIn;
-    final l$startTime = startTime;
-    final l$endTime = endTime;
-    return Object.hashAll([
-      l$serviceConfig,
-      l$commitHash,
-      l$statusIsIn == null ? null : Object.hashAll(l$statusIsIn.map((v) => v)),
-      l$startTime,
-      l$endTime
-    ]);
+  factory Input$CompilationFilter.fromJson(Map<String, dynamic> data) {
+    final result$data = <String, dynamic>{};
+    if (data.containsKey('serviceConfig')) {
+      final l$serviceConfig = data['serviceConfig'];
+      result$data['serviceConfig'] = l$serviceConfig == null
+          ? null
+          : Input$ServiceConfigFilter.fromJson(
+              (l$serviceConfig as Map<String, dynamic>));
+    }
+    if (data.containsKey('commitHash')) {
+      final l$commitHash = data['commitHash'];
+      result$data['commitHash'] = l$commitHash == null
+          ? null
+          : Input$StringFilter.fromJson((l$commitHash as Map<String, dynamic>));
+    }
+    if (data.containsKey('statusIsIn')) {
+      final l$statusIsIn = data['statusIsIn'];
+      result$data['statusIsIn'] = (l$statusIsIn as List<dynamic>?)
+          ?.map((e) => fromJson$Enum$CompilationStatus((e as String)))
+          .toList();
+    }
+    if (data.containsKey('startTime')) {
+      final l$startTime = data['startTime'];
+      result$data['startTime'] = l$startTime == null
+          ? null
+          : Input$DateTimeFilter.fromJson(
+              (l$startTime as Map<String, dynamic>));
+    }
+    if (data.containsKey('endTime')) {
+      final l$endTime = data['endTime'];
+      result$data['endTime'] = l$endTime == null
+          ? null
+          : Input$DateTimeFilter.fromJson((l$endTime as Map<String, dynamic>));
+    }
+    return Input$CompilationFilter._(result$data);
   }
 
-  @override
-  bool operator ==(Object other) {
-    if (identical(this, other)) return true;
-    if (!(other is Input$CompilationFilter) || runtimeType != other.runtimeType)
-      return false;
-    final l$serviceConfig = serviceConfig;
-    final lOther$serviceConfig = other.serviceConfig;
-    if (l$serviceConfig != lOther$serviceConfig) return false;
-    final l$commitHash = commitHash;
-    final lOther$commitHash = other.commitHash;
-    if (l$commitHash != lOther$commitHash) return false;
-    final l$statusIsIn = statusIsIn;
-    final lOther$statusIsIn = other.statusIsIn;
-    if (l$statusIsIn != null && lOther$statusIsIn != null) {
-      if (l$statusIsIn.length != lOther$statusIsIn.length) return false;
-      for (int i = 0; i < l$statusIsIn.length; i++) {
-        final l$statusIsIn$entry = l$statusIsIn[i];
-        final lOther$statusIsIn$entry = lOther$statusIsIn[i];
-        if (l$statusIsIn$entry != lOther$statusIsIn$entry) return false;
-      }
-    } else if (l$statusIsIn != lOther$statusIsIn) {
-      return false;
-    }
+  Map<String, dynamic> _$data;
 
-    final l$startTime = startTime;
-    final lOther$startTime = other.startTime;
-    if (l$startTime != lOther$startTime) return false;
-    final l$endTime = endTime;
-    final lOther$endTime = other.endTime;
-    if (l$endTime != lOther$endTime) return false;
-    return true;
+  Input$ServiceConfigFilter? get serviceConfig =>
+      (_$data['serviceConfig'] as Input$ServiceConfigFilter?);
+  Input$StringFilter? get commitHash =>
+      (_$data['commitHash'] as Input$StringFilter?);
+  List<Enum$CompilationStatus>? get statusIsIn =>
+      (_$data['statusIsIn'] as List<Enum$CompilationStatus>?);
+  Input$DateTimeFilter? get startTime =>
+      (_$data['startTime'] as Input$DateTimeFilter?);
+  Input$DateTimeFilter? get endTime =>
+      (_$data['endTime'] as Input$DateTimeFilter?);
+  Map<String, dynamic> toJson() {
+    final result$data = <String, dynamic>{};
+    if (_$data.containsKey('serviceConfig')) {
+      final l$serviceConfig = serviceConfig;
+      result$data['serviceConfig'] = l$serviceConfig?.toJson();
+    }
+    if (_$data.containsKey('commitHash')) {
+      final l$commitHash = commitHash;
+      result$data['commitHash'] = l$commitHash?.toJson();
+    }
+    if (_$data.containsKey('statusIsIn')) {
+      final l$statusIsIn = statusIsIn;
+      result$data['statusIsIn'] =
+          l$statusIsIn?.map((e) => toJson$Enum$CompilationStatus(e)).toList();
+    }
+    if (_$data.containsKey('startTime')) {
+      final l$startTime = startTime;
+      result$data['startTime'] = l$startTime?.toJson();
+    }
+    if (_$data.containsKey('endTime')) {
+      final l$endTime = endTime;
+      result$data['endTime'] = l$endTime?.toJson();
+    }
+    return result$data;
   }
 
   CopyWith$Input$CompilationFilter<Input$CompilationFilter> get copyWith =>
       CopyWith$Input$CompilationFilter(this, (i) => i);
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) {
+      return true;
+    }
+    if (!(other is Input$CompilationFilter) ||
+        runtimeType != other.runtimeType) {
+      return false;
+    }
+    final l$serviceConfig = serviceConfig;
+    final lOther$serviceConfig = other.serviceConfig;
+    if (_$data.containsKey('serviceConfig') !=
+        other._$data.containsKey('serviceConfig')) {
+      return false;
+    }
+    if (l$serviceConfig != lOther$serviceConfig) {
+      return false;
+    }
+    final l$commitHash = commitHash;
+    final lOther$commitHash = other.commitHash;
+    if (_$data.containsKey('commitHash') !=
+        other._$data.containsKey('commitHash')) {
+      return false;
+    }
+    if (l$commitHash != lOther$commitHash) {
+      return false;
+    }
+    final l$statusIsIn = statusIsIn;
+    final lOther$statusIsIn = other.statusIsIn;
+    if (_$data.containsKey('statusIsIn') !=
+        other._$data.containsKey('statusIsIn')) {
+      return false;
+    }
+    if (l$statusIsIn != null && lOther$statusIsIn != null) {
+      if (l$statusIsIn.length != lOther$statusIsIn.length) {
+        return false;
+      }
+      for (int i = 0; i < l$statusIsIn.length; i++) {
+        final l$statusIsIn$entry = l$statusIsIn[i];
+        final lOther$statusIsIn$entry = lOther$statusIsIn[i];
+        if (l$statusIsIn$entry != lOther$statusIsIn$entry) {
+          return false;
+        }
+      }
+    } else if (l$statusIsIn != lOther$statusIsIn) {
+      return false;
+    }
+    final l$startTime = startTime;
+    final lOther$startTime = other.startTime;
+    if (_$data.containsKey('startTime') !=
+        other._$data.containsKey('startTime')) {
+      return false;
+    }
+    if (l$startTime != lOther$startTime) {
+      return false;
+    }
+    final l$endTime = endTime;
+    final lOther$endTime = other.endTime;
+    if (_$data.containsKey('endTime') != other._$data.containsKey('endTime')) {
+      return false;
+    }
+    if (l$endTime != lOther$endTime) {
+      return false;
+    }
+    return true;
+  }
+
+  @override
+  int get hashCode {
+    final l$serviceConfig = serviceConfig;
+    final l$commitHash = commitHash;
+    final l$statusIsIn = statusIsIn;
+    final l$startTime = startTime;
+    final l$endTime = endTime;
+    return Object.hashAll([
+      _$data.containsKey('serviceConfig') ? l$serviceConfig : const {},
+      _$data.containsKey('commitHash') ? l$commitHash : const {},
+      _$data.containsKey('statusIsIn')
+          ? l$statusIsIn == null
+              ? null
+              : Object.hashAll(l$statusIsIn.map((v) => v))
+          : const {},
+      _$data.containsKey('startTime') ? l$startTime : const {},
+      _$data.containsKey('endTime') ? l$endTime : const {}
+    ]);
+  }
 }
 
 abstract class CopyWith$Input$CompilationFilter<TRes> {
@@ -460,22 +216,19 @@ class _CopyWithImpl$Input$CompilationFilter<TRes>
           Object? statusIsIn = _undefined,
           Object? startTime = _undefined,
           Object? endTime = _undefined}) =>
-      _then(Input$CompilationFilter(
-          serviceConfig: serviceConfig == _undefined
-              ? _instance.serviceConfig
-              : (serviceConfig as Input$ServiceConfigFilter?),
-          commitHash: commitHash == _undefined
-              ? _instance.commitHash
-              : (commitHash as Input$StringFilter?),
-          statusIsIn: statusIsIn == _undefined
-              ? _instance.statusIsIn
-              : (statusIsIn as List<Enum$CompilationStatus>?),
-          startTime: startTime == _undefined
-              ? _instance.startTime
-              : (startTime as Input$DateTimeFilter?),
-          endTime: endTime == _undefined
-              ? _instance.endTime
-              : (endTime as Input$DateTimeFilter?)));
+      _then(Input$CompilationFilter._({
+        ..._instance._$data,
+        if (serviceConfig != _undefined)
+          'serviceConfig': (serviceConfig as Input$ServiceConfigFilter?),
+        if (commitHash != _undefined)
+          'commitHash': (commitHash as Input$StringFilter?),
+        if (statusIsIn != _undefined)
+          'statusIsIn': (statusIsIn as List<Enum$CompilationStatus>?),
+        if (startTime != _undefined)
+          'startTime': (startTime as Input$DateTimeFilter?),
+        if (endTime != _undefined)
+          'endTime': (endTime as Input$DateTimeFilter?),
+      }));
   CopyWith$Input$ServiceConfigFilter<TRes> get serviceConfig {
     final local$serviceConfig = _instance.serviceConfig;
     return local$serviceConfig == null
@@ -531,65 +284,168 @@ class _CopyWithStubImpl$Input$CompilationFilter<TRes>
       CopyWith$Input$DateTimeFilter.stub(_res);
 }
 
-@JsonSerializable(explicitToJson: true)
 class Input$ServiceConfigFilter {
-  Input$ServiceConfigFilter(
-      {this.serviceId,
-      this.gitRepo,
-      this.gitBranch,
-      this.serverFile,
-      this.createdDate});
+  factory Input$ServiceConfigFilter(
+          {Input$StringFilter? serviceId,
+          Input$StringFilter? gitRepo,
+          Input$StringFilter? gitBranch,
+          Input$StringFilter? serverFile,
+          Input$DateTimeFilter? createdDate}) =>
+      Input$ServiceConfigFilter._({
+        if (serviceId != null) r'serviceId': serviceId,
+        if (gitRepo != null) r'gitRepo': gitRepo,
+        if (gitBranch != null) r'gitBranch': gitBranch,
+        if (serverFile != null) r'serverFile': serverFile,
+        if (createdDate != null) r'createdDate': createdDate,
+      });
+
+  Input$ServiceConfigFilter._(this._$data);
+
+  factory Input$ServiceConfigFilter.fromJson(Map<String, dynamic> data) {
+    final result$data = <String, dynamic>{};
+    if (data.containsKey('serviceId')) {
+      final l$serviceId = data['serviceId'];
+      result$data['serviceId'] = l$serviceId == null
+          ? null
+          : Input$StringFilter.fromJson((l$serviceId as Map<String, dynamic>));
+    }
+    if (data.containsKey('gitRepo')) {
+      final l$gitRepo = data['gitRepo'];
+      result$data['gitRepo'] = l$gitRepo == null
+          ? null
+          : Input$StringFilter.fromJson((l$gitRepo as Map<String, dynamic>));
+    }
+    if (data.containsKey('gitBranch')) {
+      final l$gitBranch = data['gitBranch'];
+      result$data['gitBranch'] = l$gitBranch == null
+          ? null
+          : Input$StringFilter.fromJson((l$gitBranch as Map<String, dynamic>));
+    }
+    if (data.containsKey('serverFile')) {
+      final l$serverFile = data['serverFile'];
+      result$data['serverFile'] = l$serverFile == null
+          ? null
+          : Input$StringFilter.fromJson((l$serverFile as Map<String, dynamic>));
+    }
+    if (data.containsKey('createdDate')) {
+      final l$createdDate = data['createdDate'];
+      result$data['createdDate'] = l$createdDate == null
+          ? null
+          : Input$DateTimeFilter.fromJson(
+              (l$createdDate as Map<String, dynamic>));
+    }
+    return Input$ServiceConfigFilter._(result$data);
+  }
+
+  Map<String, dynamic> _$data;
+
+  Input$StringFilter? get serviceId =>
+      (_$data['serviceId'] as Input$StringFilter?);
+  Input$StringFilter? get gitRepo => (_$data['gitRepo'] as Input$StringFilter?);
+  Input$StringFilter? get gitBranch =>
+      (_$data['gitBranch'] as Input$StringFilter?);
+  Input$StringFilter? get serverFile =>
+      (_$data['serverFile'] as Input$StringFilter?);
+  Input$DateTimeFilter? get createdDate =>
+      (_$data['createdDate'] as Input$DateTimeFilter?);
+  Map<String, dynamic> toJson() {
+    final result$data = <String, dynamic>{};
+    if (_$data.containsKey('serviceId')) {
+      final l$serviceId = serviceId;
+      result$data['serviceId'] = l$serviceId?.toJson();
+    }
+    if (_$data.containsKey('gitRepo')) {
+      final l$gitRepo = gitRepo;
+      result$data['gitRepo'] = l$gitRepo?.toJson();
+    }
+    if (_$data.containsKey('gitBranch')) {
+      final l$gitBranch = gitBranch;
+      result$data['gitBranch'] = l$gitBranch?.toJson();
+    }
+    if (_$data.containsKey('serverFile')) {
+      final l$serverFile = serverFile;
+      result$data['serverFile'] = l$serverFile?.toJson();
+    }
+    if (_$data.containsKey('createdDate')) {
+      final l$createdDate = createdDate;
+      result$data['createdDate'] = l$createdDate?.toJson();
+    }
+    return result$data;
+  }
+
+  CopyWith$Input$ServiceConfigFilter<Input$ServiceConfigFilter> get copyWith =>
+      CopyWith$Input$ServiceConfigFilter(this, (i) => i);
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) {
+      return true;
+    }
+    if (!(other is Input$ServiceConfigFilter) ||
+        runtimeType != other.runtimeType) {
+      return false;
+    }
+    final l$serviceId = serviceId;
+    final lOther$serviceId = other.serviceId;
+    if (_$data.containsKey('serviceId') !=
+        other._$data.containsKey('serviceId')) {
+      return false;
+    }
+    if (l$serviceId != lOther$serviceId) {
+      return false;
+    }
+    final l$gitRepo = gitRepo;
+    final lOther$gitRepo = other.gitRepo;
+    if (_$data.containsKey('gitRepo') != other._$data.containsKey('gitRepo')) {
+      return false;
+    }
+    if (l$gitRepo != lOther$gitRepo) {
+      return false;
+    }
+    final l$gitBranch = gitBranch;
+    final lOther$gitBranch = other.gitBranch;
+    if (_$data.containsKey('gitBranch') !=
+        other._$data.containsKey('gitBranch')) {
+      return false;
+    }
+    if (l$gitBranch != lOther$gitBranch) {
+      return false;
+    }
+    final l$serverFile = serverFile;
+    final lOther$serverFile = other.serverFile;
+    if (_$data.containsKey('serverFile') !=
+        other._$data.containsKey('serverFile')) {
+      return false;
+    }
+    if (l$serverFile != lOther$serverFile) {
+      return false;
+    }
+    final l$createdDate = createdDate;
+    final lOther$createdDate = other.createdDate;
+    if (_$data.containsKey('createdDate') !=
+        other._$data.containsKey('createdDate')) {
+      return false;
+    }
+    if (l$createdDate != lOther$createdDate) {
+      return false;
+    }
+    return true;
+  }
 
   @override
-  factory Input$ServiceConfigFilter.fromJson(Map<String, dynamic> json) =>
-      _$Input$ServiceConfigFilterFromJson(json);
-
-  final Input$StringFilter? serviceId;
-
-  final Input$StringFilter? gitRepo;
-
-  final Input$StringFilter? gitBranch;
-
-  final Input$StringFilter? serverFile;
-
-  final Input$DateTimeFilter? createdDate;
-
-  Map<String, dynamic> toJson() => _$Input$ServiceConfigFilterToJson(this);
   int get hashCode {
     final l$serviceId = serviceId;
     final l$gitRepo = gitRepo;
     final l$gitBranch = gitBranch;
     final l$serverFile = serverFile;
     final l$createdDate = createdDate;
-    return Object.hashAll(
-        [l$serviceId, l$gitRepo, l$gitBranch, l$serverFile, l$createdDate]);
+    return Object.hashAll([
+      _$data.containsKey('serviceId') ? l$serviceId : const {},
+      _$data.containsKey('gitRepo') ? l$gitRepo : const {},
+      _$data.containsKey('gitBranch') ? l$gitBranch : const {},
+      _$data.containsKey('serverFile') ? l$serverFile : const {},
+      _$data.containsKey('createdDate') ? l$createdDate : const {}
+    ]);
   }
-
-  @override
-  bool operator ==(Object other) {
-    if (identical(this, other)) return true;
-    if (!(other is Input$ServiceConfigFilter) ||
-        runtimeType != other.runtimeType) return false;
-    final l$serviceId = serviceId;
-    final lOther$serviceId = other.serviceId;
-    if (l$serviceId != lOther$serviceId) return false;
-    final l$gitRepo = gitRepo;
-    final lOther$gitRepo = other.gitRepo;
-    if (l$gitRepo != lOther$gitRepo) return false;
-    final l$gitBranch = gitBranch;
-    final lOther$gitBranch = other.gitBranch;
-    if (l$gitBranch != lOther$gitBranch) return false;
-    final l$serverFile = serverFile;
-    final lOther$serverFile = other.serverFile;
-    if (l$serverFile != lOther$serverFile) return false;
-    final l$createdDate = createdDate;
-    final lOther$createdDate = other.createdDate;
-    if (l$createdDate != lOther$createdDate) return false;
-    return true;
-  }
-
-  CopyWith$Input$ServiceConfigFilter<Input$ServiceConfigFilter> get copyWith =>
-      CopyWith$Input$ServiceConfigFilter(this, (i) => i);
 }
 
 abstract class CopyWith$Input$ServiceConfigFilter<TRes> {
@@ -629,22 +485,18 @@ class _CopyWithImpl$Input$ServiceConfigFilter<TRes>
           Object? gitBranch = _undefined,
           Object? serverFile = _undefined,
           Object? createdDate = _undefined}) =>
-      _then(Input$ServiceConfigFilter(
-          serviceId: serviceId == _undefined
-              ? _instance.serviceId
-              : (serviceId as Input$StringFilter?),
-          gitRepo: gitRepo == _undefined
-              ? _instance.gitRepo
-              : (gitRepo as Input$StringFilter?),
-          gitBranch: gitBranch == _undefined
-              ? _instance.gitBranch
-              : (gitBranch as Input$StringFilter?),
-          serverFile: serverFile == _undefined
-              ? _instance.serverFile
-              : (serverFile as Input$StringFilter?),
-          createdDate: createdDate == _undefined
-              ? _instance.createdDate
-              : (createdDate as Input$DateTimeFilter?)));
+      _then(Input$ServiceConfigFilter._({
+        ..._instance._$data,
+        if (serviceId != _undefined)
+          'serviceId': (serviceId as Input$StringFilter?),
+        if (gitRepo != _undefined) 'gitRepo': (gitRepo as Input$StringFilter?),
+        if (gitBranch != _undefined)
+          'gitBranch': (gitBranch as Input$StringFilter?),
+        if (serverFile != _undefined)
+          'serverFile': (serverFile as Input$StringFilter?),
+        if (createdDate != _undefined)
+          'createdDate': (createdDate as Input$DateTimeFilter?),
+      }));
   CopyWith$Input$StringFilter<TRes> get serviceId {
     final local$serviceId = _instance.serviceId;
     return local$serviceId == null
@@ -710,61 +562,121 @@ class _CopyWithStubImpl$Input$ServiceConfigFilter<TRes>
       CopyWith$Input$DateTimeFilter.stub(_res);
 }
 
-@JsonSerializable(explicitToJson: true)
 class Input$StringFilter {
-  Input$StringFilter({this.contains, this.regExp, this.isIn});
+  factory Input$StringFilter(
+          {String? contains, String? regExp, List<String>? isIn}) =>
+      Input$StringFilter._({
+        if (contains != null) r'contains': contains,
+        if (regExp != null) r'regExp': regExp,
+        if (isIn != null) r'isIn': isIn,
+      });
+
+  Input$StringFilter._(this._$data);
+
+  factory Input$StringFilter.fromJson(Map<String, dynamic> data) {
+    final result$data = <String, dynamic>{};
+    if (data.containsKey('contains')) {
+      final l$contains = data['contains'];
+      result$data['contains'] = (l$contains as String?);
+    }
+    if (data.containsKey('regExp')) {
+      final l$regExp = data['regExp'];
+      result$data['regExp'] = (l$regExp as String?);
+    }
+    if (data.containsKey('isIn')) {
+      final l$isIn = data['isIn'];
+      result$data['isIn'] =
+          (l$isIn as List<dynamic>?)?.map((e) => (e as String)).toList();
+    }
+    return Input$StringFilter._(result$data);
+  }
+
+  Map<String, dynamic> _$data;
+
+  String? get contains => (_$data['contains'] as String?);
+  String? get regExp => (_$data['regExp'] as String?);
+  List<String>? get isIn => (_$data['isIn'] as List<String>?);
+  Map<String, dynamic> toJson() {
+    final result$data = <String, dynamic>{};
+    if (_$data.containsKey('contains')) {
+      final l$contains = contains;
+      result$data['contains'] = l$contains;
+    }
+    if (_$data.containsKey('regExp')) {
+      final l$regExp = regExp;
+      result$data['regExp'] = l$regExp;
+    }
+    if (_$data.containsKey('isIn')) {
+      final l$isIn = isIn;
+      result$data['isIn'] = l$isIn?.map((e) => e).toList();
+    }
+    return result$data;
+  }
+
+  CopyWith$Input$StringFilter<Input$StringFilter> get copyWith =>
+      CopyWith$Input$StringFilter(this, (i) => i);
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) {
+      return true;
+    }
+    if (!(other is Input$StringFilter) || runtimeType != other.runtimeType) {
+      return false;
+    }
+    final l$contains = contains;
+    final lOther$contains = other.contains;
+    if (_$data.containsKey('contains') !=
+        other._$data.containsKey('contains')) {
+      return false;
+    }
+    if (l$contains != lOther$contains) {
+      return false;
+    }
+    final l$regExp = regExp;
+    final lOther$regExp = other.regExp;
+    if (_$data.containsKey('regExp') != other._$data.containsKey('regExp')) {
+      return false;
+    }
+    if (l$regExp != lOther$regExp) {
+      return false;
+    }
+    final l$isIn = isIn;
+    final lOther$isIn = other.isIn;
+    if (_$data.containsKey('isIn') != other._$data.containsKey('isIn')) {
+      return false;
+    }
+    if (l$isIn != null && lOther$isIn != null) {
+      if (l$isIn.length != lOther$isIn.length) {
+        return false;
+      }
+      for (int i = 0; i < l$isIn.length; i++) {
+        final l$isIn$entry = l$isIn[i];
+        final lOther$isIn$entry = lOther$isIn[i];
+        if (l$isIn$entry != lOther$isIn$entry) {
+          return false;
+        }
+      }
+    } else if (l$isIn != lOther$isIn) {
+      return false;
+    }
+    return true;
+  }
 
   @override
-  factory Input$StringFilter.fromJson(Map<String, dynamic> json) =>
-      _$Input$StringFilterFromJson(json);
-
-  final String? contains;
-
-  final String? regExp;
-
-  final List<String>? isIn;
-
-  Map<String, dynamic> toJson() => _$Input$StringFilterToJson(this);
   int get hashCode {
     final l$contains = contains;
     final l$regExp = regExp;
     final l$isIn = isIn;
     return Object.hashAll([
-      l$contains,
-      l$regExp,
-      l$isIn == null ? null : Object.hashAll(l$isIn.map((v) => v))
+      _$data.containsKey('contains') ? l$contains : const {},
+      _$data.containsKey('regExp') ? l$regExp : const {},
+      _$data.containsKey('isIn')
+          ? l$isIn == null
+              ? null
+              : Object.hashAll(l$isIn.map((v) => v))
+          : const {}
     ]);
   }
-
-  @override
-  bool operator ==(Object other) {
-    if (identical(this, other)) return true;
-    if (!(other is Input$StringFilter) || runtimeType != other.runtimeType)
-      return false;
-    final l$contains = contains;
-    final lOther$contains = other.contains;
-    if (l$contains != lOther$contains) return false;
-    final l$regExp = regExp;
-    final lOther$regExp = other.regExp;
-    if (l$regExp != lOther$regExp) return false;
-    final l$isIn = isIn;
-    final lOther$isIn = other.isIn;
-    if (l$isIn != null && lOther$isIn != null) {
-      if (l$isIn.length != lOther$isIn.length) return false;
-      for (int i = 0; i < l$isIn.length; i++) {
-        final l$isIn$entry = l$isIn[i];
-        final lOther$isIn$entry = lOther$isIn[i];
-        if (l$isIn$entry != lOther$isIn$entry) return false;
-      }
-    } else if (l$isIn != lOther$isIn) {
-      return false;
-    }
-
-    return true;
-  }
-
-  CopyWith$Input$StringFilter<Input$StringFilter> get copyWith =>
-      CopyWith$Input$StringFilter(this, (i) => i);
 }
 
 abstract class CopyWith$Input$StringFilter<TRes> {
@@ -792,12 +704,12 @@ class _CopyWithImpl$Input$StringFilter<TRes>
           {Object? contains = _undefined,
           Object? regExp = _undefined,
           Object? isIn = _undefined}) =>
-      _then(Input$StringFilter(
-          contains: contains == _undefined
-              ? _instance.contains
-              : (contains as String?),
-          regExp: regExp == _undefined ? _instance.regExp : (regExp as String?),
-          isIn: isIn == _undefined ? _instance.isIn : (isIn as List<String>?)));
+      _then(Input$StringFilter._({
+        ..._instance._$data,
+        if (contains != _undefined) 'contains': (contains as String?),
+        if (regExp != _undefined) 'regExp': (regExp as String?),
+        if (isIn != _undefined) 'isIn': (isIn as List<String>?),
+      }));
 }
 
 class _CopyWithStubImpl$Input$StringFilter<TRes>
@@ -809,41 +721,85 @@ class _CopyWithStubImpl$Input$StringFilter<TRes>
   call({String? contains, String? regExp, List<String>? isIn}) => _res;
 }
 
-@JsonSerializable(explicitToJson: true)
 class Input$DateTimeFilter {
-  Input$DateTimeFilter({this.before, this.after});
+  factory Input$DateTimeFilter({DateTime? before, DateTime? after}) =>
+      Input$DateTimeFilter._({
+        if (before != null) r'before': before,
+        if (after != null) r'after': after,
+      });
 
-  @override
-  factory Input$DateTimeFilter.fromJson(Map<String, dynamic> json) =>
-      _$Input$DateTimeFilterFromJson(json);
+  Input$DateTimeFilter._(this._$data);
 
-  final DateTime? before;
-
-  final DateTime? after;
-
-  Map<String, dynamic> toJson() => _$Input$DateTimeFilterToJson(this);
-  int get hashCode {
-    final l$before = before;
-    final l$after = after;
-    return Object.hashAll([l$before, l$after]);
+  factory Input$DateTimeFilter.fromJson(Map<String, dynamic> data) {
+    final result$data = <String, dynamic>{};
+    if (data.containsKey('before')) {
+      final l$before = data['before'];
+      result$data['before'] =
+          l$before == null ? null : DateTime.parse((l$before as String));
+    }
+    if (data.containsKey('after')) {
+      final l$after = data['after'];
+      result$data['after'] =
+          l$after == null ? null : DateTime.parse((l$after as String));
+    }
+    return Input$DateTimeFilter._(result$data);
   }
 
-  @override
-  bool operator ==(Object other) {
-    if (identical(this, other)) return true;
-    if (!(other is Input$DateTimeFilter) || runtimeType != other.runtimeType)
-      return false;
-    final l$before = before;
-    final lOther$before = other.before;
-    if (l$before != lOther$before) return false;
-    final l$after = after;
-    final lOther$after = other.after;
-    if (l$after != lOther$after) return false;
-    return true;
+  Map<String, dynamic> _$data;
+
+  DateTime? get before => (_$data['before'] as DateTime?);
+  DateTime? get after => (_$data['after'] as DateTime?);
+  Map<String, dynamic> toJson() {
+    final result$data = <String, dynamic>{};
+    if (_$data.containsKey('before')) {
+      final l$before = before;
+      result$data['before'] = l$before?.toIso8601String();
+    }
+    if (_$data.containsKey('after')) {
+      final l$after = after;
+      result$data['after'] = l$after?.toIso8601String();
+    }
+    return result$data;
   }
 
   CopyWith$Input$DateTimeFilter<Input$DateTimeFilter> get copyWith =>
       CopyWith$Input$DateTimeFilter(this, (i) => i);
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) {
+      return true;
+    }
+    if (!(other is Input$DateTimeFilter) || runtimeType != other.runtimeType) {
+      return false;
+    }
+    final l$before = before;
+    final lOther$before = other.before;
+    if (_$data.containsKey('before') != other._$data.containsKey('before')) {
+      return false;
+    }
+    if (l$before != lOther$before) {
+      return false;
+    }
+    final l$after = after;
+    final lOther$after = other.after;
+    if (_$data.containsKey('after') != other._$data.containsKey('after')) {
+      return false;
+    }
+    if (l$after != lOther$after) {
+      return false;
+    }
+    return true;
+  }
+
+  @override
+  int get hashCode {
+    final l$before = before;
+    final l$after = after;
+    return Object.hashAll([
+      _$data.containsKey('before') ? l$before : const {},
+      _$data.containsKey('after') ? l$after : const {}
+    ]);
+  }
 }
 
 abstract class CopyWith$Input$DateTimeFilter<TRes> {
@@ -868,10 +824,11 @@ class _CopyWithImpl$Input$DateTimeFilter<TRes>
   static const _undefined = {};
 
   TRes call({Object? before = _undefined, Object? after = _undefined}) =>
-      _then(Input$DateTimeFilter(
-          before:
-              before == _undefined ? _instance.before : (before as DateTime?),
-          after: after == _undefined ? _instance.after : (after as DateTime?)));
+      _then(Input$DateTimeFilter._({
+        ..._instance._$data,
+        if (before != _undefined) 'before': (before as DateTime?),
+        if (after != _undefined) 'after': (after as DateTime?),
+      }));
 }
 
 class _CopyWithStubImpl$Input$DateTimeFilter<TRes>
@@ -883,26 +840,515 @@ class _CopyWithStubImpl$Input$DateTimeFilter<TRes>
   call({DateTime? before, DateTime? after}) => _res;
 }
 
-enum Enum$CliCommandVariableType {
-  @JsonValue('environment')
-  environment,
-  @JsonValue('constant')
-  constant,
-  @JsonValue('dynamic')
-  $dynamic,
-  $unknown
+class Input$ServiceConfigInput {
+  factory Input$ServiceConfigInput(
+          {required String gitRepo,
+          required String gitBranch,
+          required String serverFile,
+          required List<Input$CliCommandInput> commands}) =>
+      Input$ServiceConfigInput._({
+        r'gitRepo': gitRepo,
+        r'gitBranch': gitBranch,
+        r'serverFile': serverFile,
+        r'commands': commands,
+      });
+
+  Input$ServiceConfigInput._(this._$data);
+
+  factory Input$ServiceConfigInput.fromJson(Map<String, dynamic> data) {
+    final result$data = <String, dynamic>{};
+    final l$gitRepo = data['gitRepo'];
+    result$data['gitRepo'] = (l$gitRepo as String);
+    final l$gitBranch = data['gitBranch'];
+    result$data['gitBranch'] = (l$gitBranch as String);
+    final l$serverFile = data['serverFile'];
+    result$data['serverFile'] = (l$serverFile as String);
+    final l$commands = data['commands'];
+    result$data['commands'] = (l$commands as List<dynamic>)
+        .map((e) => Input$CliCommandInput.fromJson((e as Map<String, dynamic>)))
+        .toList();
+    return Input$ServiceConfigInput._(result$data);
+  }
+
+  Map<String, dynamic> _$data;
+
+  String get gitRepo => (_$data['gitRepo'] as String);
+  String get gitBranch => (_$data['gitBranch'] as String);
+  String get serverFile => (_$data['serverFile'] as String);
+  List<Input$CliCommandInput> get commands =>
+      (_$data['commands'] as List<Input$CliCommandInput>);
+  Map<String, dynamic> toJson() {
+    final result$data = <String, dynamic>{};
+    final l$gitRepo = gitRepo;
+    result$data['gitRepo'] = l$gitRepo;
+    final l$gitBranch = gitBranch;
+    result$data['gitBranch'] = l$gitBranch;
+    final l$serverFile = serverFile;
+    result$data['serverFile'] = l$serverFile;
+    final l$commands = commands;
+    result$data['commands'] = l$commands.map((e) => e.toJson()).toList();
+    return result$data;
+  }
+
+  CopyWith$Input$ServiceConfigInput<Input$ServiceConfigInput> get copyWith =>
+      CopyWith$Input$ServiceConfigInput(this, (i) => i);
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) {
+      return true;
+    }
+    if (!(other is Input$ServiceConfigInput) ||
+        runtimeType != other.runtimeType) {
+      return false;
+    }
+    final l$gitRepo = gitRepo;
+    final lOther$gitRepo = other.gitRepo;
+    if (l$gitRepo != lOther$gitRepo) {
+      return false;
+    }
+    final l$gitBranch = gitBranch;
+    final lOther$gitBranch = other.gitBranch;
+    if (l$gitBranch != lOther$gitBranch) {
+      return false;
+    }
+    final l$serverFile = serverFile;
+    final lOther$serverFile = other.serverFile;
+    if (l$serverFile != lOther$serverFile) {
+      return false;
+    }
+    final l$commands = commands;
+    final lOther$commands = other.commands;
+    if (l$commands.length != lOther$commands.length) {
+      return false;
+    }
+    for (int i = 0; i < l$commands.length; i++) {
+      final l$commands$entry = l$commands[i];
+      final lOther$commands$entry = lOther$commands[i];
+      if (l$commands$entry != lOther$commands$entry) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  @override
+  int get hashCode {
+    final l$gitRepo = gitRepo;
+    final l$gitBranch = gitBranch;
+    final l$serverFile = serverFile;
+    final l$commands = commands;
+    return Object.hashAll([
+      l$gitRepo,
+      l$gitBranch,
+      l$serverFile,
+      Object.hashAll(l$commands.map((v) => v))
+    ]);
+  }
 }
 
-enum Enum$CompilationStatus {
-  @JsonValue('pending')
-  pending,
-  @JsonValue('started')
-  started,
-  @JsonValue('error')
-  error,
-  @JsonValue('success')
-  success,
-  $unknown
+abstract class CopyWith$Input$ServiceConfigInput<TRes> {
+  factory CopyWith$Input$ServiceConfigInput(Input$ServiceConfigInput instance,
+          TRes Function(Input$ServiceConfigInput) then) =
+      _CopyWithImpl$Input$ServiceConfigInput;
+
+  factory CopyWith$Input$ServiceConfigInput.stub(TRes res) =
+      _CopyWithStubImpl$Input$ServiceConfigInput;
+
+  TRes call(
+      {String? gitRepo,
+      String? gitBranch,
+      String? serverFile,
+      List<Input$CliCommandInput>? commands});
+  TRes commands(
+      Iterable<Input$CliCommandInput> Function(
+              Iterable<CopyWith$Input$CliCommandInput<Input$CliCommandInput>>)
+          _fn);
+}
+
+class _CopyWithImpl$Input$ServiceConfigInput<TRes>
+    implements CopyWith$Input$ServiceConfigInput<TRes> {
+  _CopyWithImpl$Input$ServiceConfigInput(this._instance, this._then);
+
+  final Input$ServiceConfigInput _instance;
+
+  final TRes Function(Input$ServiceConfigInput) _then;
+
+  static const _undefined = {};
+
+  TRes call(
+          {Object? gitRepo = _undefined,
+          Object? gitBranch = _undefined,
+          Object? serverFile = _undefined,
+          Object? commands = _undefined}) =>
+      _then(Input$ServiceConfigInput._({
+        ..._instance._$data,
+        if (gitRepo != _undefined && gitRepo != null)
+          'gitRepo': (gitRepo as String),
+        if (gitBranch != _undefined && gitBranch != null)
+          'gitBranch': (gitBranch as String),
+        if (serverFile != _undefined && serverFile != null)
+          'serverFile': (serverFile as String),
+        if (commands != _undefined && commands != null)
+          'commands': (commands as List<Input$CliCommandInput>),
+      }));
+  TRes commands(
+          Iterable<Input$CliCommandInput> Function(
+                  Iterable<
+                      CopyWith$Input$CliCommandInput<Input$CliCommandInput>>)
+              _fn) =>
+      call(
+          commands: _fn(_instance.commands
+                  .map((e) => CopyWith$Input$CliCommandInput(e, (i) => i)))
+              .toList());
+}
+
+class _CopyWithStubImpl$Input$ServiceConfigInput<TRes>
+    implements CopyWith$Input$ServiceConfigInput<TRes> {
+  _CopyWithStubImpl$Input$ServiceConfigInput(this._res);
+
+  TRes _res;
+
+  call(
+          {String? gitRepo,
+          String? gitBranch,
+          String? serverFile,
+          List<Input$CliCommandInput>? commands}) =>
+      _res;
+  commands(_fn) => _res;
+}
+
+class Input$CliCommandInput {
+  factory Input$CliCommandInput(
+          {required String name,
+          required List<String> command,
+          required List<Input$CliCommandVariableInput> variables}) =>
+      Input$CliCommandInput._({
+        r'name': name,
+        r'command': command,
+        r'variables': variables,
+      });
+
+  Input$CliCommandInput._(this._$data);
+
+  factory Input$CliCommandInput.fromJson(Map<String, dynamic> data) {
+    final result$data = <String, dynamic>{};
+    final l$name = data['name'];
+    result$data['name'] = (l$name as String);
+    final l$command = data['command'];
+    result$data['command'] =
+        (l$command as List<dynamic>).map((e) => (e as String)).toList();
+    final l$variables = data['variables'];
+    result$data['variables'] = (l$variables as List<dynamic>)
+        .map((e) =>
+            Input$CliCommandVariableInput.fromJson((e as Map<String, dynamic>)))
+        .toList();
+    return Input$CliCommandInput._(result$data);
+  }
+
+  Map<String, dynamic> _$data;
+
+  String get name => (_$data['name'] as String);
+  List<String> get command => (_$data['command'] as List<String>);
+  List<Input$CliCommandVariableInput> get variables =>
+      (_$data['variables'] as List<Input$CliCommandVariableInput>);
+  Map<String, dynamic> toJson() {
+    final result$data = <String, dynamic>{};
+    final l$name = name;
+    result$data['name'] = l$name;
+    final l$command = command;
+    result$data['command'] = l$command.map((e) => e).toList();
+    final l$variables = variables;
+    result$data['variables'] = l$variables.map((e) => e.toJson()).toList();
+    return result$data;
+  }
+
+  CopyWith$Input$CliCommandInput<Input$CliCommandInput> get copyWith =>
+      CopyWith$Input$CliCommandInput(this, (i) => i);
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) {
+      return true;
+    }
+    if (!(other is Input$CliCommandInput) || runtimeType != other.runtimeType) {
+      return false;
+    }
+    final l$name = name;
+    final lOther$name = other.name;
+    if (l$name != lOther$name) {
+      return false;
+    }
+    final l$command = command;
+    final lOther$command = other.command;
+    if (l$command.length != lOther$command.length) {
+      return false;
+    }
+    for (int i = 0; i < l$command.length; i++) {
+      final l$command$entry = l$command[i];
+      final lOther$command$entry = lOther$command[i];
+      if (l$command$entry != lOther$command$entry) {
+        return false;
+      }
+    }
+    final l$variables = variables;
+    final lOther$variables = other.variables;
+    if (l$variables.length != lOther$variables.length) {
+      return false;
+    }
+    for (int i = 0; i < l$variables.length; i++) {
+      final l$variables$entry = l$variables[i];
+      final lOther$variables$entry = lOther$variables[i];
+      if (l$variables$entry != lOther$variables$entry) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  @override
+  int get hashCode {
+    final l$name = name;
+    final l$command = command;
+    final l$variables = variables;
+    return Object.hashAll([
+      l$name,
+      Object.hashAll(l$command.map((v) => v)),
+      Object.hashAll(l$variables.map((v) => v))
+    ]);
+  }
+}
+
+abstract class CopyWith$Input$CliCommandInput<TRes> {
+  factory CopyWith$Input$CliCommandInput(Input$CliCommandInput instance,
+          TRes Function(Input$CliCommandInput) then) =
+      _CopyWithImpl$Input$CliCommandInput;
+
+  factory CopyWith$Input$CliCommandInput.stub(TRes res) =
+      _CopyWithStubImpl$Input$CliCommandInput;
+
+  TRes call(
+      {String? name,
+      List<String>? command,
+      List<Input$CliCommandVariableInput>? variables});
+  TRes variables(
+      Iterable<Input$CliCommandVariableInput> Function(
+              Iterable<
+                  CopyWith$Input$CliCommandVariableInput<
+                      Input$CliCommandVariableInput>>)
+          _fn);
+}
+
+class _CopyWithImpl$Input$CliCommandInput<TRes>
+    implements CopyWith$Input$CliCommandInput<TRes> {
+  _CopyWithImpl$Input$CliCommandInput(this._instance, this._then);
+
+  final Input$CliCommandInput _instance;
+
+  final TRes Function(Input$CliCommandInput) _then;
+
+  static const _undefined = {};
+
+  TRes call(
+          {Object? name = _undefined,
+          Object? command = _undefined,
+          Object? variables = _undefined}) =>
+      _then(Input$CliCommandInput._({
+        ..._instance._$data,
+        if (name != _undefined && name != null) 'name': (name as String),
+        if (command != _undefined && command != null)
+          'command': (command as List<String>),
+        if (variables != _undefined && variables != null)
+          'variables': (variables as List<Input$CliCommandVariableInput>),
+      }));
+  TRes variables(
+          Iterable<Input$CliCommandVariableInput> Function(
+                  Iterable<
+                      CopyWith$Input$CliCommandVariableInput<
+                          Input$CliCommandVariableInput>>)
+              _fn) =>
+      call(
+          variables: _fn(_instance.variables.map(
+                  (e) => CopyWith$Input$CliCommandVariableInput(e, (i) => i)))
+              .toList());
+}
+
+class _CopyWithStubImpl$Input$CliCommandInput<TRes>
+    implements CopyWith$Input$CliCommandInput<TRes> {
+  _CopyWithStubImpl$Input$CliCommandInput(this._res);
+
+  TRes _res;
+
+  call(
+          {String? name,
+          List<String>? command,
+          List<Input$CliCommandVariableInput>? variables}) =>
+      _res;
+  variables(_fn) => _res;
+}
+
+class Input$CliCommandVariableInput {
+  factory Input$CliCommandVariableInput(
+          {required Enum$CliCommandVariableType type, required String value}) =>
+      Input$CliCommandVariableInput._({
+        r'type': type,
+        r'value': value,
+      });
+
+  Input$CliCommandVariableInput._(this._$data);
+
+  factory Input$CliCommandVariableInput.fromJson(Map<String, dynamic> data) {
+    final result$data = <String, dynamic>{};
+    final l$type = data['type'];
+    result$data['type'] =
+        fromJson$Enum$CliCommandVariableType((l$type as String));
+    final l$value = data['value'];
+    result$data['value'] = (l$value as String);
+    return Input$CliCommandVariableInput._(result$data);
+  }
+
+  Map<String, dynamic> _$data;
+
+  Enum$CliCommandVariableType get type =>
+      (_$data['type'] as Enum$CliCommandVariableType);
+  String get value => (_$data['value'] as String);
+  Map<String, dynamic> toJson() {
+    final result$data = <String, dynamic>{};
+    final l$type = type;
+    result$data['type'] = toJson$Enum$CliCommandVariableType(l$type);
+    final l$value = value;
+    result$data['value'] = l$value;
+    return result$data;
+  }
+
+  CopyWith$Input$CliCommandVariableInput<Input$CliCommandVariableInput>
+      get copyWith => CopyWith$Input$CliCommandVariableInput(this, (i) => i);
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) {
+      return true;
+    }
+    if (!(other is Input$CliCommandVariableInput) ||
+        runtimeType != other.runtimeType) {
+      return false;
+    }
+    final l$type = type;
+    final lOther$type = other.type;
+    if (l$type != lOther$type) {
+      return false;
+    }
+    final l$value = value;
+    final lOther$value = other.value;
+    if (l$value != lOther$value) {
+      return false;
+    }
+    return true;
+  }
+
+  @override
+  int get hashCode {
+    final l$type = type;
+    final l$value = value;
+    return Object.hashAll([l$type, l$value]);
+  }
+}
+
+abstract class CopyWith$Input$CliCommandVariableInput<TRes> {
+  factory CopyWith$Input$CliCommandVariableInput(
+          Input$CliCommandVariableInput instance,
+          TRes Function(Input$CliCommandVariableInput) then) =
+      _CopyWithImpl$Input$CliCommandVariableInput;
+
+  factory CopyWith$Input$CliCommandVariableInput.stub(TRes res) =
+      _CopyWithStubImpl$Input$CliCommandVariableInput;
+
+  TRes call({Enum$CliCommandVariableType? type, String? value});
+}
+
+class _CopyWithImpl$Input$CliCommandVariableInput<TRes>
+    implements CopyWith$Input$CliCommandVariableInput<TRes> {
+  _CopyWithImpl$Input$CliCommandVariableInput(this._instance, this._then);
+
+  final Input$CliCommandVariableInput _instance;
+
+  final TRes Function(Input$CliCommandVariableInput) _then;
+
+  static const _undefined = {};
+
+  TRes call({Object? type = _undefined, Object? value = _undefined}) =>
+      _then(Input$CliCommandVariableInput._({
+        ..._instance._$data,
+        if (type != _undefined && type != null)
+          'type': (type as Enum$CliCommandVariableType),
+        if (value != _undefined && value != null) 'value': (value as String),
+      }));
+}
+
+class _CopyWithStubImpl$Input$CliCommandVariableInput<TRes>
+    implements CopyWith$Input$CliCommandVariableInput<TRes> {
+  _CopyWithStubImpl$Input$CliCommandVariableInput(this._res);
+
+  TRes _res;
+
+  call({Enum$CliCommandVariableType? type, String? value}) => _res;
+}
+
+enum Enum$CliCommandVariableType { environment, constant, execution, $unknown }
+
+String toJson$Enum$CliCommandVariableType(Enum$CliCommandVariableType e) {
+  switch (e) {
+    case Enum$CliCommandVariableType.environment:
+      return r'environment';
+    case Enum$CliCommandVariableType.constant:
+      return r'constant';
+    case Enum$CliCommandVariableType.execution:
+      return r'execution';
+    case Enum$CliCommandVariableType.$unknown:
+      return r'$unknown';
+  }
+}
+
+Enum$CliCommandVariableType fromJson$Enum$CliCommandVariableType(String value) {
+  switch (value) {
+    case r'environment':
+      return Enum$CliCommandVariableType.environment;
+    case r'constant':
+      return Enum$CliCommandVariableType.constant;
+    case r'execution':
+      return Enum$CliCommandVariableType.execution;
+    default:
+      return Enum$CliCommandVariableType.$unknown;
+  }
+}
+
+enum Enum$CompilationStatus { pending, started, error, success, $unknown }
+
+String toJson$Enum$CompilationStatus(Enum$CompilationStatus e) {
+  switch (e) {
+    case Enum$CompilationStatus.pending:
+      return r'pending';
+    case Enum$CompilationStatus.started:
+      return r'started';
+    case Enum$CompilationStatus.error:
+      return r'error';
+    case Enum$CompilationStatus.success:
+      return r'success';
+    case Enum$CompilationStatus.$unknown:
+      return r'$unknown';
+  }
+}
+
+Enum$CompilationStatus fromJson$Enum$CompilationStatus(String value) {
+  switch (value) {
+    case r'pending':
+      return Enum$CompilationStatus.pending;
+    case r'started':
+      return Enum$CompilationStatus.started;
+    case r'error':
+      return Enum$CompilationStatus.error;
+    case r'success':
+      return Enum$CompilationStatus.success;
+    default:
+      return Enum$CompilationStatus.$unknown;
+  }
 }
 
 const possibleTypesMap = {

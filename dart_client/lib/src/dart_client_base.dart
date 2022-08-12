@@ -2,6 +2,10 @@ import 'dart:async';
 import 'package:dart_client/src/api.graphql.dart';
 import 'package:graphql/client.dart';
 
+export 'package:dart_client/schema.graphql.dart';
+export 'package:dart_client/src/api.graphql.dart';
+export 'package:graphql/client.dart';
+
 class CompilerClient {
   final GraphQLClient client;
 

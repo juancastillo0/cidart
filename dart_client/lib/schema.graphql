@@ -4,6 +4,7 @@ directive @valida(jsonSpec: String!) on SCALAR | OBJECT | INTERFACE | UNION | EN
 type Query {
   topOutput: String
   services: [ServiceConfig!]!
+  compilations(anyOf: [CompilationFilter!]): [Compilation!]!
 }
 
 type ServiceConfig {
@@ -36,14 +37,23 @@ type CliCommandVariable {
 enum CliCommandVariableType {
   environment
   constant
-  dynamic
+  execution
 }
 
-type Mutation {
-  startService: [CompilationLog!]!
-  createService(config: ServiceConfigInput!): ServiceConfig!
-  deleteService(serviceId: String!): ServiceConfig
-  compilations(anyOf: [CompilationFilter!]): [Compilation!]!
+type Compilation {
+  serviceConfig: ServiceConfig!
+  commitHash: String!
+  status: CompilationStatus!
+  startTime: Date!
+  endTime: Date
+  logs: [CompilationLog!]!
+}
+
+enum CompilationStatus {
+  pending
+  started
+  error
+  success
 }
 
 type CompilationLog {
@@ -61,18 +71,48 @@ type CommandExecution {
   result: ProcessExecResult
 }
 
-enum CompilationStatus {
-  pending
-  started
-  error
-  success
-}
-
 type ProcessExecResult {
   exitCode: Int!
   pid: Int!
   stderr: String!
   stdout: String!
+}
+
+input CompilationFilter {
+  serviceConfig: ServiceConfigFilter
+  commitHash: StringFilter
+  statusIsIn: [CompilationStatus!]
+  startTime: DateTimeFilter
+  endTime: DateTimeFilter
+}
+
+input ServiceConfigFilter {
+  serviceId: StringFilter
+  gitRepo: StringFilter
+  gitBranch: StringFilter
+  serverFile: StringFilter
+  createdDate: DateTimeFilter
+}
+
+input StringFilter {
+  contains: String
+  regExp: String
+  isIn: [String!] @valida(jsonSpec: """
+{"variantType":"list","minLength":1}
+""")
+}
+
+input DateTimeFilter {
+  before: Date
+  after: Date @valida(jsonSpec: """
+{"variantType":"date","comp":{"moreEq":{"variantType":"ref","ref":"before","isRequired":false},"useCompareTo":true}}
+""")
+}
+
+type Mutation {
+  startService: [CompilationLog!]!
+  createService(config: ServiceConfigInput!): ServiceConfig!
+  deleteService(serviceId: String!): ServiceConfig
 }
 
 input ServiceConfigInput {
@@ -104,46 +144,6 @@ input CliCommandVariableInput {
   type: CliCommandVariableType!
   value: String! @valida(jsonSpec: """
 {"variantType":"string","minLength":1}
-""")
-}
-
-type Compilation {
-  serviceConfig: ServiceConfig!
-  commitHash: String!
-  status: CompilationStatus!
-  startTime: Date!
-  endTime: Date
-  logs: [CompilationLog!]!
-}
-
-input CompilationFilter {
-  serviceConfig: ServiceConfigFilter
-  commitHash: StringFilter
-  statusIsIn: [CompilationStatus!]
-  startTime: DateTimeFilter
-  endTime: DateTimeFilter
-}
-
-input ServiceConfigFilter {
-  serviceId: StringFilter
-  gitRepo: StringFilter
-  gitBranch: StringFilter
-  serverFile: StringFilter
-  createdDate: DateTimeFilter
-}
-
-input StringFilter {
-  contains: String
-  regExp: String
-  isIn: [String!] @valida(jsonSpec: """
-{"variantType":"list","minLength":1}
-""")
-}
-
-input DateTimeFilter {
-  before: Date
-  after: Date @valida(jsonSpec: """
-{"variantType":"date","comp":{"moreEq":{"variantType":"ref","ref":"before","isRequired":false},"useCompareTo":true}}
 """)
 }
 

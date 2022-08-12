@@ -3,6 +3,8 @@ targets:
     builders:
       graphql_codegen:
         options:
+          addTypenameExcludedPaths:
+            - subscription
           scalars:
             Date:
               type: DateTime
