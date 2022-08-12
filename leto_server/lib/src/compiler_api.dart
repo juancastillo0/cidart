@@ -1,3 +1,5 @@
+import 'dart:math' show Random;
+
 import 'package:leto_schema/leto_schema.dart';
 import 'package:leto_server/src/compiler_service_mock.dart';
 import 'package:valida/valida.dart';
@@ -6,15 +8,20 @@ import 'compilation_event.dart';
 import 'compiler_models.dart';
 import 'compiler_service.dart';
 import 'compiler_api_models.dart';
+import 'util.dart';
 
 part 'compiler_api.g.dart';
 
 final _compilerService = ScopedRef.global((scope) => CompilerService());
 
 class CompilerServicesStore {
+  CompilerServicesStore(this.random);
+  final Random random;
   final Map<String, CompilerService> services = {};
 
-  static final ref = ScopedRef.global((scope) => CompilerServicesStore());
+  static final ref = ScopedRef.global(
+    (scope) => CompilerServicesStore(randomRef.get(scope)),
+  );
 
   CompilerService createService(ServiceConfigInput config) {
     final s = services[config.id];
@@ -38,7 +45,7 @@ class CompilerServicesStore {
               ))
           .toList(),
     );
-    final compiler = CompilerServiceMock(null, service);
+    final compiler = CompilerServiceMock(random, service);
     services[service.serviceId] = compiler;
     return compiler;
   }
@@ -109,20 +116,30 @@ Future<Stream<CompilationEvent>> createServiceAndReceiveUpdates(
   final service = CompilerServicesStore.ref.get(ctx).createService(config);
 
   return Stream.multi((controller) {
+    service.startService();
     controller.add(CompilationEvent.created(service.config));
     controller.addStream(service.stream);
   });
 }
 
 @Valida()
-@Mutation()
+@Query()
 Future<List<Compilation>> compilations(
   Ctx ctx,
   List<CompilationFilter>? anyOf,
 ) async {
-  if (anyOf == null || anyOf.isEmpty) return compilationsListMock;
+  final store = CompilerServicesStore.ref.get(ctx);
+  final compilations = store.services.values
+      .map<Compilation?>((e) => e.currentCompilation == null
+          ? null
+          : Compilation.fromCurrentCompilation(
+              e.currentCompilation!,
+              e.config,
+            ))
+      .whereType<Compilation>();
+  if (anyOf == null || anyOf.isEmpty) return compilations.toList();
 
-  return compilationsListMock
+  return compilations
       .where(
         (compilation) => anyOf.any(
           (element) => element.hasMatch(compilation),

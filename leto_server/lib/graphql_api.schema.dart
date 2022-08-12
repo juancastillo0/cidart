@@ -1,10 +1,10 @@
 // ignore: depend_on_referenced_packages
 import 'package:leto_schema/leto_schema.dart';
 import 'package:leto_server/src/compiler_api.dart';
+import 'package:leto_server/src/compilation_event.dart';
 import 'package:leto_server/src/compiler_api_models.dart';
 import 'package:leto_server/src/filters.dart';
 import 'package:leto_server/src/compiler_models.dart';
-import 'package:leto_server/src/compilation_event.dart';
 
 GraphQLSchema recreateGraphQLApiSchema() {
   HotReloadableDefinition.incrementCounter();
@@ -34,6 +34,7 @@ GraphQLSchema get graphqlApiSchema => _graphqlApiSchema ??= GraphQLSchema(
         fields: [
           topOutputGraphQLField,
           servicesGraphQLField,
+          compilationsGraphQLField,
         ],
       ),
       mutationType: objectType(
@@ -42,7 +43,6 @@ GraphQLSchema get graphqlApiSchema => _graphqlApiSchema ??= GraphQLSchema(
           startServiceGraphQLField,
           createServiceGraphQLField,
           deleteServiceGraphQLField,
-          compilationsGraphQLField,
         ],
       ),
       subscriptionType: objectType(
