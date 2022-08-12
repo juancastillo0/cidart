@@ -2,6 +2,7 @@ import 'dart:convert' show jsonEncode;
 import 'dart:io';
 
 import 'package:leto/leto.dart';
+import 'package:leto_schema/validate.dart';
 import 'package:leto_schema/validate_rules.dart';
 import 'package:leto_server/compiler.dart';
 import 'package:leto_server/graphql_api.schema.dart';
@@ -23,10 +24,17 @@ void main(List<String> arguments) async {
   }
 }
 
-Future<HttpServer> createServer() async {
+Future<HttpServer> createServer({
+  ScopedMap? globalVariables,
+}) async {
+  recreateGraphQLApiSchema();
   final clientQueries = await readClientGraphQLFiles();
   final service = CompilerService();
-  final router = makeCompilerRouter(service, clientQueries);
+  final router = makeCompilerRouter(
+    service,
+    clientQueries,
+    globalVariables: globalVariables,
+  );
   final server = startCompilerServer(router);
 
   return server;
@@ -85,23 +93,42 @@ Future<List<DocumentNode>> readClientGraphQLFiles({
       .where((event) => event != null)
       .cast<DocumentNode>()
       .toList();
+
+  final allValidationRules = [...specifiedRules, complexityRule()];
+  for (final document in values) {
+    final validationErrors = validateDocument(
+      graphqlApiSchema,
+      document,
+      rules: allValidationRules,
+    );
+    if (validationErrors.isNotEmpty) {
+      if (verify) {
+        errors.addAll(validationErrors.map((e) => e.toString()));
+      } else {
+        print(validationErrors);
+      }
+    }
+  }
   if (verify && errors.isNotEmpty) {
     throw errors.join('\n\n');
   }
   return values;
 }
 
+ValidationRule complexityRule() =>
+    queryComplexityRuleBuilder(maxComplexity: 1000, maxDepth: 7);
+
 Router makeCompilerRouter(
   CompilerService service,
-  List<DocumentNode> clientQueries,
-) {
+  List<DocumentNode> clientQueries, {
+  ScopedMap? globalVariables,
+}) {
   final computeHash = GraphQLPersistedQueries.defaultComputeHash;
 
   final executor = GraphQL(
     graphqlApiSchema,
-    customValidationRules: [
-      queryComplexityRuleBuilder(maxComplexity: 1000, maxDepth: 4),
-    ],
+    customValidationRules: [complexityRule()],
+    globalVariables: globalVariables,
     extensions: [
       if (Platform.environment['GRAPHQL_TRACING'] == 'true')
         GraphQLTracingExtension(
@@ -120,6 +147,7 @@ Router makeCompilerRouter(
       ),
       CacheExtension(cache: LruCacheSimple(50)),
       LoggingExtension((log) {
+        // TODO: don't print whole queries
         if (log.operationName != 'IntrospectionQuery') {
           print(log);
         }
