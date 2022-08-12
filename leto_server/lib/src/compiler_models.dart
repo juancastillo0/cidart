@@ -285,7 +285,7 @@ class CliCommandVariable {
           errorCode: 'CliCommandVariable.constantNoEqual',
           message: 'A constant variable should have an "=" separator',
         ),
-      if (obj.type == CliCommandVariableType.dynamic &&
+      if (obj.type == CliCommandVariableType.execution &&
           !dynamicVariableKeys.contains(obj.value))
         ValidaError(
           property: CliCommandVariableField.value.name,
@@ -308,7 +308,7 @@ class CliCommandVariable {
 enum CliCommandVariableType {
   environment,
   constant,
-  dynamic,
+  execution,
 }
 
 @JsonSerializable()

@@ -8,7 +8,8 @@ import 'compiler_models.dart';
 import 'compiler_service.dart';
 
 class CompilerServiceMock implements CompilerService {
-  CompilerServiceMock(int? seed, this.config) : random = Random(seed);
+  CompilerServiceMock(Random? random, this.config)
+      : random = random ?? Random();
 
   final Random random;
   @override
@@ -51,7 +52,7 @@ class CompilerServiceMock implements CompilerService {
     _batchedLogs.add(item);
 
     batchTimer ??= Timer(const Duration(milliseconds: 400), () {
-      _batchedLogs.map(CompilationEvent.log).map(_streamController.add);
+      _batchedLogs.map(CompilationEvent.log).forEach(_streamController.add);
       batchTimer = null;
       _batchedLogs = [];
     });
@@ -61,13 +62,13 @@ class CompilerServiceMock implements CompilerService {
   Future<List<CompilationLog>> startService() async {
     if (starting) return _compilationLogs;
     starting = true;
-    _log('starting');
-
     currentCompilation = CurrentCompilation(
-      commitHash: randomId(),
+      commitHash: randomId(random: random),
       compilationLogs: [],
       status: CompilationStatus.started,
     );
+    _log('starting');
+
     await Future.delayed(Duration(seconds: 2));
 
     _executeAll().then((value) {

@@ -289,7 +289,7 @@ final GraphQLEnumType<CliCommandVariableType>
     GraphQLEnumType('CliCommandVariableType', [
   GraphQLEnumValue('environment', CliCommandVariableType.environment),
   GraphQLEnumValue('constant', CliCommandVariableType.constant),
-  GraphQLEnumValue('dynamic', CliCommandVariableType.dynamic)
+  GraphQLEnumValue('execution', CliCommandVariableType.execution)
 ]);
 
 // **************************************************************************
@@ -311,7 +311,7 @@ Map<String, dynamic> _$CliCommandVariableToJson(CliCommandVariable instance) =>
 const _$CliCommandVariableTypeEnumMap = {
   CliCommandVariableType.environment: 'environment',
   CliCommandVariableType.constant: 'constant',
-  CliCommandVariableType.dynamic: 'dynamic',
+  CliCommandVariableType.execution: 'execution',
 };
 
 CliCommand _$CliCommandFromJson(Map<String, dynamic> json) => CliCommand(

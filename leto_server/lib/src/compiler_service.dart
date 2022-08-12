@@ -36,7 +36,7 @@ final ServiceConfig configDefault = ServiceConfig(
       modifiedDate: DateTime.now(),
       variables: [
         CliCommandVariable(
-          CliCommandVariableType.dynamic,
+          CliCommandVariableType.execution,
           'serverFile',
         ),
       ],
@@ -48,6 +48,9 @@ List<String> processCliCommand(
   Map<String, String> dynamicVariables,
   CliCommand command,
 ) {
+  if (command.variables.isEmpty) {
+    return command.command;
+  }
   final variables = command.variablesMap();
   final mapped = command.command
       .map(
@@ -69,7 +72,7 @@ String getVariableValue(
   switch (variable.type) {
     case CliCommandVariableType.constant:
       return variable.value.split('=').skip(1).join('=');
-    case CliCommandVariableType.dynamic:
+    case CliCommandVariableType.execution:
       return dynamicVariables[variable.key]!;
     case CliCommandVariableType.environment:
       return Platform.environment[variable.key]!;
