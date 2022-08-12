@@ -28,8 +28,12 @@ dev_dependencies:
   json_serializable: ^6.3.1
   valida_generator:
   leto_generator:
+  dart_client:
+    path: ../dart_client
+  gql_websocket_link:
 
 dependency_overrides:
+  rxdart: 0.27.1
   leto_generator:
     git:
       url: https://github.com/juancastillo0/leto
