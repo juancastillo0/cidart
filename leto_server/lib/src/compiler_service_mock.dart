@@ -1,15 +1,20 @@
 import 'dart:async';
 import 'dart:math' show Random;
 
-import 'package:leto_server/src/util.dart';
-
 import 'compilation_event.dart';
 import 'compiler_models.dart';
 import 'compiler_service.dart';
+import 'compiler_service_utils.dart';
+import 'process_runner.dart';
+import 'util.dart';
 
 class CompilerServiceMock implements CompilerService {
   CompilerServiceMock(Random? random, this.config)
       : random = random ?? Random();
+
+  @override
+  // TODO: implement runner
+  ProcessRunner get runner => throw UnimplementedError();
 
   final Random random;
   @override

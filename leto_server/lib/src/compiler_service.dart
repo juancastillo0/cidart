@@ -1,89 +1,20 @@
 import 'dart:async';
-import 'dart:io';
+import 'dart:io' as io;
+import 'dart:io' show Directory, ProcessStartMode;
 
 import 'compilation_event.dart';
 import 'compiler_models.dart';
-
-final ServiceConfig configDefault = ServiceConfig(
-  gitRepo: 'https://github.com/juancastillo0/room_signals',
-  gitBranch: 'main',
-  serverFile: 'bin/server',
-  serviceId: 'default',
-  createdDate: DateTime.now(),
-  commands: [
-    CliCommand(
-      name: '',
-      command: 'dart pub get'.split(' '),
-      modifiedDate: DateTime.now(),
-      variables: [],
-    ),
-    CliCommand(
-      name: '',
-      command: 'dart analyze'.split(' '),
-      modifiedDate: DateTime.now(),
-      variables: [],
-    ),
-    CliCommand(
-      name: '',
-      command: 'dart test'.split(' '),
-      modifiedDate: DateTime.now(),
-      variables: [],
-    ),
-    CliCommand(
-      name: '',
-      command:
-          'compile exe \${serverFile}.dart --output \${serverFile}'.split(' '),
-      modifiedDate: DateTime.now(),
-      variables: [
-        CliCommandVariable(
-          CliCommandVariableType.execution,
-          'serverFile',
-        ),
-      ],
-    ),
-  ],
-);
-
-List<String> processCliCommand(
-  Map<String, String> dynamicVariables,
-  CliCommand command,
-) {
-  if (command.variables.isEmpty) {
-    return command.command;
-  }
-  final variables = command.variablesMap();
-  final mapped = command.command
-      .map(
-        (value) => value.replaceAllMapped(
-          RegExp('(${command.variables.map((e) => '\${${e.key}}').join('|')})'),
-          (match) {
-            final value = match.input.substring(match.start, match.end);
-            final variable = variables[value]!;
-            return getVariableValue(dynamicVariables, variable);
-          },
-        ),
-      )
-      .toList();
-  return mapped;
-}
-
-String getVariableValue(
-    Map<String, String> dynamicVariables, CliCommandVariable variable) {
-  switch (variable.type) {
-    case CliCommandVariableType.constant:
-      return variable.value.split('=').skip(1).join('=');
-    case CliCommandVariableType.execution:
-      return dynamicVariables[variable.key]!;
-    case CliCommandVariableType.environment:
-      return Platform.environment[variable.key]!;
-  }
-}
+import 'compiler_service_utils.dart';
+import 'process_runner.dart';
 
 class CompilerService {
   CompilerService({
     ServiceConfig? config,
+    this.runner = const ProcessRunnerIO(),
   }) : config = config ?? configDefault;
+
   final ServiceConfig config;
+  final ProcessRunner runner;
 
   final Map<String, CurrentCompilation> logs = {};
   CurrentExecutedService? currentService;
@@ -111,7 +42,9 @@ class CompilerService {
         name: 'cidart-top-performance',
         command: [
           'top',
-          ...Platform.isLinux ? ['-b', '-n2', '-p'] : ['-l2', '-pid'],
+          ...runner.platform == CompilerPlatform.linux
+              ? ['-b', '-n2', '-p']
+              : ['-l2', '-pid'],
           '${currentService!.serverProcess.pid}',
         ],
         modifiedDate: config.createdDate,
@@ -191,7 +124,7 @@ class CompilerService {
       ),
     );
     _workingDirectory =
-        '${Directory.current.path}${Platform.pathSeparator}$dirName';
+        '${Directory.current.path}${io.Platform.pathSeparator}$dirName';
 
     for (final command in config.commands) {
       await _exec(
@@ -208,11 +141,13 @@ class CompilerService {
       currentService = null;
     }
     try {
-      final process = await Process.start(
-        config.serverFile,
-        [],
+      final process = await runner.start(
+        ProcessRunArgs(
+          config.serverFile,
+          [],
+          workingDirectory: _workingDirectory,
+        ),
         mode: ProcessStartMode.inheritStdio,
-        workingDirectory: _workingDirectory,
       );
 
       currentCompilation =
@@ -229,11 +164,13 @@ class CompilerService {
     } catch (_) {
       if (previousServer != null) {
         // restart previous process
-        final process = await Process.start(
-          config.serverFile,
-          [],
+        final process = await runner.start(
+          ProcessRunArgs(
+            config.serverFile,
+            [],
+            workingDirectory: previousServer.serverDirectory,
+          ),
           mode: ProcessStartMode.inheritStdio,
-          workingDirectory: previousServer.serverDirectory,
         );
         currentService = CurrentExecutedService(
           commitHash: previousServer.commitHash,
@@ -258,11 +195,11 @@ class CompilerService {
     _log('exec: $commandStr', time: start);
 
     final watch = Stopwatch()..start();
-    final result = await Process.run(
+    final result = await runner.run(ProcessRunArgs(
       executable,
       arguments,
       workingDirectory: _workingDirectory,
-    );
+    ));
     final elapsed = watch.elapsed;
     _log(
       'exec: $commandStr. Duration:${elapsed.inMilliseconds}ms.',
@@ -297,41 +234,5 @@ class CompilerService {
       time: _time,
       command: execution,
     ));
-  }
-}
-
-class CurrentExecutedService {
-  final String commitHash;
-  final Process serverProcess;
-  final String serverDirectory;
-
-  CurrentExecutedService({
-    required this.commitHash,
-    required this.serverProcess,
-    required this.serverDirectory,
-  });
-}
-
-class CurrentCompilation {
-  final String commitHash;
-  final List<CompilationLog> compilationLogs;
-  final CompilationStatus status;
-
-  CurrentCompilation({
-    required this.commitHash,
-    required this.compilationLogs,
-    required this.status,
-  });
-
-  CurrentCompilation copyWith({
-    String? commitHash,
-    List<CompilationLog>? compilationLogs,
-    CompilationStatus? status,
-  }) {
-    return CurrentCompilation(
-      commitHash: commitHash ?? this.commitHash,
-      compilationLogs: compilationLogs ?? this.compilationLogs,
-      status: status ?? this.status,
-    );
   }
 }
