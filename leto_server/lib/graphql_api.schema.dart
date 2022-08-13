@@ -34,6 +34,7 @@ GraphQLSchema get graphqlApiSchema => _graphqlApiSchema ??= GraphQLSchema(
         fields: [
           topOutputGraphQLField,
           servicesGraphQLField,
+          validateServiceConfigGraphQLField,
           compilationsGraphQLField,
         ],
       ),

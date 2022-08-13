@@ -47,6 +47,42 @@ final _servicesGraphQLField = HotReloadableDefinition<
           },
         )));
 
+GraphQLObjectField<ServiceConfigValidation, Object?, Object?>
+    get validateServiceConfigGraphQLField =>
+        _validateServiceConfigGraphQLField.value;
+final _validateServiceConfigGraphQLField = HotReloadableDefinition<
+        GraphQLObjectField<ServiceConfigValidation, Object?, Object?>>(
+    (setValue) =>
+        setValue(serviceConfigValidationGraphQLType.nonNull().field<Object?>(
+          'validateServiceConfig',
+          resolve: (obj, ctx) {
+            final args = ctx.args;
+            final validationErrorMap = <String, List<ValidaError>>{};
+
+            final _validation = ValidateServiceConfigArgs(
+                    ctx, (args["config"] as ServiceConfigInput))
+                .validate();
+            validationErrorMap.addAll(_validation.errorsMap
+                .map((k, v) => MapEntry(k is Enum ? k.name : k.toString(), v))
+              ..removeWhere((k, v) => v.isEmpty));
+            if (validationErrorMap.isNotEmpty) {
+              throw GraphQLError(
+                'Input validation error',
+                extensions: {
+                  'validaErrors': validationErrorMap,
+                },
+                sourceError: validationErrorMap,
+              );
+            }
+
+            return validateServiceConfig(
+                ctx, (args["config"] as ServiceConfigInput));
+          },
+        ))
+          ..inputs.addAll([
+            serviceConfigInputGraphQLTypeInput.nonNull().inputField('config')
+          ]));
+
 GraphQLObjectField<ServiceConfig, Object?, Object?>
     get createServiceGraphQLField => _createServiceGraphQLField.value;
 final _createServiceGraphQLField = HotReloadableDefinition<
@@ -185,8 +221,148 @@ final _compilationsGraphQLField = HotReloadableDefinition<
       ]));
 
 // **************************************************************************
+// _GraphQLGenerator
+// **************************************************************************
+
+final _serviceConfigValidationGraphQLType =
+    HotReloadableDefinition<GraphQLObjectType<ServiceConfigValidation>>(
+        (setValue) {
+  final __name = 'ServiceConfigValidation';
+
+  final __serviceConfigValidationGraphQLType =
+      objectType<ServiceConfigValidation>(__name,
+          isInterface: false, interfaces: []);
+
+  setValue(__serviceConfigValidationGraphQLType);
+  __serviceConfigValidationGraphQLType.fields.addAll(
+    [serviceConfigGraphQLType.field('found', resolve: (obj, ctx) => obj.found)],
+  );
+
+  return __serviceConfigValidationGraphQLType;
+});
+
+/// Auto-generated from [ServiceConfigValidation].
+GraphQLObjectType<ServiceConfigValidation>
+    get serviceConfigValidationGraphQLType =>
+        _serviceConfigValidationGraphQLType.value;
+
+// **************************************************************************
 // ValidatorGenerator
 // **************************************************************************
+
+/// The arguments for [validateServiceConfig].
+class ValidateServiceConfigArgs with ToJson {
+  final Ctx<dynamic> ctx;
+  final ServiceConfigInput config;
+
+  /// The arguments for [validateServiceConfig].
+  const ValidateServiceConfigArgs(
+    this.ctx,
+    this.config,
+  );
+
+  /// Validates this arguments for [validateServiceConfig].
+  ValidateServiceConfigArgsValidation validate() =>
+      ValidateServiceConfigArgsValidation.fromValue(this);
+
+  /// Validates this arguments for [validateServiceConfig] and
+  /// returns the successfully [Validated] value or
+  /// throws a [ValidateServiceConfigArgsValidation] when there is an error.
+  Validated<ValidateServiceConfigArgs> validatedOrThrow() {
+    final validation = validate();
+    final validated = validation.validated;
+    if (validated == null) {
+      throw validation;
+    }
+    return validated;
+  }
+
+  @override
+  Map<String, Object?> toJson() => {
+        'ctx': ctx,
+        'config': config,
+      };
+
+  @override
+  String toString() => 'ValidateServiceConfigArgs${toJson()}';
+
+  @override
+  bool operator ==(dynamic other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is ValidateServiceConfigArgs &&
+            ctx == other.ctx &&
+            config == other.config);
+  }
+
+  @override
+  int get hashCode => Object.hash(
+        runtimeType,
+        ctx,
+        config,
+      );
+}
+
+enum ValidateServiceConfigArgsField {
+  config,
+}
+
+class ValidateServiceConfigArgsValidationFields {
+  const ValidateServiceConfigArgsValidationFields(this.errorsMap);
+  final Map<ValidateServiceConfigArgsField, List<ValidaError>> errorsMap;
+
+  ServiceConfigInputValidation? get config {
+    final l = errorsMap[ValidateServiceConfigArgsField.config];
+    return (l != null && l.isNotEmpty)
+        ? l.first.nestedValidation as ServiceConfigInputValidation?
+        : null;
+  }
+}
+
+class ValidateServiceConfigArgsValidation extends Validation<
+    ValidateServiceConfigArgs, ValidateServiceConfigArgsField> {
+  ValidateServiceConfigArgsValidation(this.errorsMap, this.value)
+      : fields = ValidateServiceConfigArgsValidationFields(errorsMap),
+        super(errorsMap);
+  @override
+  final Map<ValidateServiceConfigArgsField, List<ValidaError>> errorsMap;
+  @override
+  final ValidateServiceConfigArgs value;
+  @override
+  final ValidateServiceConfigArgsValidationFields fields;
+
+  /// Validates [value] and returns a [ValidateServiceConfigArgsValidation] with the errors found as a result
+  factory ValidateServiceConfigArgsValidation.fromValue(
+          ValidateServiceConfigArgs value) =>
+      spec.validate(value);
+
+  static const spec = ValidaSpec(
+    globalValidate: null,
+    validationFactory: ValidateServiceConfigArgsValidation.new,
+    getField: _getField,
+    fieldsMap: {
+      ValidateServiceConfigArgsField.config: ValidaNested<ServiceConfigInput>(
+        omit: null,
+        customValidate: null,
+        overrideValidation: ServiceConfigInputValidation.fromValue,
+      ),
+    },
+  );
+
+  static List<ValidaError> _globalValidate(ValidateServiceConfigArgs value) =>
+      [];
+
+  static Object? _getField(ValidateServiceConfigArgs value, String field) {
+    switch (field) {
+      case 'ctx':
+        return value.ctx;
+      case 'config':
+        return value.config;
+      default:
+        throw Exception('Could not find field "$field" for value $value.');
+    }
+  }
+}
 
 /// The arguments for [compilations].
 class CompilationsArgs with ToJson {

@@ -14,6 +14,7 @@ class Validators with GenericValidator {
       validatorCompilationFilter,
       validatorDateTimeFilter,
       validatorStringFilter,
+      validatorValidateServiceConfigArgs,
       validatorCompilationsArgs,
       validatorCliCommandVariable,
     ]) {
@@ -54,6 +55,8 @@ class Validators with GenericValidator {
       Validator(DateTimeFilterValidation.fromValue);
   static const validatorStringFilter =
       Validator(StringFilterValidation.fromValue);
+  static const validatorValidateServiceConfigArgs =
+      Validator(ValidateServiceConfigArgsValidation.fromValue);
   static const validatorCompilationsArgs =
       Validator(CompilationsArgsValidation.fromValue);
   static const validatorCliCommandVariable =

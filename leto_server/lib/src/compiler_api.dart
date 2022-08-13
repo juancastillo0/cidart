@@ -5,9 +5,9 @@ import 'package:leto_server/src/compiler_service_mock.dart';
 import 'package:valida/valida.dart';
 
 import 'compilation_event.dart';
+import 'compiler_api_models.dart';
 import 'compiler_models.dart';
 import 'compiler_service.dart';
-import 'compiler_api_models.dart';
 import 'util.dart';
 
 part 'compiler_api.g.dart';
@@ -73,6 +73,25 @@ Future<List<ServiceConfig>> services(Ctx ctx) async {
       .values
       .map((e) => e.config)
       .toList();
+}
+
+@Valida()
+@Query()
+ServiceConfigValidation validateServiceConfig(
+  Ctx ctx,
+  ServiceConfigInput config,
+) {
+  final found = CompilerServicesStore.ref.get(ctx).services[config.id];
+  return ServiceConfigValidation(found: found?.config);
+}
+
+@GraphQLObject()
+class ServiceConfigValidation {
+  final ServiceConfig? found;
+
+  ServiceConfigValidation({
+    this.found,
+  });
 }
 
 @Mutation()
