@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'prelude.dart';
 
-class PodScopeWidget extends StatelessObserverComponent {
+class PodScopeWidget extends StatelessComponent {
   const PodScopeWidget({
     required this.child,
     this.overrides,

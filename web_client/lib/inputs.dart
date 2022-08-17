@@ -1,4 +1,4 @@
-import 'mobx_hooks.dart';
+import 'package:jaspr_bootstrap/hooks.dart';
 
 TextInput useTextInput([String initialText = '']) {
   final obs = useObs(() => initialText);

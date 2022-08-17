@@ -1,7 +1,7 @@
 import 'prelude.dart';
 
-class Space {
-  const Space._();
+class AppSpace {
+  const AppSpace._();
   static final hSmall = span(styles: Styles.box(width: Unit.pixels(10)), []);
   static final vSmall = span(styles: Styles.box(height: Unit.pixels(10)), []);
   static final hMid = span(styles: Styles.box(width: Unit.pixels(20)), []);
