@@ -1,11 +1,14 @@
 import 'compiler_models.dart';
 import 'store_prelude.dart';
 
-// Include generated file
 part 'compiler_store.g.dart';
 
 class DashboardStore {
+  final ObservableList<String> services =
+      ObservableList.of(['oianwd2nd', 'nda0ad2noin']);
   final ObservableList<CliCommand> cliCommands = ObservableList();
+
+  late final Observable<String> selectedService = Observable(services.first);
 
   static final pod = Pod(
     isGlobal: true,
@@ -21,8 +24,11 @@ class DashboardStore {
 class CliCommand extends _CliCommand with _$CliCommand {}
 
 abstract class _CliCommand with Store {
+  @observable
   String name = '';
+  @observable
   String command = '';
+  @observable
   DateTime modifiedDate = DateTime.now();
   final ObservableMap<String, CliCommandVariable> variables = ObservableMap();
 

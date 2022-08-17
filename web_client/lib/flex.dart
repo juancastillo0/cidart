@@ -1,35 +1,9 @@
-// ignore_for_file: constant_identifier_names
-
+import 'package:bootstrap_dart/bootstrap/bootstrap_core.dart';
 import 'package:web_client/prelude.dart';
-
-enum AxisAlign {
-  start,
-  end,
-  center,
-  stretch,
-  space_around,
-  space_between,
-  space_evenly,
-  baseline,
-}
-
-extension MainAxisAlignExt on AxisAlign {
-  String get nameHtml => toString().split('.').last.replaceAll('_', '-');
-}
-
-enum FlexWrap {
-  wrap,
-  wrap_reverse,
-  nowrap,
-}
 
 enum FlexDirection {
   row,
   column,
-}
-
-extension FlexWrapExt on FlexWrap {
-  String get nameHtml => toString().split('.').last.replaceAll('_', '-');
 }
 
 String flexStyle({
@@ -52,7 +26,7 @@ String flexCenter(FlexDirection direction) {
   );
 }
 
-class Col extends StatelessObserverComponent {
+class Col extends StatelessComponent {
   const Col(
     this.children, {
     super.key,
@@ -60,6 +34,7 @@ class Col extends StatelessObserverComponent {
     this.cross = AxisAlign.center,
     this.wrap,
     this.styles,
+    this.classes,
   });
 
   final List<Component> children;
@@ -67,10 +42,12 @@ class Col extends StatelessObserverComponent {
   final AxisAlign cross;
   final FlexWrap? wrap;
   final Styles? styles;
+  final List<String>? classes;
 
   @override
   Iterable<Component> build(BuildContext context) sync* {
     yield div(
+      classes: classes,
       attributes: {
         'style': flexStyle(
               direction: FlexDirection.column,
@@ -85,7 +62,7 @@ class Col extends StatelessObserverComponent {
   }
 }
 
-class Row extends StatelessObserverComponent {
+class Row extends StatelessComponent {
   const Row(
     this.children, {
     super.key,
@@ -93,6 +70,7 @@ class Row extends StatelessObserverComponent {
     this.cross = AxisAlign.center,
     this.wrap,
     this.styles,
+    this.classes,
   });
 
   final List<Component> children;
@@ -100,10 +78,12 @@ class Row extends StatelessObserverComponent {
   final AxisAlign cross;
   final FlexWrap? wrap;
   final Styles? styles;
+  final List<String>? classes;
 
   @override
   Iterable<Component> build(BuildContext context) sync* {
     yield div(
+      classes: classes,
       attributes: {
         'style': flexStyle(
               direction: FlexDirection.row,

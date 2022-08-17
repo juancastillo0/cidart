@@ -1,71 +1,41 @@
+import 'package:bootstrap_dart/bootstrap/bootstrap_core.dart';
+import 'package:bootstrap_dart/bootstrap/icons.dart';
+import 'package:bootstrap_dart/bootstrap/modal.dart';
+import 'package:jaspr_bootstrap/jaspr_bootstrap.dart';
+import 'package:web_client/service_compiler_form.dart';
+
 import 'compiler_models.dart';
-import 'compiler_store.dart';
 import 'prelude.dart';
 
-class CompilerDashboardView extends StatelessObserverComponent {
+class CompilerDashboardView extends StatelessComponent {
   const CompilerDashboardView({super.key});
 
   @override
   Iterable<Component> build(BuildContext context) sync* {
-    final gitRepo = useTextInput('juancastillo0/room_signals');
-    final gitBranch = useTextInput('main');
-    final store = context.pod(DashboardStore.pod);
-    final cliCommands = store.cliCommands;
-
-    useComputed(() {
-      print(cliCommands.toList());
-    });
+    final modalState = useModal(context.bootstrapCtx);
 
     yield Col(cross: AxisAlign.stretch, [
-      div(key: Key('gitInputs'), [
-        label(
-          attributes: {'for': 'gitRepo'},
-          [Text('Git Repo')],
-        ),
-        input(
-          id: 'gitRepo',
-          type: InputType.text,
-          value: gitRepo.value,
-          events: gitRepo.events,
-          styles: Styles.raw({'width': '200px'}),
-          [],
-        ),
-        label(
-          attributes: {'for': 'gitBranch'},
-          [Text('Git Branch')],
-        ),
-        input(
-          id: 'gitBranch',
-          type: InputType.text,
-          value: gitBranch.value,
-          events: gitBranch.events,
-          [],
-        ),
-      ]),
+      const ServiceCompilerForm(),
       Row(main: AxisAlign.space_between, [
-        h2([Text('Commands')]),
-        button(
-          id: 'addCommand',
-          events: {
-            'click': (_) {
-              cliCommands.add(CliCommand());
-            }
-          },
-          [Text('Add')],
-        ),
-      ]),
-      div(key: Key('commands'), [
-        ...cliCommands.mapIndexed(
-          (i, e) => CliCommandInput(
-            key: ValueKey(e),
-            // onChanged: (newValue) => cliCommands[i] = newValue,
-            value: e,
-            onRemove: store.removeCommand,
+        h2([Text('Logs')]),
+        modal(
+          id: 'logs-config-modal',
+          dialog: modalDialog(
+            dialogClass: modalDialogClass(),
+            body: [const LogSettingsModal()],
           ),
+          modalRef: modalState.ref,
         ),
-      ]),
-      Row(main: AxisAlign.space_between, [
-        h2([Text('Logs')])
+        button(
+          classes: [btn(outlined: true)],
+          events: {
+            'click': (event) => modalState.toggle(),
+          },
+          [
+            icon(BIcon.sliders, style: 'padding-right:5px;'),
+            Text('Config'),
+          ],
+        )
       ]),
       div(key: Key('logs'), [
         ...compilations.map(
@@ -75,12 +45,27 @@ class CompilerDashboardView extends StatelessObserverComponent {
           ),
         ),
       ]),
-      Space.vMid,
+      AppSpace.vMid,
     ]);
   }
 }
 
-class DateString extends StatelessObserverComponent {
+class LogSettingsModal extends StatelessComponent {
+  const LogSettingsModal({super.key});
+
+  @override
+  Iterable<Component> build(BuildContext context) sync* {
+    yield span(
+      styles: Styles.raw({
+        'font-size': '0.9em',
+        'font-family': 'monospace',
+      }),
+      [Text('Show Dates')],
+    );
+  }
+}
+
+class DateString extends StatelessComponent {
   const DateString(this.value, {super.key});
 
   final DateTime value;
@@ -97,7 +82,7 @@ class DateString extends StatelessObserverComponent {
   }
 }
 
-class CompilationView extends StatelessObserverComponent {
+class CompilationView extends StatelessComponent {
   const CompilationView({
     super.key,
     required this.value,
@@ -110,62 +95,64 @@ class CompilationView extends StatelessObserverComponent {
   @override
   Iterable<Component> build(BuildContext context) sync* {
     yield Col(
-        cross: AxisAlign.stretch,
-        styles: Styles.raw({
-          'padding': '10px',
-          'background': '#fafafa',
-          'margin-bottom': '12px',
-          'border-radius': '10px',
-        }),
-        [
-          Row(main: AxisAlign.space_between, [
-            h3(
-              styles: Styles.raw({'margin': '4px'}),
-              [Text('${value.gitRepo}/${value.gitBranch}')],
+      cross: AxisAlign.stretch,
+      styles: Styles.raw({
+        'padding': '10px',
+        'background': '#fafafa',
+        'margin-bottom': '12px',
+        'border-radius': '10px',
+      }),
+      [
+        Row(main: AxisAlign.space_between, [
+          h3(
+            styles: Styles.raw({'margin': '4px'}),
+            [Text('${value.gitRepo}/${value.gitBranch}')],
+          ),
+          span([Text(value.status.name)]),
+        ]),
+        Row([
+          span([Text('commit: ${value.commitHash}')]),
+        ]),
+        AppSpace.vSmall,
+        Row(main: AxisAlign.space_between, [
+          span(
+            styles: Styles.raw({'font-family': 'monospace'}),
+            [Text(value.serverFile)],
+          ),
+          DateString(value.startTime),
+          if (value.endTime != null) DateString(value.endTime!),
+        ]),
+        h4([Text('Logs')]),
+        div(
+          styles: Styles.raw({'border-left': 'rgba(0,0,0,0.3) solid 1px'}),
+          [
+            ...value.logs.map(
+              (e) => div(
+                styles: Styles.raw({
+                  'padding': '10px',
+                  'border-bottom': 'rgba(0,0,0,0.3) solid 1px'
+                }),
+                [
+                  Row([
+                    span(
+                      styles: Styles.raw({'flex': '1'}),
+                      [Text(e.message)],
+                    ),
+                    DateString(e.time),
+                  ]),
+                  if (e.command != null)
+                    CommandExecutionView(value: e.command!),
+                ],
+              ),
             ),
-            span([Text(value.status.name)]),
-          ]),
-          Row([
-            span([Text('commit: ${value.commitHash}')]),
-          ]),
-          Space.vSmall,
-          Row(main: AxisAlign.space_between, [
-            span(
-              styles: Styles.raw({'font-family': 'monospace'}),
-              [Text(value.serverFile)],
-            ),
-            DateString(value.startTime),
-            if (value.endTime != null) DateString(value.endTime!),
-          ]),
-          h4([Text('Logs')]),
-          div(
-              styles: Styles.raw({'border-left': 'rgba(0,0,0,0.3) solid 1px'}),
-              [
-                ...value.logs.map(
-                  (e) => div(
-                    styles: Styles.raw({
-                      'padding': '10px',
-                      'border-bottom': 'rgba(0,0,0,0.3) solid 1px'
-                    }),
-                    [
-                      Row([
-                        span(
-                          styles: Styles.raw({'flex': '1'}),
-                          [Text(e.message)],
-                        ),
-                        DateString(e.time),
-                      ]),
-                      if (e.command != null)
-                        CommandExecutionView(value: e.command!),
-                    ],
-                  ),
-                ),
-              ]),
-        ]);
+          ],
+        ),
+      ],
+    );
   }
 }
 
-class CommandExecutionView extends StatelessObserverComponent {
+class CommandExecutionView extends StatelessComponent {
   const CommandExecutionView({
     super.key,
     required this.value,
@@ -213,7 +200,7 @@ class CommandExecutionView extends StatelessObserverComponent {
         Col([
           Row([
             span([Text('ExitCode: ${result.exitCode}')]),
-            Space.hSmall,
+            AppSpace.hSmall,
             span([Text('PID: ${result.pid}')]),
           ]),
           if (result.stderr.isNotEmpty) ...[
@@ -229,78 +216,8 @@ class CommandExecutionView extends StatelessObserverComponent {
   }
 }
 
-class CliCommandInput extends StatelessObserverComponent {
-  const CliCommandInput({
-    super.key,
-    required this.value,
-    this.onRemove,
-  });
 
-  final CliCommand value;
-  final void Function(CliCommand)? onRemove;
-
-  @override
-  Iterable<Component> build(BuildContext context) sync* {
-    final name = useTextInput(value.name);
-    final command = useTextInput(value.command);
-
-    useComputed(() {
-      value.name = name.value;
-      value.command = command.value;
-    });
-
-    yield Row(cross: AxisAlign.end, [
-      Col([
-        label(htmlFor: '${value.hashCode}-name', [Text('ID')]),
-        input(
-          id: '${value.hashCode}-name',
-          type: InputType.text,
-          value: name.value,
-          events: name.events,
-          styles: Styles.raw({'width': '120px'}),
-          [],
-        ),
-      ]),
-      Space.hSmall,
-      div(styles: Styles.raw({'flex': '1', 'padding': ''}), [
-        Col([
-          label(htmlFor: '${value.hashCode}-command', [Text('Command')]),
-          input(
-            id: '${value.hashCode}-command',
-            type: InputType.text,
-            value: command.value,
-            events: command.events,
-            styles: Styles.box(width: Unit.percent(100)),
-            [],
-          ),
-        ]),
-      ]),
-      button(
-        key: Key('clear'),
-        events: {
-          'click': (_) {
-            command.value = '';
-          }
-        },
-        [Text('Clear')],
-      ),
-      if (onRemove != null) ...[
-        Space.hSmall,
-        button(
-          key: Key('remove'),
-          events: {
-            'click': (_) {
-              onRemove!(value);
-            }
-          },
-          [Text('Remove')],
-        ),
-      ]
-    ]);
-  }
-}
-
-// class CliCommandInput extends StatelessObserverComponent {
+// class CliCommandInput extends StatelessComponent {
 //   const CliCommandInput({
 //     super.key,
 //     required this.value,
