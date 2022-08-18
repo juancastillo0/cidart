@@ -5,6 +5,7 @@ args:packages/args/
 async:packages/async/
 bazel_worker:packages/bazel_worker/
 binary_codec:packages/binary_codec/
+bootstrap_dart:packages/bootstrap_dart/
 browser_launcher:packages/browser_launcher/
 build:packages/build/
 build_config:packages/build_config/
@@ -16,7 +17,9 @@ build_runner_core:packages/build_runner_core/
 build_web_compilers:packages/build_web_compilers/
 built_collection:packages/built_collection/
 built_value:packages/built_value/
+charcode:packages/charcode/
 checked_yaml:packages/checked_yaml/
+cli_repl:packages/cli_repl/
 clock:packages/clock/
 code_builder:packages/code_builder/
 collection:packages/collection/
@@ -28,7 +31,6 @@ dds:packages/dds/
 devtools:packages/devtools/
 devtools_server:packages/devtools_server/
 devtools_shared:packages/devtools_shared/
-domino:packages/domino/
 dwds:packages/dwds/
 file:packages/file/
 fixnum:packages/fixnum/
@@ -43,6 +45,7 @@ http_parser:packages/http_parser/
 intl:packages/intl/
 io:packages/io/
 jaspr:packages/jaspr/
+jaspr_bootstrap:packages/jaspr_bootstrap/
 js:packages/js/
 json_annotation:packages/json_annotation/
 json_rpc_2:packages/json_rpc_2/
@@ -53,6 +56,8 @@ meta:packages/meta/
 mime:packages/mime/
 mobx:packages/mobx/
 mobx_codegen:packages/mobx_codegen/
+mobx_hooks_experiment:packages/mobx_hooks_experiment/
+node_interop:packages/node_interop/
 package_config:packages/package_config/
 path:packages/path/
 pedantic:packages/pedantic/
@@ -60,6 +65,9 @@ pool:packages/pool/
 protobuf:packages/protobuf/
 pub_semver:packages/pub_semver/
 pubspec_parse:packages/pubspec_parse/
+quiver:packages/quiver/
+sass:packages/sass/
+sass_builder:packages/sass_builder/
 scratch_space:packages/scratch_space/
 shelf:packages/shelf/
 shelf_gzip:packages/shelf_gzip/
@@ -77,7 +85,10 @@ stream_transform:packages/stream_transform/
 string_scanner:packages/string_scanner/
 term_glyph:packages/term_glyph/
 timing:packages/timing/
+tuple:packages/tuple/
 typed_data:packages/typed_data/
+universal_html:packages/universal_html/
+universal_io:packages/universal_io/
 usage:packages/usage/
 uuid:packages/uuid/
 vm_service:packages/vm_service/
