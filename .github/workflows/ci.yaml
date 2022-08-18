@@ -18,6 +18,8 @@ jobs:
         with:
           sdk: ${{ matrix.sdk }}
 
+      - run: dart pub global activate webdev
+
       - id: install_client
         name: Install dependencies
         run: dart pub get --directory=dart_client
@@ -60,7 +62,8 @@ jobs:
 
       - id: build_web
         name: Build web client
-        run: cd web_client && dart run jaspr build --input web/main.dart
+        # run: cd web_client && dart run jaspr build --input web/main.dart
+        run: cd web_client && webdev build
         if: always() && steps.install_web_client.outcome == 'success'
 
       - run: mv web_client/build/app web_client/build/web/app
