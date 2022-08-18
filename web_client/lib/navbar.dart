@@ -5,8 +5,7 @@ import 'package:bootstrap_dart/bootstrap/icons.dart';
 import 'package:bootstrap_dart/bootstrap/navbar.dart';
 import 'package:web_client/compiler_store.dart';
 import 'package:web_client/prelude.dart';
-
-import 'dark_mode.dart';
+import 'package:web_client/src/theme.dart';
 
 class AppNavbar extends StatelessComponent {
   const AppNavbar({super.key});
@@ -14,19 +13,20 @@ class AppNavbar extends StatelessComponent {
   @override
   Iterable<Component> build(BuildContext context) sync* {
     final store = context.pod(DashboardStore.pod);
-    final inDarkMode = useObs(() => darkMode.inDarkMode);
 
     yield navbar(
       expand: ResponsiveBreakPoint.md,
       brand: [Text('CIDart')],
       position: NavbarPosition.sticky_top,
+      collapseId: 'nav-bar-collapse',
       // background: BColor.dark,
       // dark: true,
       // navbarClass: 'bg-transparent',
       attributes: {
-        'style': inDarkMode.value
-            ? 'background:var(--bs-dark);' // bs-body-bg-alt
-            : 'background:var(--bs-white-alt);',
+        'style': 'background:${BTheme.modeColor};',
+        // inDarkMode.value
+        //     ? 'background:var(--bs-dark);' // bs-body-bg-alt
+        //     : 'background:var(--bs-light);', //  var(--bs-body-bg-alt) white-alt
       },
       itemList: [
         select(
@@ -48,21 +48,25 @@ class AppNavbar extends StatelessComponent {
             )
           ],
         ),
-        label(
-          attributes: {
-            'style': 'margin-bottom:3px;',
-            'for': 'darkmode-switch',
-          },
-          [Text('Dark')],
-        ),
-        check(
-          id: 'darkmode-switch',
-          type: CheckType.switch_,
-          checked: inDarkMode.value,
-          onChange: (_) {
-            darkMode.toggleDarkMode();
-            inDarkMode.value = !inDarkMode.value;
-          },
+        div(
+          classes: ['d-flex'],
+          [
+            label(
+              attributes: {
+                'style': 'margin-bottom:3px;',
+                'for': 'darkmode-switch',
+              },
+              [Text('Dark')],
+            ),
+            check(
+              id: 'darkmode-switch',
+              type: CheckType.switch_,
+              checked: BTheme.inDarkMode,
+              onChange: (_) {
+                BTheme.toggleDarkMode();
+              },
+            ),
+          ],
         ),
         a(
           href: 'https://github.com/juancastillo0/cidart',

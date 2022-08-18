@@ -45,64 +45,70 @@ class App extends StatelessComponent {
 
     yield Col(cross: AxisAlign.stretch, [
       const AppNavbar(),
-      div(classes: [
-        'container'
-      ], [
-        Row([
-          labeledInput(
-            label: Text('Authorization'),
-            id: 'authorization',
-            input: input(
-              id: 'authorization',
-              classes: [formControlClass()],
-              type: InputType.text,
-              value: auth.value,
-              events: auth.events,
-              [],
-            ),
-          ),
-          button(
-            id: 'refresh',
-            classes: [btn()],
-            events: {
-              'click': (_) {
-                print('dwd');
-                auth.value = 'kk';
-              }
-            },
-            [Text('Refresh')],
-          ),
-          label(
-            styles: labelPadding,
-            attributes: {'for': 'selectedDeployment'},
-            [Text('Commit Hash')],
-          ),
-          select(
-            id: 'selectedDeployment',
-            events: selectedDeployment.events,
+      div(
+        classes: ['container'],
+        [
+          Row(
+            classes: ['my-2'],
             [
-              ...deployments.keys.map(
-                (e) => option(
-                  selected: e == selectedDeployment.value,
-                  label: e,
-                  value: e,
-                  [],
-                ),
-              )
+              label(
+                attributes: {'for': 'authorization'},
+                [Text('Authorization')],
+              ),
+              input(
+                id: 'authorization',
+                classes: [formControlClass()],
+                type: InputType.password,
+                value: auth.value,
+                events: auth.events,
+                styles: Styles.raw({'max-width': '200px;'}),
+                [],
+              ),
+              button(
+                id: 'refresh',
+                classes: [btn()],
+                events: {
+                  'click': (_) {
+                    auth.value = '';
+                  }
+                },
+                [Text('Refresh')],
+              ),
+              label(
+                styles: labelPadding,
+                attributes: {'for': 'selectedDeployment'},
+                [Text('Commit Hash')],
+              ),
+              select(
+                id: 'selectedDeployment',
+                events: selectedDeployment.events,
+                classes: [formSelectClass()],
+                styles: Styles.raw({'max-width': '200px;'}),
+                [
+                  ...deployments.keys.map(
+                    (e) => option(
+                      selected: e == selectedDeployment.value,
+                      label: e,
+                      value: e,
+                      [],
+                    ),
+                  )
+                ],
+              ),
             ],
           ),
-        ]),
-        h3([Text('Output')]),
-        div([
-          ...deployment.map(
-            (e) => div(
-              styles: Styles.box(padding: EdgeInsets.all(Unit.pixels(12))),
-              [Text(e)],
+          h3([Text('Output')]),
+          div([
+            ...deployment.map(
+              (e) => div(
+                styles: Styles.box(padding: EdgeInsets.all(Unit.pixels(12))),
+                [Text(e)],
+              ),
             ),
-          ),
-        ]),
-        const CompilerDashboardView(),
-      ]),
+          ]),
+          const CompilerDashboardView(),
+        ],
+      ),
     ]);
   }
 }

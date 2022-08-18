@@ -18,45 +18,60 @@ class ServiceCompilerForm extends StatelessComponent {
     useComputed(() {
       print(cliCommands.toList());
     });
+    // final colClasses = ColInputClasses(input: 'col-9', label: 'col-3');
+
     yield div([
       div(key: Key('gitInputs'), [
         h3([Text('Service Config')]),
-        label(
-          attributes: {'for': 'gitRepo'},
-          [Text('Git Repo')],
-        ),
-        input(
-          id: 'gitRepo',
-          type: InputType.text,
-          classes: [formControlClass()],
-          value: gitRepo.value,
-          events: gitRepo.events,
-          styles: Styles.raw({'width': '200px'}),
-          [],
-        ),
-        label(
-          attributes: {'for': 'gitBranch'},
-          [Text('Git Branch')],
-        ),
-        input(
-          id: 'gitBranch',
-          type: InputType.text,
-          classes: [formControlClass()],
-          value: gitBranch.value,
-          events: gitBranch.events,
-          [],
-        ),
         labeledInput(
-          label: Text('Server File'),
+          label: Text('Git Repo'),
+          id: 'gitRepo',
+          wrapperDivClass: 'mb-2',
+          // colClasses: colClasses,
+          // divClass: 'row',
           input: input(
-            id: 'serverFileExecutable',
+            id: 'gitRepo',
             type: InputType.text,
             classes: [formControlClass()],
-            value: serverFile.value,
-            events: serverFile.events,
+            value: gitRepo.value,
+            events: gitRepo.events,
             [],
           ),
-          id: 'serverFileExecutable',
+        ),
+        div(
+          classes: ['row'],
+          [
+            labeledInput(
+              label: Text('Git Branch'),
+              id: 'gitBranch',
+              wrapperDivClass: 'col-md-6 col-12 mb-2',
+              // colClasses: colClasses,
+              // divClass: 'row',
+              input: input(
+                id: 'gitBranch',
+                type: InputType.text,
+                classes: [formControlClass()],
+                value: gitBranch.value,
+                events: gitBranch.events,
+                [],
+              ),
+            ),
+            labeledInput(
+              label: Text('Server File'),
+              id: 'serverFileExecutable',
+              wrapperDivClass: 'col-md-6 col-12 mb-2',
+              // colClasses: colClasses,
+              // divClass: 'row',
+              input: input(
+                id: 'serverFileExecutable',
+                type: InputType.text,
+                classes: [formControlClass()],
+                value: serverFile.value,
+                events: serverFile.events,
+                [],
+              ),
+            ),
+          ],
         ),
       ]),
       Row(
@@ -129,6 +144,7 @@ class CliCommandInput extends StatelessComponent {
         input(
           id: '${value.hashCode}-name',
           type: InputType.text,
+          classes: [formControlClass()],
           value: name.value,
           events: name.events,
           styles: Styles.raw({'width': '120px'}),
@@ -142,6 +158,7 @@ class CliCommandInput extends StatelessComponent {
           input(
             id: '${value.hashCode}-command',
             type: InputType.text,
+            classes: [formControlClass()],
             value: command.value,
             events: command.events,
             styles: Styles.box(width: Unit.percent(100)),

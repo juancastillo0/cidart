@@ -9,6 +9,8 @@ class BTheme {
   }();
   static bool get inDarkMode => _inDarkMode.value;
 
+  static void toggleDarkMode() => darkMode.toggleDarkMode();
+
   static const String blue = '--bs-blue'; //  #0d6efd;
   static const String indigo = '--bs-indigo'; //  #6610f2;
   static const String purple = '--bs-purple'; //  #6f42c1;
