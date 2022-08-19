@@ -2,14 +2,15 @@ import 'package:bootstrap_dart/dark_mode/dark_mode.dart';
 import 'package:mobx/mobx.dart';
 
 class BTheme {
-  static final Observable<bool> _inDarkMode = () {
-    final obs = Observable<bool>(darkMode.inDarkMode);
-    darkMode.inDarkModeChanges.listen((event) => obs.value = event);
-    return obs;
-  }();
-  static bool get inDarkMode => _inDarkMode.value;
-
-  static void toggleDarkMode() => darkMode.toggleDarkMode();
+  static final DarkMode _darkMode = DarkMode(inDarkModeValue: (inDarkMode) {
+    final obs = Observable<bool>(inDarkMode);
+    return SavedValue(
+      get: () => obs.value,
+      set: (newValue) => obs.value = newValue,
+    );
+  });
+  static bool get inDarkMode => _darkMode.inDarkMode;
+  static void toggleDarkMode() => _darkMode.toggleDarkMode();
 
   static const String blue = '--bs-blue'; //  #0d6efd;
   static const String indigo = '--bs-indigo'; //  #6610f2;
