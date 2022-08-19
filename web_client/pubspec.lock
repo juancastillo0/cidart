@@ -55,7 +55,7 @@ packages:
     description:
       path: "."
       ref: HEAD
-      resolved-ref: eed5a3ceaf4841fa49050f364b9eb1725acc8a5b
+      resolved-ref: ac68f4222cdc697330174e41ce4342d844bea083
       url: "https://github.com/juancastillo0/bootstrap_dart.git"
     source: git
     version: "1.0.0"
@@ -247,7 +247,7 @@ packages:
       name: file
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "6.1.3"
+    version: "6.1.4"
   fixnum:
     dependency: transitive
     description:
@@ -339,7 +339,7 @@ packages:
     description:
       path: "packages/jaspr_bootstrap"
       ref: HEAD
-      resolved-ref: "7a10dfb240c5ec6c06bd6b3788265c13783bc19e"
+      resolved-ref: ac68f4222cdc697330174e41ce4342d844bea083
       url: "https://github.com/juancastillo0/bootstrap_dart.git"
     source: git
     version: "0.0.1"
@@ -477,7 +477,7 @@ packages:
       name: pubspec_parse
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.2.0"
+    version: "1.2.1"
   quiver:
     dependency: transitive
     description:

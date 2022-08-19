@@ -47,6 +47,7 @@ class App extends StatelessComponent {
       const AppNavbar(),
       div(
         classes: ['container'],
+        styles: Styles.raw({'max-width': '900px'}),
         [
           Row(
             classes: ['my-2'],

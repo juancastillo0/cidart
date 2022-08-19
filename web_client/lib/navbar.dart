@@ -3,6 +3,7 @@ import 'package:bootstrap_dart/bootstrap/checks_radios.dart';
 import 'package:bootstrap_dart/bootstrap/form.dart';
 import 'package:bootstrap_dart/bootstrap/icons.dart';
 import 'package:bootstrap_dart/bootstrap/navbar.dart';
+import 'package:bootstrap_dart/bootstrap/tooltip_popover.dart';
 import 'package:web_client/compiler_store.dart';
 import 'package:web_client/prelude.dart';
 import 'package:web_client/src/theme.dart';
@@ -68,13 +69,23 @@ class AppNavbar extends StatelessComponent {
             ),
           ],
         ),
-        a(
-          href: 'https://github.com/juancastillo0/cidart',
-          [
-            icon(
-              BIcon.github,
-              fontSize: '1.7em',
-              style: 'margin-left:8px;margin-right:8px;',
+        tooltipWrapper(
+          title: 'Github Repo',
+          attributes: tooltipAttributes(
+            placement: TooltipPlacement.left,
+            triggers: [TooltipTrigger.hover],
+          ),
+          children: [
+            a(
+              href: 'https://github.com/juancastillo0/cidart',
+              target: Target.blank,
+              [
+                icon(
+                  BIcon.github,
+                  fontSize: '1.7em',
+                  style: 'margin-left:8px;margin-right:8px;',
+                ),
+              ],
             ),
           ],
         ),
