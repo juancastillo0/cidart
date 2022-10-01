@@ -83,4 +83,42 @@ main() {
     expect(topResult.parsedData, isNotNull);
     expect(topResult.parsedData?.topOutput, null);
   });
+
+  test('parsing error', () async {
+    final link = WebSocketLink(
+      'ws://${server.address.address}:${server.port}/graphql-subscription',
+      subProtocol: GraphQLProtocol.graphqlTransportWs,
+    );
+
+    SubscriptionError? error;
+    try {
+      final top = await link
+          .request(
+            Request(
+              operation: Operation(
+                document: gql.parseString('{wrongQuery}'),
+              ),
+            ),
+          )
+          .first;
+      print('topOutput ${top.data}');
+    } catch (e) {
+      error = e as SubscriptionError;
+    }
+
+    expect(error?.payload, [
+      {
+        'message': 'Cannot query field "wrongQuery" on type "Query".',
+        'locations': [
+          {'line': 1, 'column': 2}
+        ],
+        'extensions': {
+          'validationError': {
+            'spec': 'https://spec.graphql.org/draft/#sec-Field-Selections',
+            'code': 'fieldsOnCorrectType'
+          }
+        }
+      }
+    ]);
+  });
 }
