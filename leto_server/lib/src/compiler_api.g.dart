@@ -251,7 +251,7 @@ GraphQLObjectType<ServiceConfigValidation>
 // **************************************************************************
 
 /// The arguments for [validateServiceConfig].
-class ValidateServiceConfigArgs with ToJson {
+class ValidateServiceConfigArgs with ValidaToJson {
   final Ctx<dynamic> ctx;
   final ServiceConfigInput config;
 
@@ -365,7 +365,7 @@ class ValidateServiceConfigArgsValidation extends Validation<
 }
 
 /// The arguments for [compilations].
-class CompilationsArgs with ToJson {
+class CompilationsArgs with ValidaToJson {
   final Ctx<dynamic> ctx;
   final List<CompilationFilter>? anyOf;
 
