@@ -10,10 +10,12 @@ import 'package:dart_client/dart_client.dart';
 import '../bin/server.dart';
 
 main() {
+  const adminSecret = 'admin-secret-22';
   late HttpServer server;
 
   setUp(() async {
     server = await createServer(
+      adminSecret: adminSecret,
       globalVariables: ScopedMap(
         overrides: [
           randomRef.override((scope) => Random(42)),
@@ -88,6 +90,9 @@ main() {
     final link = WebSocketLink(
       'ws://${server.address.address}:${server.port}/graphql-subscription',
       subProtocol: GraphQLProtocol.graphqlTransportWs,
+      config: SocketClientConfig(
+        headers: {'authorization': adminSecret},
+      ),
     );
 
     SubscriptionError? error;

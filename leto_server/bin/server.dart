@@ -26,6 +26,7 @@ void main(List<String> arguments) async {
 
 Future<HttpServer> createServer({
   ScopedMap? globalVariables,
+  String? adminSecret,
 }) async {
   recreateGraphQLApiSchema();
   final clientQueries = await readClientGraphQLFiles();
@@ -35,7 +36,7 @@ Future<HttpServer> createServer({
     clientQueries,
     globalVariables: globalVariables,
   );
-  final server = startCompilerServer(router);
+  final server = startCompilerServer(router, adminSecret: adminSecret);
 
   return server;
 }
@@ -215,11 +216,15 @@ Router makeCompilerRouter(
   return router;
 }
 
-Future<HttpServer> startCompilerServer(Router router) async {
+Future<HttpServer> startCompilerServer(
+  Router router, {
+  String? adminSecret,
+}) async {
   // Use any available host or container IP (usually `0.0.0.0`).
   final ip = InternetAddress.anyIPv4;
   final server = await HttpServer.bind(ip, 8060);
-  final adminPassword = Platform.environment['COMPILER_ADMIN_PASSWORD'];
+  final adminPassword =
+      adminSecret ?? Platform.environment['COMPILER_ADMIN_PASSWORD'];
 
   // Configure a pipeline that logs requests.
   final handler = Pipeline()
